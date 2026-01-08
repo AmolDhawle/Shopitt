@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import { errorMiddleware } from "@shopitt/error-handler";
 
 const port = process.env.PORT ? Number(process.env.PORT) : 6001;
 
@@ -12,6 +13,8 @@ app.use(
     credentials: true,
   })
 );
+
+app.use(errorMiddleware);
 
 app.get("/", (req, res) => {
   res.send({ message: "Hello API" });

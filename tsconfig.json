@@ -14,6 +14,12 @@
     },
     {
       "path": "./apps/api-gateway"
+    },
+    {
+      "path": "./libs/error-handler"
     }
-  ]
+  ],
+  "compilerOptions": {
+    "allowImportingTsExtensions": true
+  }
 }
