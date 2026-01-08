@@ -2,18 +2,28 @@
   "name": "@shopitt/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "dev": "npx nx run-many --target=serve --all"
+  },
   "private": true,
   "dependencies": {
-    "axios": "^1.6.0",
-    "express": "^4.21.2"
+    "axios": "^1.13.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "express-http-proxy": "^2.1.2",
+    "express-rate-limit": "^8.2.1",
+    "morgan": "^1.10.1",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@nx/docker": "22.3.3",
     "@nx/esbuild": "22.3.3",
+    "@nx/express": "^22.3.3",
     "@nx/jest": "22.3.3",
     "@nx/js": "22.3.3",
     "@nx/node": "22.3.3",
+    "@nx/webpack": "^22.3.3",
     "@nx/workspace": "22.3.3",
     "@swc-node/register": "~1.9.1",
     "@swc/core": "~1.5.7",
@@ -21,6 +31,7 @@
     "@swc/jest": "~0.2.38",
     "@types/express": "^4.17.21",
     "@types/jest": "^30.0.0",
+    "@types/morgan": "^1.9.10",
     "@types/node": "20.19.9",
     "esbuild": "^0.19.2",
     "jest": "^30.0.2",
@@ -30,7 +41,9 @@
     "ts-jest": "^29.4.0",
     "ts-node": "10.9.1",
     "tslib": "^2.3.0",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "webpack": "^5.104.1",
+    "webpack-cli": "^6.0.1"
   },
   "workspaces": [
     "apps/*"
