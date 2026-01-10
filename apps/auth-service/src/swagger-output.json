@@ -7,9 +7,7 @@
   },
   "host": "localhost:6001",
   "basePath": "/",
-  "schemes": [
-    "http"
-  ],
+  "schemes": ["http"],
   "paths": {
     "/": {
       "get": {
@@ -52,10 +50,13 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "example": "any"
+                  "example": "Amol"
                 },
                 "email": {
-                  "example": "any"
+                  "example": "amoldhawle22@gmail.com"
+                },
+                "password": {
+                  "example": "password123"
                 }
               }
             }
@@ -79,16 +80,16 @@
               "type": "object",
               "properties": {
                 "email": {
-                  "example": "any"
+                  "example": "amoldhawle22@gmail.com"
                 },
                 "otp": {
-                  "example": "any"
+                  "example": "880151"
                 },
                 "password": {
-                  "example": "any"
+                  "example": "password123"
                 },
                 "name": {
-                  "example": "any"
+                  "example": "Amol"
                 }
               }
             }
@@ -101,7 +102,44 @@
         }
       }
     },
+    "/api/refresh": {
+      "post": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/user-login": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "example": "amoldhawle22@gmail.com"
+                },
+                "password": {
+                  "example": "password123"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/logout": {
       "post": {
         "description": "",
         "responses": {

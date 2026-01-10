@@ -6,9 +6,17 @@ import {
   validateRegistrationData,
   verifyOtp,
 } from "../utils/auth.helper";
-import { ValidationError } from "@shopitt/error-handler";
+import { AuthenticationError, ValidationError } from "@shopitt/error-handler";
 import { prisma } from "@shopitt/prisma-client";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import crypto from "crypto";
+import { setCookie } from "../utils/cookies/setCookie";
+import { checkLoginThrottle } from "../middlewares/auth.middleware";
+
+// Hash the refresh token before storing
+const hashToken = (token: string) =>
+  crypto.createHash("sha256").update(token).digest("hex");
 
 // Register a new user
 export const registerUser = async (
@@ -39,12 +47,10 @@ export const registerUser = async (
 
     await sendOtp(name, email, "user-activation-mail");
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "OTP sent successfully. Please verify your account.",
-      });
+    return res.status(200).json({
+      success: true,
+      message: "OTP sent successfully. Please verify your account.",
+    });
   } catch (error) {
     return next(error);
   }
@@ -87,6 +93,171 @@ export const verifyUser = async (
     return res
       .status(201)
       .json({ success: true, message: "User registered successfully." });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+// Login user
+export const loginUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return next(new ValidationError("Missing required fields"));
+    }
+
+    const existingUser = await prisma.users.findUnique({ where: { email } });
+
+    if (!existingUser || !existingUser.isVerified) {
+      return next(new AuthenticationError("Invalid email or password"));
+    }
+    // Check login throttle
+    await checkLoginThrottle(email, next);
+
+    // Verify password
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      existingUser.password!
+    );
+
+    if (!isPasswordValid) {
+      return next(new AuthenticationError("Invalid email or password"));
+    }
+
+    // Generate JWT tokens
+    const accessToken = jwt.sign(
+      { userId: existingUser.id, role: "user" },
+      process.env.ACCESS_TOKEN_SECRET!,
+      {
+        expiresIn: "15m",
+      }
+    );
+
+    const refreshToken = jwt.sign(
+      { userId: existingUser.id },
+      process.env.REFRESH_TOKEN_SECRET!,
+      { expiresIn: "7d" }
+    );
+
+    await prisma.refreshToken.create({
+      data: {
+        userId: existingUser.id,
+        token: hashToken(refreshToken),
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+    });
+
+    // store the referesh token and access token in httpOnly cookies
+    setCookie(res, "accessToken", accessToken, {
+      httpOnly: true,
+      maxAge: 15 * 60 * 1000, // 15 minutes
+    });
+
+    setCookie(res, "refreshToken", refreshToken, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Login successful",
+      user: {
+        id: existingUser.id,
+        name: existingUser.name,
+        email: existingUser.email,
+      },
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const refreshToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const token = req.cookies.refreshToken;
+    if (!token) {
+      return next(new AuthenticationError("Unauthorized"));
+    }
+
+    const payload = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET!) as {
+      userId: string;
+    };
+
+    const hashed = hashToken(token);
+
+    const storedToken = await prisma.refreshToken.findFirst({
+      where: { token: hashed, userId: payload.userId },
+    });
+
+    if (!storedToken) {
+      return next(new AuthenticationError("Invalid refresh token"));
+    }
+
+    // Rotate token
+    await prisma.refreshToken.delete({ where: { id: storedToken.id } });
+
+    const newAccessToken = jwt.sign(
+      { userId: payload.userId },
+      process.env.ACCESS_TOKEN_SECRET!,
+      { expiresIn: "15m" }
+    );
+
+    const newRefreshToken = jwt.sign(
+      { userId: payload.userId },
+      process.env.REFRESH_TOKEN_SECRET!,
+      { expiresIn: "7d" }
+    );
+
+    await prisma.refreshToken.create({
+      data: {
+        userId: payload.userId,
+        token: hashToken(newRefreshToken),
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+    });
+
+    setCookie(res, "accessToken", newAccessToken, {
+      httpOnly: true,
+      maxAge: 15 * 60 * 1000,
+    });
+
+    setCookie(res, "refreshToken", newRefreshToken, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.json({ success: true });
+  } catch (error) {
+    return next(new AuthenticationError("Invalid refresh token"));
+  }
+};
+
+export const logoutUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const token = req.cookies.refreshToken;
+    if (token) {
+      await prisma.refreshToken.deleteMany({
+        where: { token: hashToken(token) },
+      });
+    }
+
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
+
+    return res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
     return next(error);
   }

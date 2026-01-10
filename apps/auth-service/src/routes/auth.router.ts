@@ -1,5 +1,11 @@
 import express, { Router } from "express";
-import { registerUser, verifyUser } from "../controllers/auth.controller";
+import {
+  loginUser,
+  logoutUser,
+  refreshToken,
+  registerUser,
+  verifyUser,
+} from "../controllers/auth.controller";
 
 const router: Router = express.Router();
 
@@ -7,12 +13,12 @@ router.get("/health", (req, res) => {
   res.send({ status: "Auth Service is healthy" });
 });
 
-router.post("/user-registration", registerUser);
+router.post("/register-user", registerUser);
 router.post("/verify-user", verifyUser);
 
-router.post("/user-login", (req, res) => {
-  // Placeholder for user login logic
-  res.send({ message: "User login endpoint" });
-});
+router.post("/refresh", refreshToken);
+
+router.post("/login-user", loginUser);
+router.post("/logout", logoutUser);
 
 export default router;

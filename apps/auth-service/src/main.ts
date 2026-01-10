@@ -5,6 +5,7 @@ import router from "./routes/auth.router";
 import swaggerUi from "swagger-ui-express";
 import fs from "fs";
 import path from "path";
+import cookieParser from "cookie-parser";
 
 const swaggerPath = path.join(__dirname, "swagger-output.json");
 
@@ -15,6 +16,7 @@ const port = process.env.PORT ? Number(process.env.PORT) : 6001;
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 app.use(
   cors({

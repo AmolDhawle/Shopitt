@@ -45,6 +45,7 @@ test-output
 
 #documentation
 README.doc.md
+README.self.md
 /generated/prisma
 .env
 prisma/
