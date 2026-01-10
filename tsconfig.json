@@ -2,6 +2,7 @@
   "extends": "./tsconfig.base.json",
   "compileOnSave": false,
   "files": [],
+  "include": ["src/**/*.ts", "src/**/*.json"],
   "references": [
     {
       "path": "./apps/auth-service-e2e"
@@ -18,8 +19,10 @@
     {
       "path": "./libs/error-handler"
     }
-  ],
-  "compilerOptions": {
-    "allowImportingTsExtensions": true
-  }
+  ]
+  // "compilerOptions": {
+  //   "allowImportingTsExtensions": true,
+  //   "allowSyntheticDefaultImports": true,
+  //   "esModuleInterop": true
+  // }
 }

@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "composite": true,
     "declarationMap": true,
     "declaration": true,
@@ -17,6 +18,9 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2022",
-    "customConditions": ["@shopitt/source"]
+    "customConditions": ["@shopitt/source"],
+    "paths": {
+      "@shopitt/prisma": ["generated/prisma/*"]
+    }
   }
 }
