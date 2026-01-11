@@ -3,7 +3,7 @@
 
   "compilerOptions": {
     "outDir": "dist",
-    "types": ["node"],
+    "types": ["node", "jest"],
     "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
     "resolveJsonModule": true,
     "esModuleInterop": true

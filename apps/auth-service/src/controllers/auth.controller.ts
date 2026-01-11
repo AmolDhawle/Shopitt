@@ -1,6 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import {
   checkOtpRestrictions,
+  clearPasswordResetState,
+  handleForgotPassword,
+  isPasswordResetVerified,
+  markPasswordResetVerified,
   sendOtp,
   trackOtpRequests,
   validateRegistrationData,
@@ -12,7 +16,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { setCookie } from "../utils/cookies/setCookie";
-import { checkLoginThrottle } from "../middlewares/auth.middleware";
+import { checkLoginThrottle } from "../middlewares/loginThrottle";
 
 // Hash the refresh token before storing
 const hashToken = (token: string) =>
@@ -75,7 +79,7 @@ export const verifyUser = async (
       return next(new ValidationError("User already verified, Please login"));
     }
 
-    await verifyOtp(email, otp, next);
+    await verifyOtp(email, otp);
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -177,6 +181,7 @@ export const loginUser = async (
   }
 };
 
+// Refresh JWT tokens to keep user logged in
 export const refreshToken = async (
   req: Request,
   res: Response,
@@ -241,6 +246,7 @@ export const refreshToken = async (
   }
 };
 
+// Logout user and invalidate tokens
 export const logoutUser = async (
   req: Request,
   res: Response,
@@ -258,6 +264,103 @@ export const logoutUser = async (
     res.clearCookie("refreshToken");
 
     return res.status(200).json({ message: "Logged out successfully" });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+// Handle user forgot password request
+export const userForgotPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  await handleForgotPassword(req, res, next);
+};
+
+export const verifyUserForPasswordReset = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return next(new ValidationError("Email and OTP are required"));
+    }
+
+    const user = await prisma.users.findUnique({ where: { email } });
+
+    if (!user || !user.isVerified) {
+      return next(new ValidationError("Invalid OTP"));
+    }
+
+    await verifyOtp(email, otp);
+
+    // Mark reset permission (Redis / DB)
+    await markPasswordResetVerified(email);
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP verified. You may reset your password.",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Reset user password after OTP verification
+export const resetUserPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { email, newPassword } = req.body;
+
+    if (!email || !newPassword) {
+      return next(new ValidationError("Missing required fields"));
+    }
+
+    const isAllowed = await isPasswordResetVerified(email);
+    if (!isAllowed) {
+      throw new ValidationError(
+        "OTP verification required before resetting password"
+      );
+    }
+
+    const user = await prisma.users.findUnique({ where: { email } });
+
+    if (!user || !user.password) {
+      throw new ValidationError("Invalid request");
+    }
+
+    const isSamePassword = await bcrypt.compare(newPassword, user.password);
+
+    if (isSamePassword) {
+      throw new ValidationError(
+        "New password must be different from old password"
+      );
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await prisma.$transaction([
+      prisma.users.update({
+        where: { email },
+        data: { password: hashedPassword },
+      }),
+      prisma.refreshToken.deleteMany({
+        where: { userId: user.id },
+      }),
+    ]);
+
+    await clearPasswordResetState(email);
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Password reset successfully." });
   } catch (error) {
     return next(error);
   }
