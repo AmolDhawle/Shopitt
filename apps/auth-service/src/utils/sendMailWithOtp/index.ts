@@ -1,9 +1,6 @@
-import nodemailer from "nodemailer";
-// import dotenv from "dotenv";
-import ejs from "ejs";
-import path from "path";
-
-// dotenv.config();
+import nodemailer from 'nodemailer';
+import ejs from 'ejs';
+import path from 'path';
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -19,16 +16,16 @@ const transporter = nodemailer.createTransport({
 // Render EJS template
 export const renderEmailTemplate = async (
   templateName: string,
-  data: Record<string, any>
+  data: Record<string, any>,
 ): Promise<string> => {
   const templatePath = path.join(
     process.cwd(),
-    "apps",
-    "auth-service",
-    "src",
-    "utils",
-    "email-templates",
-    `${templateName}.ejs`
+    'apps',
+    'auth-service',
+    'src',
+    'utils',
+    'email-templates',
+    `${templateName}.ejs`,
   );
 
   return ejs.renderFile(templatePath, data);
@@ -39,7 +36,7 @@ export const sendEmailWithOtp = async (
   to: string,
   subject: string,
   templateName: string,
-  data: Record<string, any>
+  data: Record<string, any>,
 ) => {
   try {
     const htmlContent = await renderEmailTemplate(templateName, data);
@@ -47,7 +44,7 @@ export const sendEmailWithOtp = async (
     const mailOptions = {
       from: process.env.EMAIL_FROM,
       to,
-      subject: "Your OTP Code",
+      subject,
       html: htmlContent,
     };
 
@@ -55,7 +52,7 @@ export const sendEmailWithOtp = async (
 
     return true;
   } catch (error) {
-    console.log("Error sending email", error);
+    console.log('Error sending email', error);
     return false;
   }
 };
