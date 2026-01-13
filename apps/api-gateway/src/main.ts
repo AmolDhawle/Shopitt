@@ -6,11 +6,11 @@
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
-import rateLimit from "express-rate-limit";
-import swaggerUi from "swagger-ui-express";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
+// import swaggerUi from "swagger-ui-express";
 import proxy from "express-http-proxy";
 import cookieParser from "cookie-parser";
-import axios from "axios";
+// import axios from "axios";
 import e from "express";
 
 const app = express();
@@ -27,7 +27,7 @@ app.use(morgan("dev"));
 app.use(express.json({ limit: "100mb" }));
 app.use(express.urlencoded({ extended: true, limit: "100mb" }));
 app.use(cookieParser());
-app.set("trust proxy", 1);
+app.set("trust proxy", 1); // Required when using req.ip + rate limiting behind proxy
 
 // Apply rate limiting to all requests
 const limiter = rateLimit({
@@ -37,7 +37,8 @@ const limiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req: e.Request) => {
-    return req.ip ?? "unknown ip";
+    const ip = req.ip ?? "0.0.0.0";
+    return ipKeyGenerator(ip);
   },
 });
 app.use(limiter);

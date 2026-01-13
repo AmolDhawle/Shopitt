@@ -1,12 +1,14 @@
 {
   "extends": "../../tsconfig.base.json",
+
   "compilerOptions": {
     "outDir": "dist",
-    "types": ["node"],
-    "rootDir": "../../",
-    "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo"
+    "types": ["node", "jest"],
+    "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
+    "resolveJsonModule": true,
+    "esModuleInterop": true
   },
-  "include": ["src/**/*.ts", "../../packages/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.json"],
   "exclude": [
     "out-tsc",
     "dist",
@@ -16,6 +18,12 @@
     "src/**/*.test.ts"
   ],
   "references": [
+    {
+      "path": "../../libs/redis/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/prisma-client/tsconfig.lib.json"
+    },
     {
       "path": "../../libs/error-handler/tsconfig.lib.json"
     }

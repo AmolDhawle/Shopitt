@@ -2,6 +2,13 @@
   "name": "@shopitt/auth-service",
   "version": "0.0.1",
   "private": true,
+  "scripts": {
+    "dev": "node src/main.ts",
+    "test": "jest",
+    "test:unit": "jest --testPathIgnorePatterns=integration",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
   "nx": {
     "targets": {
       "build": {
@@ -20,7 +27,16 @@
           "main": "apps/auth-service/src/main.ts",
           "tsConfig": "apps/auth-service/tsconfig.app.json",
           "assets": [
-            "apps/auth-service/src/assets"
+            {
+              "input": "apps/auth-service/src",
+              "glob": "swagger-output.json",
+              "output": "apps/auth-service/src"
+            },
+            {
+              "input": "apps/auth-service/src/assets",
+              "glob": "**/*",
+              "output": "apps/auth-service/src/assets"
+            }
           ],
           "esbuildOptions": {
             "sourcemap": true,
@@ -85,7 +101,12 @@
         ],
         "options": {
           "buildTarget": "@shopitt/auth-service:build",
-          "runBuildTargetDependencies": false
+          "runBuildTargetDependencies": false,
+          "runtimeArgs": [
+            "--inspect=9230",
+            "-r",
+            "dotenv/config"
+          ]
         },
         "configurations": {
           "development": {
@@ -111,5 +132,12 @@
   },
   "dependencies": {
     "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "@types/ejs": "^3.1.5",
+    "@types/jest": "^30.0.0",
+    "@types/nodemailer": "^7.0.4",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.6"
   }
 }
