@@ -18,6 +18,9 @@
     },
     {
       "path": "./libs/error-handler"
+    },
+    {
+      "path": "./apps/user-ui"
     }
   ]
   // "compilerOptions": {
