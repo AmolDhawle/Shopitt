@@ -29,9 +29,9 @@ const Header = () => {
             <input
               type="text"
               placeholder="Search for products ..."
-              className="w-full px-4 font-Poppins font-normal border-[2.5px] border-[#f3d00c] h-[60px] rounded-md outline-none"
+              className="w-full px-4 font-Poppins font-normal border-[2.5px] border-[#fcd603] h-[60px] rounded-md outline-none"
             />
-            <div className="w-[60px] cursor-pointer flex items-center justify-center h-[60px] border-[2.5px] border-[#f3d00c] absolute right-0 top-0 rounded-md bg-[#f3d00c]">
+            <div className="w-[60px] cursor-pointer flex items-center justify-center h-[60px] border-[2.5px] border-[#fcd603] absolute right-0 top-0 rounded-md bg-[#fcd603]">
               <Search color="white" />
             </div>
           </div>
