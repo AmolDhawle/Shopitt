@@ -1,10 +1,7 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "namedInputs": {
-    "default": [
-      "{projectRoot}/**/*",
-      "sharedGlobals"
-    ],
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
     "production": [
       "default",
       "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
@@ -13,11 +10,18 @@
       "!{projectRoot}/src/test-setup.[jt]s",
       "!{projectRoot}/test-setup.[jt]s"
     ],
-    "sharedGlobals": [
-      "{workspaceRoot}/.github/workflows/ci.yml"
-    ]
+    "sharedGlobals": ["{workspaceRoot}/.github/workflows/ci.yml"]
   },
   "nxCloudId": "695e51996094c97f9f96282e",
+  "projects": {
+    "middleware": {
+      "tags": []
+    },
+    "auth-service": {
+      "tags": [],
+      "implicitDependencies": ["middleware"]
+    }
+  },
   "plugins": [
     {
       "plugin": "@nx/js/typescript",
@@ -31,7 +35,8 @@
           "buildDepsName": "build-deps",
           "watchDepsName": "watch-deps"
         }
-      }
+      },
+      "exclude": ["libs/middleware/*"]
     },
     {
       "plugin": "@nx/jest/plugin",
@@ -40,18 +45,17 @@
       },
       "exclude": [
         "apps/auth-service-e2e/**/*",
-        "apps/api-gateway-e2e/**/*"
+        "apps/api-gateway-e2e/**/*",
+        "apps/middleware-e2e/**/*",
+        "libs/middleware-e2e/**/*",
+        "apps/auth-service/**/*"
       ]
     },
     {
       "plugin": "@nx/docker",
       "options": {
-        "buildTarget": {
-          "name": "docker:build"
-        },
-        "runTarget": {
-          "name": "docker:run"
-        }
+        "buildTarget": { "name": "docker:build" },
+        "runTarget": { "name": "docker:run" }
       }
     },
     {
@@ -64,23 +68,47 @@
         "watchDepsTargetName": "watch-deps",
         "serveStaticTargetName": "serve-static"
       }
+    },
+    {
+      "plugin": "@nx/next/plugin",
+      "options": {
+        "startTargetName": "start",
+        "buildTargetName": "build",
+        "devTargetName": "dev",
+        "serveStaticTargetName": "serve-static",
+        "buildDepsTargetName": "build-deps",
+        "watchDepsTargetName": "watch-deps"
+      }
+    },
+    {
+      "plugin": "@nx/js/typescript",
+      "include": ["libs/middleware/*"],
+      "options": {
+        "typecheck": { "targetName": "typecheck" }
+      }
     }
   ],
   "targetDefaults": {
     "@nx/esbuild:esbuild": {
       "cache": true,
-      "dependsOn": [
-        "^build"
-      ],
-      "inputs": [
-        "production",
-        "^production"
-      ]
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
     },
     "test": {
-      "dependsOn": [
-        "^build"
-      ]
+      "dependsOn": ["^build"]
+    },
+    "@nx/js:tsc": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
+    }
+  },
+  "generators": {
+    "@nx/next": {
+      "application": {
+        "style": "tailwind",
+        "linter": "none"
+      }
     }
   }
 }

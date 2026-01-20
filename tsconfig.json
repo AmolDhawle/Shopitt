@@ -18,6 +18,12 @@
     },
     {
       "path": "./libs/error-handler"
+    },
+    {
+      "path": "./apps/user-ui"
+    },
+    {
+      "path": "./libs/middleware"
     }
   ]
   // "compilerOptions": {

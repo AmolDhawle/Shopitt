@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "../../dist/out-tsc/libs/middleware",
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "types": ["node"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "esnext"
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts"],
+  "references": [
+    {
+      "path": "../prisma-client/tsconfig.lib.json"
+    },
+    {
+      "path": "../error-handler/tsconfig.lib.json"
+    }
+  ]
+}

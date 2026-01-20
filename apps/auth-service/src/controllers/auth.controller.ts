@@ -10,7 +10,13 @@ import {
   validateRegistrationData,
   verifyOtp,
 } from '../utils/auth.helper';
-import { AuthenticationError, ValidationError } from '@shopitt/error-handler';
+import {
+  AuthenticationError,
+  BadRequestError,
+  ForbiddenError,
+  NotFoundError,
+  ValidationError,
+} from '@shopitt/error-handler';
 import { prisma } from '@shopitt/prisma-client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -35,7 +41,7 @@ export const registerUser = async (
     // Check if user already exists and is verified
     const existingUser = await prisma.users.findUnique({ where: { email } });
     if (existingUser && existingUser.isVerified) {
-      return next(new ValidationError('Email already in use'));
+      return next(new BadRequestError('Email already in use'));
     }
 
     // OTP restriction and request tracking
@@ -70,19 +76,17 @@ export const verifyUser = async (
     const { email, otp, password, name } = req.body;
 
     if (!email || !otp || !password || !name) {
-      return next(new ValidationError('Missing required fields'));
+      return next(new BadRequestError('Missing required fields'));
     }
 
     const existingUser = await prisma.users.findUnique({ where: { email } });
 
     if (!existingUser) {
-      return next(
-        new ValidationError('User not found. Please register first.'),
-      );
+      return next(new NotFoundError('User not found. Please register first.'));
     }
 
     if (existingUser.isVerified) {
-      return next(new ValidationError('User already verified, Please login'));
+      return next(new ForbiddenError('User already verified, Please login'));
     }
 
     await verifyOtp(email, otp);
@@ -194,7 +198,7 @@ export const refreshToken = async (
   try {
     const token = req.cookies.refreshToken;
     if (!token) {
-      return next(new AuthenticationError('Unauthorized'));
+      return next(new AuthenticationError('Unauthorized! No refresh token'));
     }
 
     const payload = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET!) as {
@@ -250,6 +254,30 @@ export const refreshToken = async (
   }
 };
 
+// Get current authenticated user
+export const getMe = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void => {
+  try {
+    if (!req.user) {
+      res.status(401).json({
+        success: false,
+        message: 'Unauthorized',
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      user: req.user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Logout user and invalidate tokens
 export const logoutUser = async (
   req: Request,
@@ -291,13 +319,13 @@ export const verifyUserForPasswordReset = async (
     const { email, otp } = req.body;
 
     if (!email || !otp) {
-      return next(new ValidationError('Email and OTP are required'));
+      return next(new BadRequestError('Email and OTP are required'));
     }
 
     const user = await prisma.users.findUnique({ where: { email } });
 
     if (!user || !user.isVerified) {
-      return next(new ValidationError('Invalid OTP'));
+      return next(new AuthenticationError('Invalid OTP'));
     }
 
     await verifyOtp(email, otp);
@@ -324,12 +352,12 @@ export const resetUserPassword = async (
     const { email, newPassword } = req.body;
 
     if (!email || !newPassword) {
-      return next(new ValidationError('Missing required fields'));
+      return next(new BadRequestError('Missing required fields'));
     }
 
     const isAllowed = await isPasswordResetVerified(email);
     if (!isAllowed) {
-      throw new ValidationError(
+      throw new AuthenticationError(
         'OTP verification required before resetting password',
       );
     }
@@ -337,7 +365,7 @@ export const resetUserPassword = async (
     const user = await prisma.users.findUnique({ where: { email } });
 
     if (!user || !user.password) {
-      throw new ValidationError('Invalid request');
+      throw new NotFoundError('Invalid request');
     }
 
     const isSamePassword = await bcrypt.compare(newPassword, user.password);
