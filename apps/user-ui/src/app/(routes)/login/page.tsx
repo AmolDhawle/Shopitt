@@ -144,16 +144,6 @@ const Login = () => {
                   `}
                   {...register('password', {
                     required: 'Password is required',
-                    minLength: {
-                      value: 6,
-                      message: 'Password must be at least 6 characters',
-                    },
-                    pattern: {
-                      value:
-                        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
-                      message:
-                        'Password must include uppercase, lowercase, number, and special character',
-                    },
                   })}
                 />
 

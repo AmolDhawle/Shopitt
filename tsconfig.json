@@ -21,6 +21,9 @@
     },
     {
       "path": "./apps/user-ui"
+    },
+    {
+      "path": "./libs/middleware"
     }
   ]
   // "compilerOptions": {

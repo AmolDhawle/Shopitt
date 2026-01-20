@@ -4,10 +4,13 @@ import { AlignLeft, ChevronDown } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { navItems } from '../../configs/constants';
 import Link from 'next/link';
+import useUser from '../../hooks/useUser';
+import ProfileIcon from '../../assets/svgs/profile-icon';
 
 const HeaderBottom = () => {
   const [show, setShow] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
+  const { user, isLoading } = useUser();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -63,6 +66,44 @@ const HeaderBottom = () => {
                 {item.title}
               </Link>
             ))}
+          </div>
+
+          <div className="flex items-center gap-8 pb-2">
+            {isSticky && (
+              <div className="flex items-center gap-8">
+                <div className="flex items-center gap-2">
+                  {!isLoading && user ? (
+                    <>
+                      <Link href="/login">
+                        <ProfileIcon />
+                      </Link>
+                      <Link href="/login">
+                        <span className="block text-lg text-white font-medium cursor-pointer">
+                          Hello,
+                        </span>
+                        <span className="text-lg text-white font-medium cursor-pointer">
+                          {isLoading ? '...' : user?.name?.split(' ')[0]}
+                        </span>
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <Link href="/login">
+                        <ProfileIcon />
+                      </Link>
+                      <Link href="/login">
+                        <span className="block text-lg text-white font-medium cursor-pointer">
+                          Hello,
+                        </span>
+                        <span className="text-lg text-white font-medium cursor-pointer">
+                          {isLoading ? '...' : 'Sign in'}
+                        </span>
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

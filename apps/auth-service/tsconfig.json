@@ -4,6 +4,9 @@
   "include": ["src/**/*.ts", "src/**/*.json"],
   "references": [
     {
+      "path": "../../libs/middleware"
+    },
+    {
       "path": "../../libs/error-handler"
     },
     {

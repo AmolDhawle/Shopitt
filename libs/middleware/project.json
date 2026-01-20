@@ -1,0 +1,27 @@
+{
+  "name": "middleware",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/middleware/src",
+  "projectType": "library",
+  "tags": [],
+  "// targets": "to see all targets run: nx show project middleware --web",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/middleware",
+        "tsConfig": "libs/middleware/tsconfig.lib.json",
+        "packageJson": "libs/middleware/package.json",
+        "main": "libs/middleware/src/index.ts",
+        "assets": [
+          {
+            "input": "libs/middleware/src/types",
+            "glob": "**/*",
+            "output": "types"
+          }
+        ]
+      }
+    }
+  }
+}

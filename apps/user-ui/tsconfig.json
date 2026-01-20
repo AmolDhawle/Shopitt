@@ -27,7 +27,10 @@
     "../../apps/user-ui/.next/types/**/*.ts",
     "../../dist/apps/user-ui/.next/types/**/*.ts",
 
-    "next-env.d.ts"
+    "next-env.d.ts",
+    "next.config.mjs",
+    "tailwind.config.mjs",
+    "postcss.config.mjs"
   ],
   "exclude": [
     "node_modules",

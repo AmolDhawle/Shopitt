@@ -4,6 +4,8 @@
     "composite": true,
     "declarationMap": true,
     "declaration": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "emitDeclarationOnly": true,
     "importHelpers": true,
     "isolatedModules": true,
@@ -17,10 +19,13 @@
     "noUnusedLocals": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "es2022",
+    "target": "esnext",
     "customConditions": ["@shopitt/source"],
     "paths": {
-      "@shopitt/prisma": ["generated/prisma/*"]
-    }
-  }
+      "@shopitt/prisma": ["generated/prisma/*"],
+      "@shopitt/middleware": ["libs/middleware/src/index.ts"]
+    },
+    "typeRoots": ["./node_modules/@types"]
+  },
+  "references": [{ "path": "libs/middleware" }, { "path": "apps/auth-service" }]
 }

@@ -13,6 +13,15 @@
     "sharedGlobals": ["{workspaceRoot}/.github/workflows/ci.yml"]
   },
   "nxCloudId": "695e51996094c97f9f96282e",
+  "projects": {
+    "middleware": {
+      "tags": []
+    },
+    "auth-service": {
+      "tags": [],
+      "implicitDependencies": ["middleware"]
+    }
+  },
   "plugins": [
     {
       "plugin": "@nx/js/typescript",
@@ -26,24 +35,27 @@
           "buildDepsName": "build-deps",
           "watchDepsName": "watch-deps"
         }
-      }
+      },
+      "exclude": ["libs/middleware/*"]
     },
     {
       "plugin": "@nx/jest/plugin",
       "options": {
         "targetName": "test"
       },
-      "exclude": ["apps/auth-service-e2e/**/*", "apps/api-gateway-e2e/**/*"]
+      "exclude": [
+        "apps/auth-service-e2e/**/*",
+        "apps/api-gateway-e2e/**/*",
+        "apps/middleware-e2e/**/*",
+        "libs/middleware-e2e/**/*",
+        "apps/auth-service/**/*"
+      ]
     },
     {
       "plugin": "@nx/docker",
       "options": {
-        "buildTarget": {
-          "name": "docker:build"
-        },
-        "runTarget": {
-          "name": "docker:run"
-        }
+        "buildTarget": { "name": "docker:build" },
+        "runTarget": { "name": "docker:run" }
       }
     },
     {
@@ -67,6 +79,13 @@
         "buildDepsTargetName": "build-deps",
         "watchDepsTargetName": "watch-deps"
       }
+    },
+    {
+      "plugin": "@nx/js/typescript",
+      "include": ["libs/middleware/*"],
+      "options": {
+        "typecheck": { "targetName": "typecheck" }
+      }
     }
   ],
   "targetDefaults": {
@@ -77,6 +96,11 @@
     },
     "test": {
       "dependsOn": ["^build"]
+    },
+    "@nx/js:tsc": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
     }
   },
   "generators": {

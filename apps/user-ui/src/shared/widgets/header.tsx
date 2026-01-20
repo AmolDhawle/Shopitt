@@ -12,8 +12,10 @@ import {
   HeartIconOutline,
 } from '../../assets/svgs/heart-icon';
 import HeaderBottom from './header-bottom';
+import useUser from '../../hooks/useUser';
 
 const Header = () => {
+  const { user, isLoading } = useUser();
   return (
     <div className="w-full ">
       <div className="bg-[#3489FF]">
@@ -38,14 +40,35 @@ const Header = () => {
           <div className="flex justify-between gap-2 md:gap-8">
             <div className="flex items-center gap-8">
               <div className="flex items-center gap-2">
-                <Link href="/login">
-                  <ProfileIcon size={32} className="text-white" />
-                </Link>
-                <Link href="/login">
-                  <span className="text-lg text-white font-medium cursor-pointer">
-                    Login
-                  </span>
-                </Link>
+                {!isLoading && user ? (
+                  <>
+                    <Link href="/login">
+                      <ProfileIcon />
+                    </Link>
+                    <Link href="/login">
+                      <span className="block text-lg text-white font-medium cursor-pointer">
+                        Hello,
+                      </span>
+                      <span className="text-lg text-white font-medium cursor-pointer">
+                        {isLoading ? "..." : user?.name?.split(' ')[0]}
+                      </span>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/login">
+                      <ProfileIcon />
+                    </Link>
+                    <Link href="/login">
+                      <span className="block text-lg text-white font-medium cursor-pointer">
+                        Hello,
+                      </span>
+                      <span className="text-lg text-white font-medium cursor-pointer">
+                        {isLoading ? '...' : 'Sign in'}
+                      </span>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-5">
