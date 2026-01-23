@@ -1,4 +1,3 @@
-import Header from '../shared/widgets/header';
 import './global.css';
 import { Poppins, Roboto } from 'next/font/google';
 import Provider from './provider';
@@ -28,10 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${roboto.variable} ${poppins.variable}`}>
-        <Provider>
-          <Header />
-          {children}
-        </Provider>
+        <Provider>{children}</Provider>
       </body>
     </html>
   );
