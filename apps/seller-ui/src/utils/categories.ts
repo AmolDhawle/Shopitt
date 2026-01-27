@@ -1,0 +1,18 @@
+export const CATEGORIES = [
+  { value: 'electronics', label: 'Electronics' },
+  { value: 'fashion', label: 'Fashion' },
+  { value: 'grocery', label: 'Grocery' },
+  { value: 'books', label: 'Books' },
+  { value: 'home_appliances', label: 'Home Appliances' },
+  { value: 'toys', label: 'Toys' },
+  { value: 'sports', label: 'Sports' },
+  { value: 'beauty', label: 'Beauty & Health' },
+  { value: 'automotive', label: 'Automotive' },
+  { value: 'furniture', label: 'Furniture' },
+  { value: 'stationery', label: 'Stationery' },
+  { value: 'pet_supplies', label: 'Pet Supplies' },
+  { value: 'art', label: 'Art & Craft' },
+  { value: 'music', label: 'Music & Instruments' },
+  { value: 'food', label: 'Food & Beverage' },
+  { value: 'other', label: 'Other' },
+];

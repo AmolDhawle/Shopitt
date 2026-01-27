@@ -2,8 +2,10 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "../../dist/out-tsc/libs/middleware",
+    "outDir": "../../dist/libs/middleware",
     "composite": true,
+    "emitDeclarationOnly": false,
+    "noEmit": false,
     "declaration": true,
     "declarationMap": true,
     "types": ["node"],

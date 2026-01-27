@@ -1,5 +1,4 @@
 'use client';
-import { useRouter } from 'next/navigation';
 import React, { useEffect, useRef, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { PhoneInput } from '@shopitt/ui';
@@ -7,11 +6,14 @@ import { Eye, EyeOff } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 import Link from 'next/link';
+import CreateShop from '../../../shared/modules/create-shop';
+import { StripeLogo } from 'apps/seller-ui/src/assets/svgs/stripe-logo';
 
 type FormData = {
   name: string;
   email: string;
   password: string;
+  country_code: string;
   phone_number: string;
 };
 
@@ -40,13 +42,13 @@ const Signup = () => {
   const [showOtp, setShowOtp] = useState(false);
   const [timer, setTimer] = useState(0);
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const [userData, setUserData] = useState<FormData | null>(null);
+  const [sellerData, setSellerData] = useState<FormData | null>(null);
+  const [sellerId, setSellerId] = useState('');
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
   const methods = useForm<FormFields>({
     mode: 'onChange',
   });
-
-  const router = useRouter();
 
   const {
     register,
@@ -55,7 +57,7 @@ const Signup = () => {
     setError,
     clearErrors,
     formState: { errors },
-  } = useForm<FormFields>();
+  } = methods;
 
   const passwordValue = watch('password', '');
   const confirmPasswordValue = watch('confirmPassword', '');
@@ -116,8 +118,8 @@ const Signup = () => {
   };
 
   const resendOtp = () => {
-    if (userData) {
-      signupMutation.mutate(userData);
+    if (sellerData) {
+      signupMutation.mutate(sellerData);
     }
   };
 
@@ -136,14 +138,17 @@ const Signup = () => {
 
   const signupMutation = useMutation({
     mutationFn: async (data: FormData) => {
+      console.log(process.env.NEXT_PUBLIC_SERVER_URI);
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/register-user`,
+        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/register-seller`,
         data,
+        { withCredentials: true },
       );
+      console.log(process.env.NEXT_PUBLIC_SERVER_URI);
       return response.data;
     },
     onSuccess: (_, formData) => {
-      setUserData(formData);
+      setSellerData(formData);
       setShowOtp(true);
       setCanResend(false);
       setTimer(60);
@@ -153,25 +158,44 @@ const Signup = () => {
 
   const verifyOtpMutation = useMutation({
     mutationFn: async () => {
-      if (!userData) return;
+      if (!sellerData) return;
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/verify-user`,
+        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/verify-seller`,
         {
-          ...userData,
+          ...sellerData,
           otp: otp.join(''),
         },
+        { withCredentials: true },
       );
       return response.data;
     },
-    onSuccess: () => {
-      router.push('/login');
+    onSuccess: (data) => {
+      setSellerId(data?.seller?.id);
+      setActiveStep(2);
     },
   });
 
   const axiosError = verifyOtpMutation.error as AxiosError<{ message: string }>;
 
   const onSubmit = (data: FormData) => {
+    console.log('FormData!', data);
     signupMutation.mutate(data);
+  };
+
+  const connectPayment = async () => {
+    try {
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/payment/onboard`,
+        {},
+        { withCredentials: true },
+      );
+
+      if (res.data.url) {
+        window.location.href = res.data.url;
+      }
+    } catch (err) {
+      console.error('Payment onboarding error', err);
+    }
   };
 
   useEffect(() => {
@@ -189,7 +213,7 @@ const Signup = () => {
     <div className="w-full flex flex-col items-center pt-10 min-h-screen">
       {/* Stepper */}
       <div className="relative flex items-center justify-between md:w-[50%] mb-8">
-        <div className="absolute top-[25%] left-0 xl:left-4 w-[80%] md:w-[90%] h-1 bg-gray-300 -z-10" />
+        <div className="absolute top-[25%] left-0 md:left-[-4px] xl:left-4 w-[80%] md:w-[90%] h-1 bg-gray-300 -z-10" />
         {[1, 2, 3].map((step) => (
           <div key={step}>
             <div
@@ -461,7 +485,7 @@ const Signup = () => {
                   <Link href={'/login'} className="text-blue-500">
                     Login
                   </Link>
-                </p> 
+                </p>
               </form>
             ) : (
               <div>
@@ -514,6 +538,21 @@ const Signup = () => {
               </div>
             )}
           </FormProvider>
+        )}
+        {activeStep === 2 && (
+          <CreateShop sellerId={sellerId} setActiveStep={setActiveStep} />
+        )}
+        {activeStep === 3 && (
+          <div className="text-center">
+            <h3 className="text-2xl font-semibold">Withdraw Method</h3>
+            <br />
+            <button
+              className="w-full m-auto flex items-center justify-center gap-3 text-lg bg-[#334155] text-white py-2 rounded-lg"
+              onClick={connectPayment}
+            >
+              Connect Payment <StripeLogo />
+            </button>
+          </div>
         )}
       </div>
     </div>

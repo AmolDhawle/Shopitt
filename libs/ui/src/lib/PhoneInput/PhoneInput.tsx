@@ -12,6 +12,7 @@ export function PhoneInput() {
   // Update the phone number with the selected country code
   const handleCountryCodeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const code = e.target.value;
+    console.log('Selected country code:', code);
     setValue('country_code', code, {
       shouldValidate: true,
       shouldDirty: true,
@@ -21,7 +22,7 @@ export function PhoneInput() {
   return (
     <div>
       <label
-        htmlFor="phone-number"
+        htmlFor="phone_number"
         className="block text-sm font-medium text-gray-700"
       >
         Phone number
@@ -47,7 +48,6 @@ export function PhoneInput() {
         {/* Phone number input */}
         <input
           type="tel"
-          id="phone-number"
           placeholder="1234567890"
           className="w-full rounded-md border px-3 py-2 text-sm"
           {...register('phone_number', {

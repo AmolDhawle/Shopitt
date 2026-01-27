@@ -11,6 +11,7 @@ import axios, { AxiosError } from 'axios';
 type FormData = {
   name: string;
   email: string;
+  role: 'user';
   password: string;
 };
 

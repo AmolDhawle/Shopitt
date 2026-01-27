@@ -22,13 +22,13 @@ export const validateRegistrationData = (
   data: any,
   userType: 'user' | 'seller',
 ) => {
-  const { name, email, password, phone_number, country } = data;
+  const { name, email, password, phone_number, country_code } = data;
 
   if (
     !name ||
     !email ||
     !password ||
-    (userType === 'seller' && (!phone_number || !country))
+    (userType === 'seller' && (!phone_number || !country_code))
   ) {
     throw new BadRequestError('Missing required fields for registration');
   }
@@ -195,10 +195,20 @@ export const handleForgotPassword = async (
       return next(new BadRequestError('Email is required'));
     }
 
-    const user = await prisma.users.findUnique({ where: { email } });
+    // Try user first
+    const user = await prisma.users.findUnique({
+      where: { email },
+    });
+
+    // Try seller if user not found
+    const seller = !user
+      ? await prisma.sellers.findUnique({ where: { email } })
+      : null;
+
+    const account = user ?? seller;
 
     // Prevent email enumeration
-    if (!user || !user.isVerified) {
+    if (!account || ('isVerified' in account && !account.isVerified)) {
       return res.status(200).json({
         success: true,
         message: 'If the email exists, an OTP has been sent.',
@@ -208,7 +218,7 @@ export const handleForgotPassword = async (
     await checkOtpRestrictions(email, next);
     await trackOtpRequests(email, next);
 
-    await sendOtp(user.name, email, 'forgot-password-reset-mail');
+    await sendOtp(account.name, email, 'forgot-password-reset-mail');
 
     return res.status(200).json({
       success: true,

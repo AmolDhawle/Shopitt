@@ -27,7 +27,7 @@ const Login = () => {
   const loginMutation = useMutation({
     mutationFn: async (data: FormData) => {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/login-user`,
+        `${process.env.NEXT_PUBLIC_SERVER_URI}/api/login-seller`,
         data,
         { withCredentials: true },
       );
@@ -49,6 +49,8 @@ const Login = () => {
   const onSubmit = (data: FormData) => {
     loginMutation.mutate(data);
   };
+
+  
   return (
     <div className="w-full py-4 md:py-10 min-h-screen bg-[#f1f1f1]">
       <div className="w-full flex justify-center">

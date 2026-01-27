@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { AuthenticationError } from '@shopitt/error-handler';
 import { getEnv } from './env.js';
 import { prisma } from '@shopitt/prisma-client';
 
 interface JwtPayload {
-  userId: string;
+  sellerId?: string;
+  userId?: string;
   role: 'user' | 'seller';
 }
 
@@ -29,20 +30,44 @@ export const requireAuth = async (
       getEnv('ACCESS_TOKEN_SECRET'),
     ) as JwtPayload;
 
-    if (!payload?.userId) {
-      throw new AuthenticationError('Invalid access token');
+    console.log('Token from header/cookie:', token);
+    console.log('Seller from token payload:', payload);
+
+    if (payload.role === 'seller' && !payload.sellerId) {
+      throw new AuthenticationError('Invalid seller token');
     }
 
-    const account = await prisma.users.findUnique({
-      where: { id: payload.userId },
-    });
+    if (payload.role === 'user' && !payload.userId) {
+      throw new AuthenticationError('Invalid user token');
+    }
 
-    // Attach user info to request
-    req.user = account;
+    // Fetch account details based on role
+    let account;
+    if (payload.role === 'user') {
+      account = await prisma.users.findUnique({
+        where: { id: payload.userId },
+      });
+      if (!account) {
+        throw new AuthenticationError('User not found');
+      }
+      req.user = account; // Attach user info
+    } else if (payload.role === 'seller') {
+      account = await prisma.sellers.findUnique({
+        where: { id: payload.sellerId },
+      });
+      if (!account) {
+        throw new AuthenticationError('Seller not found');
+      }
+      req.seller = account; // Attach seller info
+    }
+
+    // Store the role in req.role
+    req.role = payload.role;
 
     next();
   } catch (error) {
     // Token expired or invalid
+    console.log('jwt-VERIFY-ERROR', error);
     return next(new AuthenticationError('Invalid or expired access token'));
   }
 };
