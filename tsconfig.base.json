@@ -23,9 +23,20 @@
     "customConditions": ["@shopitt/source"],
     "paths": {
       "@shopitt/prisma": ["generated/prisma/*"],
-      "@shopitt/middleware": ["libs/middleware/src/index.ts"]
+      "@shopitt/middleware": ["libs/middleware/src/index.ts"],
+      "@shopitt/ui": ["libs/ui/src/index.ts"]
     },
     "typeRoots": ["./node_modules/@types"]
   },
-  "references": [{ "path": "libs/middleware" }, { "path": "apps/auth-service" }]
+  "references": [
+    {
+      "path": "libs/middleware"
+    },
+    {
+      "path": "apps/auth-service"
+    },
+    {
+      "path": "libs/ui"
+    }
+  ]
 }

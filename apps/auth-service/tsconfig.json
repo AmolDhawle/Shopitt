@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "files": [],
   "include": ["src/**/*.ts", "src/**/*.json"],
+
   "references": [
     {
       "path": "../../libs/middleware"

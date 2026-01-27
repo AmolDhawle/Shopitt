@@ -54,8 +54,12 @@
     {
       "plugin": "@nx/docker",
       "options": {
-        "buildTarget": { "name": "docker:build" },
-        "runTarget": { "name": "docker:run" }
+        "buildTarget": {
+          "name": "docker:build"
+        },
+        "runTarget": {
+          "name": "docker:run"
+        }
       }
     },
     {
@@ -84,7 +88,9 @@
       "plugin": "@nx/js/typescript",
       "include": ["libs/middleware/*"],
       "options": {
-        "typecheck": { "targetName": "typecheck" }
+        "typecheck": {
+          "targetName": "typecheck"
+        }
       }
     }
   ],
@@ -108,6 +114,11 @@
       "application": {
         "style": "tailwind",
         "linter": "none"
+      }
+    },
+    "@nx/react": {
+      "library": {
+        "unitTestRunner": "none"
       }
     }
   }

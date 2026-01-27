@@ -2,7 +2,7 @@
   "extends": "./tsconfig.base.json",
   "compileOnSave": false,
   "files": [],
-  "include": ["src/**/*.ts", "src/**/*.json"],
+
   "references": [
     {
       "path": "./apps/auth-service-e2e"
@@ -17,13 +17,19 @@
       "path": "./apps/api-gateway"
     },
     {
-      "path": "./libs/error-handler"
-    },
-    {
       "path": "./apps/user-ui"
     },
     {
+      "path": "./libs/error-handler"
+    },
+    {
       "path": "./libs/middleware"
+    },
+    {
+      "path": "./libs/ui"
+    },
+    {
+      "path": "./apps/seller-ui"
     }
   ]
   // "compilerOptions": {

@@ -5,7 +5,8 @@
     "outDir": "../../dist/out-tsc/apps/auth-service",
     "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
     "resolveJsonModule": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "typeRoots": ["./node_modules/@types", "./types"]
   },
   "include": [
     "src/**/*.ts",
@@ -19,7 +20,11 @@
     "jest.config.ts",
     "jest.config.cts",
     "src/**/*.spec.ts",
-    "src/**/*.test.ts"
+    "src/**/*.test.ts",
+    "src/tests",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/__mocks__/**"
   ],
   "references": [
     {

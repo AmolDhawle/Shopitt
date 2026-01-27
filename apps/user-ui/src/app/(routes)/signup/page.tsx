@@ -11,6 +11,7 @@ import axios, { AxiosError } from 'axios';
 type FormData = {
   name: string;
   email: string;
+  role: 'user';
   password: string;
 };
 
@@ -426,13 +427,20 @@ const Signup = () => {
               >
                 {signupMutation.isPending ? 'Signing up ...' : 'Sign up'}
               </button>
+              {signupMutation.isError &&
+                signupMutation.error instanceof AxiosError && (
+                  <p className="text-red-500 text-sm mt-2">
+                    {signupMutation.error.response?.data?.message ||
+                      signupMutation.error.message}
+                  </p>
+                )}
             </form>
           ) : (
             <div>
               <h3 className="text-xl font-semibold text-center mb-4">
                 Enter OTP
               </h3>
-              <div className="flex justify-center gap-6">
+              <div className="flex justify-center gap-4 md:gap-6">
                 {otp?.map((digit, index) => (
                   <input
                     key={index}
@@ -441,7 +449,7 @@ const Signup = () => {
                       if (el) inputRefs.current[index] = el;
                     }}
                     maxLength={1}
-                    className="w-12 h-12 text-center border border-gray-300 outline-none !rounded"
+                    className="w-10 md:w-12 h-12 text-center border border-gray-300 outline-none !rounded"
                     value={digit}
                     onChange={(e) => handleOtpChange(index, e.target.value)}
                     onKeyDown={(e) => handleOtpKeyDown(index, e)}

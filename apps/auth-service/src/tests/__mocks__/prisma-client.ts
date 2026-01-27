@@ -6,5 +6,5 @@ export const prisma = {
   refreshToken: {
     deleteMany: jest.fn(),
   },
-  $transaction: jest.fn((actions) => Promise.all(actions)),
+  $transaction: jest.fn((actions: any[]) => Promise.all(actions)),
 };

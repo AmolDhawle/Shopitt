@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { errorMiddleware } from '@shopitt/error-handler';
 import router from './routes/auth.router';
+import webhookRouter from './routes/webhook.router'
 import swaggerUi from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
@@ -39,6 +40,7 @@ app.get('/docs-json', (req, res) => {
 
 // Routes
 app.use('/api', router);
+app.use('/webhooks', webhookRouter)
 
 const server = app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}/api`);

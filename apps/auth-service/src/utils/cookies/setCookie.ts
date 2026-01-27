@@ -1,4 +1,4 @@
-import { Response } from "express";
+import { Response } from 'express';
 
 export const setCookie = (
   res: Response,
@@ -9,17 +9,17 @@ export const setCookie = (
     secure?: boolean;
     maxAge?: number;
     path?: string;
-    sameSite?: "lax" | "strict" | "none";
-  } = {}
+    sameSite?: 'lax' | 'strict' | 'none';
+  } = {},
 ) => {
   const cookieOptions = {
     httpOnly: options.httpOnly ?? true,
-    secure: options.secure ?? process.env.NODE_ENV === "production",
+    secure: options.secure ?? process.env.NODE_ENV === 'production',
     sameSite:
       options.sameSite ??
-      (process.env.NODE_ENV === "production" ? "none" : "lax"),
+      (process.env.NODE_ENV === 'production' ? 'none' : 'lax'),
     maxAge: options.maxAge,
-    path: options.path ?? "/",
+    path: options.path ?? '/',
   };
 
   res.cookie(name, value, cookieOptions);
