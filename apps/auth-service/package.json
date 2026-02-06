@@ -29,7 +29,12 @@
           "assets": [
             {
               "input": "apps/auth-service/src",
-              "glob": "swagger-output.json",
+              "glob": "swagger-auth.json",
+              "output": "apps/auth-service/src"
+            },
+            {
+              "input": "apps/auth-service/src",
+              "glob": "swagger-webhooks.json",
               "output": "apps/auth-service/src"
             },
             {
