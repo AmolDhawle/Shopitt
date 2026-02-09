@@ -2,15 +2,20 @@ import express from 'express';
 import cors from 'cors';
 import { errorMiddleware } from '@shopitt/error-handler';
 import router from './routes/auth.router';
-import webhookRouter from './routes/webhook.router'
+import webhookRouter from './routes/webhook.router';
 import swaggerUi from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 
-const swaggerPath = path.join(__dirname, 'swagger-output.json');
+// Swagger files
+const authSwagger = JSON.parse(
+  fs.readFileSync(path.join(__dirname, 'swagger-auth.json'), 'utf8'),
+);
 
-const swaggerDocument = JSON.parse(fs.readFileSync(swaggerPath, 'utf8'));
+const webhookSwagger = JSON.parse(
+  fs.readFileSync(path.join(__dirname, 'swagger-webhooks.json'), 'utf8'),
+);
 
 const port = process.env.PORT ? Number(process.env.PORT) : 6001;
 
@@ -27,23 +32,39 @@ app.use(
   }),
 );
 
+// Routes
+app.use('/api', router);
+app.use('/webhooks', webhookRouter);
+
 app.use(errorMiddleware);
 
 app.get('/', (req, res) => {
   res.send({ message: 'Hello API' });
 });
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-app.get('/docs-json', (req, res) => {
-  res.json(swaggerDocument);
+// Swagger UIs
+app.use(
+  '/api-docs/auth',
+  swaggerUi.serveFiles(authSwagger),
+  swaggerUi.setup(authSwagger),
+);
+app.use(
+  '/api-docs/webhooks',
+  swaggerUi.serveFiles(webhookSwagger),
+  swaggerUi.setup(webhookSwagger),
+);
+
+app.get('/docs-json/auth', (req, res) => {
+  res.json(authSwagger);
 });
 
-// Routes
-app.use('/api', router);
-app.use('/webhooks', webhookRouter)
+app.get('/docs-json/webhooks', (req, res) => {
+  res.json(webhookSwagger);
+});
 
 const server = app.listen(port, () => {
-  console.log(`Listening at http://localhost:${port}/api`);
-  console.log(`Swagger docs available at http://localhost:${port}/docs`);
+  console.log(`Listening at http:/  /localhost:${port}/api`);
+  console.log(`Auth docs → http://localhost:${port}/api-docs/auth`);
+  console.log(`Webhook docs → http://localhost:${port}/api-docs/webhooks`);
 });
 server.on('error', console.error);

@@ -138,13 +138,11 @@ const Signup = () => {
 
   const signupMutation = useMutation({
     mutationFn: async (data: FormData) => {
-      console.log(process.env.NEXT_PUBLIC_SERVER_URI);
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_SERVER_URI}/api/register-seller`,
         data,
         { withCredentials: true },
       );
-      console.log(process.env.NEXT_PUBLIC_SERVER_URI);
       return response.data;
     },
     onSuccess: (_, formData) => {
@@ -178,7 +176,6 @@ const Signup = () => {
   const axiosError = verifyOtpMutation.error as AxiosError<{ message: string }>;
 
   const onSubmit = (data: FormData) => {
-    console.log('FormData!', data);
     signupMutation.mutate(data);
   };
 
@@ -212,16 +209,23 @@ const Signup = () => {
   return (
     <div className="w-full flex flex-col items-center pt-10 min-h-screen">
       {/* Stepper */}
-      <div className="relative flex items-center justify-between md:w-[50%] mb-8">
-        <div className="absolute top-[25%] left-0 md:left-[-4px] xl:left-4 w-[80%] md:w-[90%] h-1 bg-gray-300 -z-10" />
+      <div className="relative flex items-start w-full md:w-[50%] mb-8 px-5">
+        {/* Progress line */}
+        <div className="absolute top-5 inset-x-16 xs:inset-x-24 sm:inset-x-32 md:inset-x-24 lg:inset-x-28 2xl:inset-x-36 ultra:inset-x-40  h-1 bg-gray-300 -z-10" />
+
         {[1, 2, 3].map((step) => (
-          <div key={step}>
+          <div
+            key={step}
+            className="flex-1 flex flex-col items-center text-center"
+          >
             <div
-              className={`w-10 h-10 flex items-center justify-center rounded-full text-white font-bold ${step <= activeStep ? 'bg-blue-600' : 'bg-blue-300'}`}
+              className={`w-10 h-10 flex items-center justify-center rounded-full text-white font-bold
+        ${step <= activeStep ? 'bg-blue-600' : 'bg-blue-300'}`}
             >
               {step}
             </div>
-            <span className="ml-[-15px]">
+
+            <span className="mt-2 text-sm leading-snug break-words max-w-[80px] sm:max-w-none">
               {step === 1
                 ? 'Create account'
                 : step === 2
@@ -231,6 +235,7 @@ const Signup = () => {
           </div>
         ))}
       </div>
+
       {/* Steps Content */}
       <div className="md:w-[480px] p-4 md:p-8 bg-white shadow rounded-lg">
         {activeStep === 1 && (

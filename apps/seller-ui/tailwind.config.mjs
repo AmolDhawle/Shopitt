@@ -13,11 +13,26 @@
 export default {
   content: [
     './{src,pages,components,app}/**/*.{ts,tsx,js,jsx,html}',
-    '!./{src,pages,components,app}/**/*.{stories,spec}.{ts,tsx,js,jsx,html}',
+    '../seller-ui/src/**/*.{ts,tsx,js,jsx,html}',
     //     ...createGlobPatternsForDependencies(__dirname)
   ],
   theme: {
-    extend: {},
+    screens: {
+      xs: '360px', // small phones
+      sm: '620px', // phones
+      md: '768px', // tablets
+      lg: '1024px', // laptops
+      xl: '1280px', // desktops
+      '2xl': '1440px', // large desktops
+      'step-md': '900px', // where stepper layouts often break
+      'step-lg': '1100px', // wide forms / wizards
+      ultra: '1800px', // very large monitors
+    },
+    extend: {
+      fontFamily: {
+        Poppins: ['var(--font-poppins)'],
+      },
+    },
   },
   plugins: [],
 };

@@ -1,0 +1,35 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Webhook API",
+    "description": "Payment & third-party webhooks",
+    "version": "1.0.0"
+  },
+  "host": "localhost:6001",
+  "basePath": "/webhooks",
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/stripe": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "stripe-signature",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    }
+  }
+}
