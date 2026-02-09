@@ -154,22 +154,21 @@ export const loginUser = async (
 
     // Generate JWT tokens
     const accessToken = jwt.sign(
-      { userId: existingUser.id, role: 'user' },
+      { subjectId: existingUser.id, role: 'user' },
       process.env.ACCESS_TOKEN_SECRET!,
-      {
-        expiresIn: '15m',
-      },
+      { expiresIn: '15m' },
     );
 
     const refreshToken = jwt.sign(
-      { userId: existingUser.id },
+      { subjectId: existingUser.id, role: 'user' },
       process.env.REFRESH_TOKEN_SECRET!,
       { expiresIn: '7d' },
     );
 
     await prisma.refreshToken.create({
       data: {
-        userId: existingUser.id,
+        subjectId: existingUser.id,
+        subjectType: 'USER',
         token: hashToken(refreshToken),
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       },
@@ -209,41 +208,58 @@ export const refreshToken = async (
   try {
     const token = req.cookies.refreshToken;
     if (!token) {
-      return next(new AuthenticationError('Unauthorized! No refresh token'));
+      throw new AuthenticationError('Unauthorized');
     }
 
     const payload = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET!) as {
-      userId: string;
+      subjectId: string;
+      role: 'user' | 'seller';
     };
+
+    const subjectType = payload.role === 'user' ? 'USER' : 'SELLER';
 
     const hashed = hashToken(token);
 
     const storedToken = await prisma.refreshToken.findFirst({
-      where: { token: hashed, userId: payload.userId },
+      where: {
+        token: hashed,
+        subjectId: payload.subjectId,
+        subjectType,
+      },
     });
 
     if (!storedToken) {
-      return next(new AuthenticationError('Invalid refresh token'));
+      throw new AuthenticationError('Invalid refresh token');
     }
 
-    // Rotate token
-    await prisma.refreshToken.delete({ where: { id: storedToken.id } });
+    await prisma.refreshToken.delete({
+      where: { id: storedToken.id },
+    });
 
     const newAccessToken = jwt.sign(
-      { userId: payload.userId },
+      {
+        role: payload.role,
+        ...(payload.role === 'user'
+          ? { userId: payload.subjectId }
+          : { sellerId: payload.subjectId }),
+      },
       process.env.ACCESS_TOKEN_SECRET!,
       { expiresIn: '15m' },
     );
 
     const newRefreshToken = jwt.sign(
-      { userId: payload.userId },
+      {
+        subjectId: payload.subjectId,
+        role: payload.role,
+      },
       process.env.REFRESH_TOKEN_SECRET!,
       { expiresIn: '7d' },
     );
 
     await prisma.refreshToken.create({
       data: {
-        userId: payload.userId,
+        subjectId: payload.subjectId,
+        subjectType,
         token: hashToken(newRefreshToken),
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       },
@@ -259,8 +275,9 @@ export const refreshToken = async (
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
+    req.role = payload.role;
     return res.json({ success: true });
-  } catch (error) {
+  } catch (err) {
     return next(new AuthenticationError('Invalid refresh token'));
   }
 };
@@ -395,7 +412,7 @@ export const resetUserPassword = async (
         data: { password: hashedPassword },
       }),
       prisma.refreshToken.deleteMany({
-        where: { userId: user.id },
+        where: { subjectId: user.id, subjectType: 'USER' },
       }),
     ]);
 
@@ -469,7 +486,6 @@ export const registerSeller = async (
     });
 
     if (seller && seller.isVerified) {
-      console.log('Seller Id', seller?.id);
       // Generate the JWT token
       const accessToken = jwt.sign(
         { sellerId: seller.id, role: 'seller' },
@@ -535,7 +551,6 @@ export const verifySeller = async (
         isVerified: true,
       },
     });
-    console.log('SECRET_ACCESS_TOKEN', process.env.ACCESS_TOKEN_SECRET);
 
     // After OTP is verified, generate access token and set it in cookies
     const accessToken = jwt.sign(
@@ -608,25 +623,21 @@ export const loginSeller = async (
 
     // Generate JWT tokens
     const accessToken = jwt.sign(
-      {
-        sellerId: existingSeller.id,
-        role: 'seller',
-      },
+      { subjectId: existingSeller.id, role: 'seller' },
       process.env.ACCESS_TOKEN_SECRET!,
-      {
-        expiresIn: '15m',
-      },
+      { expiresIn: '15m' },
     );
 
     const refreshToken = jwt.sign(
-      { sellerId: existingSeller.id },
+      { subjectId: existingSeller.id, role: 'seller' },
       process.env.REFRESH_TOKEN_SECRET!,
       { expiresIn: '7d' },
     );
 
     await prisma.refreshToken.create({
       data: {
-        userId: existingSeller.id,
+        subjectId: existingSeller.id,
+        subjectType: 'SELLER',
         token: hashToken(refreshToken),
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       },
@@ -744,6 +755,11 @@ export const createShop = async (
       },
     });
 
+    await prisma.sellers.update({
+      where: { id: req.seller!.id },
+      data: { shopId: shop.id },
+    });
+
     return res.status(201).json({
       success: true,
       message: 'Shop created successfully',
@@ -762,8 +778,6 @@ export const createStripeConnection = async (
 ) => {
   try {
     const seller = req.seller;
-
-    console.log('SECRET_ACCESS_TOKEN', process.env.ACCESS_TOKEN_SECRET);
 
     if (!seller) {
       return next(new BadRequestError('Unauthorized'));
