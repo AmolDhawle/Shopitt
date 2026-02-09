@@ -11,7 +11,7 @@ export default function OnboardingSuccessPage() {
     // await fetch('/api/me')
 
     const timer = setTimeout(() => {
-      router.push('/'); // seller dashboard
+      router.push('/dashboard'); // seller dashboard
     }, 3000);
 
     return () => clearTimeout(timer);

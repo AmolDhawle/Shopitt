@@ -18,8 +18,6 @@ const CreateShop = ({
     formState: { errors },
   } = useForm();
 
-  console.log('Seller-id', sellerId);
-
   const shopCreateMutation = useMutation({
     mutationFn: async (data: FormData) => {
       const response = await axios.post(
@@ -29,8 +27,6 @@ const CreateShop = ({
           withCredentials: true,
         },
       );
-
-      console.log(response);
 
       return response.data;
     },
@@ -168,11 +164,12 @@ const CreateShop = ({
         <label className="block text-gray-700 mb-1">
           Category <span className="text-red-500">*</span>
         </label>
+
+        {/* Mobile select (inline list) */}
         <select
-          className="w-full p-2 border border-gray-300 outline-0 rounded-[4px] mb-1"
-          {...register('category', {
-            required: 'Please select a category',
-          })}
+          size={5}
+          className="block sm:hidden w-full p-2 border border-gray-300 rounded-[4px] mb-1 max-h-40 overflow-y-auto"
+          {...register('category', { required: 'Please select a category' })}
         >
           <option value="">Select Category</option>
           {CATEGORIES.map((category) => (
@@ -181,6 +178,20 @@ const CreateShop = ({
             </option>
           ))}
         </select>
+
+        {/* Desktop select (normal dropdown) */}
+        <select
+          className="hidden sm:block w-full p-2 border border-gray-300 rounded-[4px] mb-1"
+          {...register('category', { required: 'Please select a category' })}
+        >
+          <option value="">Select Category</option>
+          {CATEGORIES.map((category) => (
+            <option key={category.value} value={category.value}>
+              {category.label}
+            </option>
+          ))}
+        </select>
+
         {errors.category && (
           <p className="text-red-500 text-sm">
             {String(errors.category.message)}

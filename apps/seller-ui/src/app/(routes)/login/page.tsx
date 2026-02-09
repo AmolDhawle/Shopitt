@@ -36,7 +36,7 @@ const Login = () => {
     },
     onSuccess: (data) => {
       setServerError(null);
-      router.push('/');
+      router.push('/dashboard');
     },
     onError: (error: AxiosError) => {
       const errorMessage =
@@ -50,7 +50,6 @@ const Login = () => {
     loginMutation.mutate(data);
   };
 
-  
   return (
     <div className="w-full py-4 md:py-10 min-h-screen bg-[#f1f1f1]">
       <div className="w-full flex justify-center">

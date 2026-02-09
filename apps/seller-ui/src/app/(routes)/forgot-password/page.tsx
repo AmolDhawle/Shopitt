@@ -144,7 +144,6 @@ const ForgotPassword = () => {
     setServerError(null);
 
     verifyOtpMutation.mutate();
-    console.log('Hello4');
   };
 
   const axiosError = verifyOtpMutation.error as AxiosError<{ message: string }>;
@@ -270,16 +269,32 @@ const ForgotPassword = () => {
     }
   }, [confirmPasswordValue, passwordValue, setError, clearErrors]);
 
+  const stepContent = {
+    email: {
+      title: 'Reset your password',
+      description:
+        'Enter the email associated with your account and we’ll send you an OTP.',
+    },
+    otp: {
+      title: 'Verify OTP',
+      description: 'Enter the 6-digit OTP sent to your email address.',
+    },
+    reset: {
+      title: 'Create a new password',
+      description: 'Choose a strong password to secure your account.',
+    },
+  };
+
   return (
     <div className="w-full py-4 md:py-10 min-h-[85vh] bg-[#f1f1f1]">
       <div className="w-full flex justify-center">
-        <div className=" md:w-[480px] px-12">
+        <div className="md:w-[480px] px-12">
           <h1 className="text-2xl md:text-4xl font-Poppins font-semibold text-black text-center">
-            Reset your password
+            {stepContent[step].title}
           </h1>
+
           <p className="text-center md:text-lg font-medium py-3 text-[#00000099]">
-            Enter the email associated with your account and we’ll send you a
-            reset link.
+            {stepContent[step].description}
           </p>
         </div>
       </div>

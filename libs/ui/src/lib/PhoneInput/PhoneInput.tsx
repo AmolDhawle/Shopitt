@@ -12,7 +12,6 @@ export function PhoneInput() {
   // Update the phone number with the selected country code
   const handleCountryCodeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const code = e.target.value;
-    console.log('Selected country code:', code);
     setValue('country_code', code, {
       shouldValidate: true,
       shouldDirty: true,
@@ -39,7 +38,7 @@ export function PhoneInput() {
           aria-invalid={!!errors.country_code}
         >
           {COUNTRIES.map((c) => (
-            <option key={c.code} value={c.dial}>
+            <option key={c.code} value={c.code}>
               {c.label}
             </option>
           ))}
