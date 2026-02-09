@@ -3,7 +3,7 @@ import { Poppins, Roboto } from 'next/font/google';
 import Provider from './provider';
 
 export const metadata = {
-  title: 'Shopitt',
+  title: 'Shopitt Seller Dashboard',
   description: 'An e-commerce platform for all your shopping needs',
 };
 
@@ -26,7 +26,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${roboto.variable} ${poppins.variable}`}>
+      <body
+        className={`min-h-screen bg-slate-900 font-sans antialiased ${poppins.variable}`}
+      >
         <Provider>{children}</Provider>
       </body>
     </html>

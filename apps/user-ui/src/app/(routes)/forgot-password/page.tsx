@@ -144,7 +144,6 @@ const ForgotPassword = () => {
     setServerError(null);
 
     verifyOtpMutation.mutate();
-    console.log('Hello4');
   };
 
   const axiosError = verifyOtpMutation.error as AxiosError<{ message: string }>;

@@ -30,9 +30,6 @@ export const requireAuth = async (
       getEnv('ACCESS_TOKEN_SECRET'),
     ) as JwtPayload;
 
-    console.log('Token from header/cookie:', token);
-    console.log('Seller from token payload:', payload);
-
     if (payload.role === 'seller' && !payload.sellerId) {
       throw new AuthenticationError('Invalid seller token');
     }
@@ -54,6 +51,15 @@ export const requireAuth = async (
     } else if (payload.role === 'seller') {
       account = await prisma.sellers.findUnique({
         where: { id: payload.sellerId },
+        include: {
+          shop: {
+            select: {
+              id: true,
+              name: true,
+              address: true,
+            },
+          },
+        },
       });
       if (!account) {
         throw new AuthenticationError('Seller not found');
