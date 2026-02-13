@@ -1,14 +1,17 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "dist",
+    "outDir": "../../dist/out-tsc/apps/product-service",
     "types": ["node", "express"],
-    "rootDir": "src",
+    "rootDir": "../../",
     "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo"
   },
-  "include": ["src/**/*.ts", "src/**/*.json"],
+  "include": ["src/**/*.ts"],
   "exclude": [],
   "references": [
+    {
+      "path": "../../libs/error-handler/tsconfig.lib.json"
+    },
     {
       "path": "../../libs/prisma-client/tsconfig.lib.json"
     }

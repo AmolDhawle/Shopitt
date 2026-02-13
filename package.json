@@ -7,7 +7,8 @@
     "dev": "npx nx run-many --target=serve --all",
     "auth-docs": "node apps/auth-service/src/swagger-auth.js",
     "webhook-docs": "node apps/auth-service/src/swagger-webhooks.js",
-    "docs": "npm run auth-docs && npm run webhook-docs",
+    "product-docs": "node apps/product-service/src/swagger.js",
+    "docs": "npm run auth-docs && npm run webhook-docs && npm run product-docs",
     "user-ui": "npx nx run-many --target=dev --projects=user-ui",
     "seller-ui": "npx nx run-many --target=dev --projects=seller-ui"
   },
@@ -35,6 +36,7 @@
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.71.1",
     "react-hot-toast": "^2.6.0",
+    "react-quill-new": "^3.8.3",
     "stripe": "^20.2.0",
     "styled-components": "^6.3.9",
     "swagger-autogen": "^2.23.7",
@@ -68,7 +70,7 @@
     "@types/morgan": "^1.9.10",
     "@types/node": "^20.19.30",
     "@types/nodemailer": "^7.0.4",
-    "@types/react": "^19.0.0",
+    "@types/react": "^19.2.14",
     "@types/react-dom": "^19.0.0",
     "autoprefixer": "^10.4.23",
     "dotenv": "^17.2.3",
@@ -99,6 +101,7 @@
     "prisma-client",
     "redis",
     "middleware",
-    "ui"
+    "ui",
+    "components"
   ]
 }

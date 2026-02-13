@@ -37,6 +37,9 @@
     },
     {
       "path": "libs/ui"
+    },
+    {
+      "path": "libs/components"
     }
   ]
 }
