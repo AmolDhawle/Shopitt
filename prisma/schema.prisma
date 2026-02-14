@@ -100,7 +100,7 @@ model SiteConfig {
   subCategories Json
 }
 
-enum DiscountType {
+enum DiscountType { 
   PERCENTAGE
   FIXED
 }
@@ -110,7 +110,7 @@ model DiscountCode {
 
   publicName    String
   discountType  DiscountType
-  discountValue Decimal
+  discountValue Float
 
   discountCode  String
   sellerId      String        @db.ObjectId
@@ -120,8 +120,8 @@ model DiscountCode {
   usageLimit    Int?
   usedCount     Int           @default(0)
 
-  minimumOrderAmount Decimal?
-  maximumDiscountAmount Decimal?
+  minimumOrderAmount Int?
+  maximumDiscountAmount Int?
   applicableProducts String[] @db.ObjectId
   applicableCategories String[]
 

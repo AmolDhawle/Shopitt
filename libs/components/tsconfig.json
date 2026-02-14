@@ -5,9 +5,9 @@
     "types": ["node"],
     "allowImportingTsExtensions": true,
     "jsx": "react-jsx",
-    "lib": ["dom", "dom.iterable", "esnext"], // 👈 ADD THIS
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "strict": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "global.d.ts"]
 }

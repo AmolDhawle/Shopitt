@@ -6,9 +6,12 @@
     "rootDir": "../../",
     "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo"
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "../../libs/middleware/src/**/*.ts"],
   "exclude": [],
   "references": [
+    {
+      "path": "../../libs/middleware/tsconfig.lib.json"
+    },
     {
       "path": "../../libs/error-handler/tsconfig.lib.json"
     },
