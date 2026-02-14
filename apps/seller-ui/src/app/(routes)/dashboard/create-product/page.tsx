@@ -12,6 +12,7 @@ import {
 import { ColorSelector, CustomSpecifications } from '@shopitt/components';
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance from 'apps/seller-ui/src/utils/axiosInstance';
+import Link from 'next/link';
 
 interface ProductFormValues {
   title: string;
@@ -130,7 +131,9 @@ const Page = () => {
         Create Product
       </h2>
       <div className="flex items-center">
-        <span className="text-[#80Deea] cursor-pointer">Dashboard</span>
+        <Link href={'/dashboard'} className="text-[#80Deea] cursor-pointer">
+          Dashboard
+        </Link>
         <ChevronRight size={20} className="opacity-[.8]" />
         <span>Create Product</span>
       </div>
@@ -528,14 +531,14 @@ const Page = () => {
           <button
             type="button"
             onClick={handleSaveDraft}
-            className="px-4 py-2 bg-gray-700 text-white rounded-md"
+            className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-md"
           >
             Save Draft
           </button>
         )}
         <button
           type="submit"
-          className="px-4 py-2 bg-blue-600 text-white rounded-md"
+          className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-md"
           disabled={loading}
         >
           {loading ? 'Creating...' : 'Create'}

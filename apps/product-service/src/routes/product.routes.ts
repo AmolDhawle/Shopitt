@@ -13,14 +13,19 @@ router.get('/get-categories', getCategories);
 router.post(
   '/create-discount-code',
   requireAuth,
-  authorizeRole,
+  authorizeRole('seller'),
   createDiscountCode,
 );
-router.get('/get-discount-codes', requireAuth, authorizeRole, getDiscountCodes);
-router.delete(
-  '/delete-discount-code',
+router.get(
+  '/get-discount-codes',
   requireAuth,
-  authorizeRole,
+  authorizeRole('seller'),
+  getDiscountCodes,
+);
+router.delete(
+  '/delete-discount-code/:id',
+  requireAuth,
+  authorizeRole('seller'),
   deleteDiscountCode,
 );
 

@@ -48,7 +48,6 @@ README.doc.md
 README.self.md
 /generated/prisma
 .env
-prisma/
 
 # Next.js
 .next

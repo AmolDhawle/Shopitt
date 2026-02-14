@@ -3,7 +3,14 @@
 import React from 'react';
 interface BaseProps {
   label?: string;
-  type?: 'text' | 'email' | 'password' | 'number' | 'search' | 'textarea';
+  type?:
+    | 'text'
+    | 'email'
+    | 'password'
+    | 'number'
+    | 'search'
+    | 'textarea'
+    | 'date';
   className?: string;
 }
 

@@ -71,6 +71,13 @@ export const createDiscountCode = async (
       });
     }
 
+    const productsArray = applicableProducts
+      ? applicableProducts.split(',').map((p: string) => p.trim())
+      : [];
+    const categoriesArray = applicableCategories
+      ? applicableCategories.split(',').map((c: string) => c.trim())
+      : [];
+
     // Business rule: percentage must be <= 100
     if (discountType === 'PERCENTAGE' && Number(discountValue) > 100) {
       return res.status(400).json({
@@ -94,6 +101,7 @@ export const createDiscountCode = async (
       });
     }
 
+    // Create discount code
     const discount = await prisma.discountCode.create({
       data: {
         publicName,
@@ -105,8 +113,8 @@ export const createDiscountCode = async (
         usageLimit,
         minimumOrderAmount,
         maximumDiscountAmount,
-        applicableProducts,
-        applicableCategories,
+        applicableProducts: productsArray,
+        applicableCategories: categoriesArray,
       },
     });
 
@@ -144,6 +152,8 @@ export const getDiscountCodes = async (req: Request, res: Response) => {
     // Filter by active status
     if (isActive !== undefined) {
       whereClause.isActive = isActive === 'true';
+    } else {
+      whereClause.isActive = true;
     }
 
     // Search by discount code or public name
