@@ -305,7 +305,7 @@ const Page = () => {
                           value="FIXED"
                           className="bg-gray-800 text-white"
                         >
-                          Flat Amount ($)
+                          Flat Amount (₹)
                         </option>
                       </select>
 

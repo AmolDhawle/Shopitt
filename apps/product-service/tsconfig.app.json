@@ -4,9 +4,14 @@
     "outDir": "../../dist/out-tsc/apps/product-service",
     "types": ["node", "express"],
     "rootDir": "../../",
-    "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo"
+    "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
+    "allowImportingTsExtensions": true
   },
-  "include": ["src/**/*.ts", "../../libs/middleware/src/**/*.ts"],
+  "include": [
+    "src/**/*.ts",
+    "../../libs/middleware/src/**/*.ts",
+    "../../libs/imagekit/src/**/*.ts"
+  ],
   "exclude": [],
   "references": [
     {
@@ -14,6 +19,9 @@
     },
     {
       "path": "../../libs/error-handler/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/imagekit/tsconfig.lib.json"
     },
     {
       "path": "../../libs/prisma-client/tsconfig.lib.json"

@@ -1,6 +1,6 @@
 'use client';
 import ImagePlaceholder from 'apps/seller-ui/src/shared/components/image-placeholder';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Wand, X } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
@@ -13,10 +13,19 @@ import { ColorSelector, CustomSpecifications } from '@shopitt/components';
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance from 'apps/seller-ui/src/utils/axiosInstance';
 import Link from 'next/link';
+import Image from 'next/image';
+import { enhancements } from 'apps/seller-ui/src/utils/AI.enhancements';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
+
+interface UploadedImage {
+  fileId: string;
+  file_url: string;
+}
 
 interface ProductFormValues {
   title: string;
-  description: string;
+  short_description: string;
   tags: string;
   warranty: string;
   slug: string;
@@ -28,7 +37,8 @@ interface ProductFormValues {
   stock: number;
   sizes: string[];
   colors: string[];
-  images: (File | null)[];
+  discountCodes: string[];
+  images: (UploadedImage | null)[];
   video_url: string;
   custom_specifications: { name: string; value: string }[];
   custom_properties: { label: string; values: string[] }[];
@@ -55,8 +65,14 @@ const Page = () => {
 
   const [openImageModal, setOpenImageModal] = useState(false);
   const [isChanged, setIsChanged] = useState(true);
-  const [images, setImages] = useState<(File | null)[]>([null]);
+  const [baseImage, setBaseImage] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState('');
+  const [imageUploadingLoader, setImageUploadingLoader] = useState(false);
+  const [images, setImages] = useState<(UploadedImage | null)[]>([null]);
   const [loading, setLoading] = useState(false);
+  const [activeEffect, setActiveEffect] = useState<string | null>(null);
+  const [processing, setProcessing] = useState(false);
+  const router = useRouter();
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['categories'],
@@ -72,6 +88,15 @@ const Page = () => {
     retry: 2,
   });
 
+  const { data: discountCodes = [], isLoading: discountLoading } = useQuery({
+    queryKey: ['shop-discounts'],
+    queryFn: async () => {
+      const res = await axiosInstance.get('/product/api/get-discount-codes');
+      console.log('REsponse', res);
+      return res.data?.discounts || [];
+    },
+  });
+
   const categories = data?.categories || [];
   const subCategoriesData = data?.subCategories || {};
 
@@ -85,40 +110,104 @@ const Page = () => {
     return selectedCategory ? subCategoriesData[selectedCategory] || [] : [];
   }, [selectedCategory, subCategoriesData]);
 
-  const onSubmit = (data: any) => {
-    console.log(data);
+  const onSubmit = async (data: any) => {
+    try {
+      setLoading(true);
+      await axiosInstance.post('/product/api/create-product', data);
+      router.push('/dashboard/all-products');
+    } catch (error: any) {
+      toast.error(error?.data?.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleImageChange = (file: File | null, index: number | null) => {
-    const updatedImages = [...images];
-    if (index !== null) {
-      updatedImages[index] = file;
-      setImages(updatedImages);
-    }
-
-    if (index === images.length - 1 && images.length < 8) {
-      updatedImages.push(null);
-    }
-    setImages(updatedImages);
-    setValue('images', updatedImages);
+  const convertFileToBase64 = (file: File) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
   };
 
-  const handleRemoveImage = (index: number) => {
-    setImages((prev) => {
-      let updatedImages = [...prev];
-      if (index === -1) {
-        updatedImages[0] = null;
-      } else {
-        updatedImages.splice(index, 1);
+  const handleImageChange = async (file: File | null, index: number) => {
+    if (!file || index === null) return;
+
+    setImageUploadingLoader(true);
+    try {
+      const fileName = await convertFileToBase64(file);
+
+      const response = await axiosInstance.post(
+        '/product/api/upload-product-image',
+        { fileName },
+      );
+
+      const uploadedImage: UploadedImage = {
+        fileId: response.data.fileId,
+        file_url: response.data.file_url,
+      };
+      const updatedImages = [...images];
+
+      updatedImages[index] = uploadedImage;
+
+      // Add new empty slot if last image and less than 8
+      if (index === images.length - 1 && images.length < 8) {
+        updatedImages.push(null);
       }
 
+      setImages(updatedImages);
+      setValue('images', updatedImages);
+    } finally {
+      setImageUploadingLoader(false);
+    }
+  };
+
+  const handleRemoveImage = async (index: number) => {
+    try {
+      const updatedImages = [...images];
+
+      const imageToDelete = updatedImages[index];
+      if (imageToDelete && typeof imageToDelete === 'object') {
+        console.log('File tp delete', imageToDelete.fileId);
+        await axiosInstance.delete('/product/api/delete-product-image', {
+          data: {
+            fileId: imageToDelete.fileId!,
+          },
+        });
+        console.log('Image deleted successfully');
+      }
+      updatedImages.splice(index, 1);
+
+      // Add null placeholder
       if (!updatedImages.includes(null) && updatedImages.length < 8) {
         updatedImages.push(null);
       }
-      return updatedImages;
-    });
-    setValue('images', images);
+
+      setImages(updatedImages);
+      setValue('images', updatedImages);
+    } catch (error) {
+      console.log(error);
+    }
   };
+
+  const applyTransformation = async (transformation: string) => {
+    if (!baseImage || processing) return;
+    setProcessing(true);
+    setActiveEffect(transformation);
+
+    try {
+      const transformedUrl = `${baseImage}?tr=${transformation}`;
+
+      setSelectedImage(transformedUrl);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  console.log('SelectedImage', selectedImage);
 
   const handleSaveDraft = () => {};
 
@@ -145,10 +234,15 @@ const Page = () => {
           {images?.length > 0 && (
             <ImagePlaceholder
               setOpenImageModal={setOpenImageModal}
+              setBaseImage={setBaseImage}
               size="765 x 850"
               small={false}
               index={0}
+              imageUploadingLoader={imageUploadingLoader}
+              setActiveEffect={setActiveEffect}
+              images={images}
               onImageChange={handleImageChange}
+              setSelectedImage={setSelectedImage}
               onRemove={handleRemoveImage}
             />
           )}
@@ -156,11 +250,16 @@ const Page = () => {
             {images.slice(1).map((_, index) => (
               <ImagePlaceholder
                 setOpenImageModal={setOpenImageModal}
+                setBaseImage={setBaseImage}
                 size="765 x 850"
                 key={index}
                 small
                 index={index + 1}
+                imageUploadingLoader={imageUploadingLoader}
+                setActiveEffect={setActiveEffect}
+                images={images}
                 onImageChange={handleImageChange}
+                setSelectedImage={setSelectedImage}
                 onRemove={handleRemoveImage}
               />
             ))}
@@ -190,7 +289,7 @@ const Page = () => {
                   cols={10}
                   label="Short Description * (Max 150 words)"
                   placeholder="Enter short description"
-                  {...register('description', {
+                  {...register('short_description', {
                     required: 'Description is required',
                     maxLength: {
                       value: 150,
@@ -198,9 +297,9 @@ const Page = () => {
                     },
                   })}
                 />
-                {errors.description && (
+                {errors.short_description && (
                   <p className="text-red-500 text-xs mt-1">
-                    {errors.description.message as string}
+                    {errors.short_description.message as string}
                   </p>
                 )}
               </div>
@@ -426,7 +525,7 @@ const Page = () => {
 
               <div className="mt-2">
                 <Input
-                  label="Video URl"
+                  label="Video Url"
                   placeholder="https://www.youtube.com/embed/xyz123"
                   {...register('video_url', {
                     pattern: {
@@ -447,7 +546,7 @@ const Page = () => {
               <div className="mt-2">
                 <Input
                   label="Regular Price"
-                  placeholder="20$"
+                  placeholder="2000₹"
                   {...register('regular_price', {
                     valueAsNumber: true,
                     min: { value: 1, message: 'Price must be atleast 1' },
@@ -465,7 +564,7 @@ const Page = () => {
               <div className="mt-2">
                 <Input
                   label="Sale Price"
-                  placeholder="15$"
+                  placeholder="1500₹"
                   {...register('sale_price', {
                     valueAsNumber: true,
                     min: { value: 1, message: 'Sale Price must be atleast 1' },
@@ -521,11 +620,83 @@ const Page = () => {
                 <label className="block font-semibold text-gray-300 mb-1">
                   Select Discount Codes (optional)
                 </label>
+                {discountLoading ? (
+                  <p className="text-gray-400">Loading discount codes ...</p>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {discountCodes?.map((code: any) => (
+                      <button
+                        key={code.id}
+                        type="button"
+                        className={`px-3 py-1 rounded-md text-sm font-semibold border 
+                          ${
+                            watch('discountCodes')?.includes(code.id)
+                              ? 'bg-blue-600 text-white border-blue-600'
+                              : 'bg-gray-800 text-gray-300 border-gray-600 hover:bg-gray-700'
+                          }`}
+                        onClick={() => {
+                          const currentSelection = watch('discountCodes') || [];
+                          const updatedSelection = currentSelection?.includes(
+                            code.id,
+                          )
+                            ? currentSelection.filter(
+                                (id: string) => id !== code.id,
+                              )
+                            : [...currentSelection, code.id];
+                          setValue('discountCodes', updatedSelection);
+                        }}
+                      >
+                        {code?.publicName} {code?.discountValue}
+                        {code?.discountType === 'PERCENTAGE' ? '%' : '₹'}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
+      {openImageModal && (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-60 z-50">
+          <div className="bg-gray-800 p-6 rounded-lg w-[450px] text-white">
+            <div className="flex justify-between items-center pb-3 mb-4">
+              <h2 className="text-lg font-semibold">Enhance product image</h2>
+              <X
+                size={20}
+                className="cursor-pointer"
+                onClick={() => setOpenImageModal(!openImageModal)}
+              />
+            </div>
+            <div className="relative w-full h-[250px] rounded-md overflow-hidde n border border-gray-600">
+              <Image src={selectedImage} alt="product-image" fill />
+            </div>
+            {selectedImage && (
+              <div className="mt-4 space-y-2">
+                <h3 className="text-white text-sm font-semibold">
+                  AI Enhancements
+                </h3>
+                <div className="grid grid-cols-2 gap-3 max-h-[250px] overflow-y-auto">
+                  {enhancements?.map(({ label, effect }) => (
+                    <button
+                      key={effect}
+                      className={`p-2 rounded-md flex items-center gap-2 
+                        ${activeEffect === effect ? 'bg-blue-600 text-white' : 'bg-gray-700 hover:bg-gray-600'}`}
+                      onClick={() => {
+                        applyTransformation(effect);
+                      }}
+                      disabled={processing}
+                    >
+                      <Wand size={18} />
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
       <div className="mt-6 flex justify-end gap-3">
         {isChanged && (
           <button

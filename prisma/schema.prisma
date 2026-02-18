@@ -9,26 +9,28 @@ datasource db {
 }
 
 model Images {
-  id      String  @id @default(auto()) @map("_id") @db.ObjectId
-  file_id String
-  url     String
-  userId  String? @unique @db.ObjectId
-  shopId  String? @unique @db.ObjectId
-  users   Users?  @relation(fields: [userId], references: [id])
-  shops   Shops?  @relation(fields: [shopId], references: [id])
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  file_id    String
+  url        String
+  userId     String?   @unique @db.ObjectId
+  shopId     String?   @unique @db.ObjectId
+  users      Users?    @relation(fields: [userId], references: [id])
+  shops      Shops?    @relation(fields: [shopId], references: [id])
+  products   Products? @relation(fields: [productsId], references: [id])
+  productsId String?   @db.ObjectId
 }
 
 model Users {
-  id           String         @id @default(auto()) @map("_id") @db.ObjectId
-  name         String
-  email        String         @unique
-  password     String?
-  isVerified   Boolean        @default(false)
-  following    String[]
-  avatar       Images?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  shopReviews  ShopReviews[]
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  email       String        @unique
+  password    String?
+  isVerified  Boolean       @default(false)
+  following   String[]
+  avatar      Images?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  shopReviews ShopReviews[]
 }
 
 model ShopReviews {
@@ -39,7 +41,7 @@ model ShopReviews {
   reviews   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  shopId   String?  @db.ObjectId
+  shopId    String?  @db.ObjectId
   shops     Shops?   @relation(fields: [shopId], references: [id])
 }
 
@@ -60,31 +62,32 @@ model Shops {
   sellers       Sellers       @relation(fields: [sellerId], references: [id])
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+  products      Products[]
 }
 
 model Sellers {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  name         String
-  email        String   @unique
-  phone_number String
-  country_code      String
-  password     String?
-  isVerified   Boolean        @default(false)
-  paymentStatus   String?     @default("not_started") // not_started | onboarding | pending | active | restricted
-  stripeId     String?
-  shop         Shops?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  shopId       String?  @db.ObjectId
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  email         String   @unique
+  phone_number  String
+  country_code  String
+  password      String?
+  isVerified    Boolean  @default(false)
+  paymentStatus String?  @default("not_started") // not_started | onboarding | pending | active | restricted
+  stripeId      String?
+  shop          Shops?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  shopId        String?  @db.ObjectId
 }
 
 model RefreshToken {
-  id           String      @id @default(auto()) @map("_id") @db.ObjectId
-  token        String      @unique
-  subjectId    String      @db.ObjectId
-  subjectType  AuthSubject
-  expiresAt    DateTime
-  createdAt    DateTime    @default(now())
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  token       String      @unique
+  subjectId   String      @db.ObjectId
+  subjectType AuthSubject
+  expiresAt   DateTime
+  createdAt   DateTime    @default(now())
 
   @@index([subjectId, subjectType])
 }
@@ -95,39 +98,78 @@ enum AuthSubject {
 }
 
 model SiteConfig {
-  id  String  @id @default(auto())  @map("_id") @db.ObjectId
-  categories  String[]
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  categories    String[]
   subCategories Json
 }
 
-enum DiscountType { 
+enum DiscountType {
   PERCENTAGE
   FIXED
 }
 
 model DiscountCode {
-  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
   publicName    String
   discountType  DiscountType
   discountValue Float
 
-  discountCode  String
-  sellerId      String        @db.ObjectId
+  discountCode String
+  sellerId     String @db.ObjectId
 
-  isActive      Boolean       @default(true)
-  expiresAt     DateTime?
-  usageLimit    Int?
-  usedCount     Int           @default(0)
+  isActive   Boolean   @default(true)
+  expiresAt  DateTime?
+  usageLimit Int?
+  usedCount  Int       @default(0)
 
-  minimumOrderAmount Int?
+  minimumOrderAmount    Int?
   maximumDiscountAmount Int?
-  applicableProducts String[] @db.ObjectId
-  applicableCategories String[]
+  applicableProducts    String[] @db.ObjectId
+  applicableCategories  String[]
 
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([discountCode, sellerId])
 }
 
+enum ProductStatus {
+  Active
+  Pending
+  Draft
+}
+
+model Products {
+  id                    String        @id @default(auto()) @map("_id") @db.ObjectId
+  title                 String
+  shortDescription     String
+  tags                  String[]
+  warranty              String
+  slug                  String        @unique
+  brand                 String?
+  category              String?
+  subcategory           String?
+  regularPrice         Int
+  salePrice            Int
+  ratings               Float         @default(0)
+  ratingsCount          Int           @default(0)
+  status                ProductStatus @default(Active)
+  stock                 Int
+  sizes                 String[]
+  colors                String[]
+  discountCodes         String[]      @db.ObjectId
+  images                Images[]
+  videoUrl             String?
+  customSpecifications Json?
+  customProperties     Json
+  cashOnDelivery      String
+  detailedDescription  String
+  startingDate         DateTime?
+  endingDate           DateTime?
+  isDeleted             Boolean       @default(false)
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  shopId                String        @db.ObjectId
+  shop                  Shops         @relation(fields: [shopId], references: [id])
+}

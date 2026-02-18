@@ -1,6 +1,6 @@
 import { ImageUp, WandSparkles, X } from 'lucide-react';
 import Image from 'next/image';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const ImagePlaceholder = ({
   size,
@@ -8,15 +8,25 @@ const ImagePlaceholder = ({
   onImageChange,
   onRemove,
   defaultImage = null,
-  index = null,
+  setSelectedImage,
+  setBaseImage,
+  setActiveEffect,
+  imageUploadingLoader,
+  index,
+  images,
   setOpenImageModal,
 }: {
   size: string;
   small?: boolean;
-  onImageChange: (file: File | null, index: number | null) => void;
+  onImageChange: (file: File | null, index: number) => void;
   onRemove: (index: number) => void;
   defaultImage?: string | null;
-  index?: number | null;
+  setSelectedImage: (e: string) => void;
+  setBaseImage: (url: string) => void;
+  setActiveEffect: (e: string | null) => void;
+  imageUploadingLoader: boolean;
+  index: number;
+  images: any;
   setOpenImageModal: (openImageModal: boolean) => void;
 }) => {
   const [imagePreview, setImagePreview] = useState<string | null>(defaultImage);
@@ -27,6 +37,12 @@ const ImagePlaceholder = ({
       onImageChange(file, index);
     }
   };
+
+  useEffect(() => {
+    const imageUrl = images[index]?.file_url || null;
+    setImagePreview(imageUrl);
+  }, [images, index]);
+
   return (
     <div
       className={`relative ${small ? 'h-[180px]' : 'h-[450px]'} w-full cursor-pointer bg-[#1e1e1e] border border-gray-600 rounded-lg flex flex-col items-center justify-center overflow-hidden`}
@@ -42,15 +58,29 @@ const ImagePlaceholder = ({
         <>
           <button
             type="button"
-            onClick={() => onRemove?.(index!)}
+            disabled={imageUploadingLoader}
+            onClick={() => onRemove?.(index)}
             className="absolute top-3 right-3 bg-red-500 text-white shadow-lg rounded-full p-2 z-10"
           >
             <X size={16} />
           </button>
 
           <button
+            type="button"
+            disabled={imageUploadingLoader}
             className="absolute top-3 right-[70px] p-2 !rounded bg-blue-500 shadow-lg text-white cursor-pointer"
-            onClick={() => setOpenImageModal(true)}
+            onClick={() => {
+              const imageUrl = images[index]?.file_url;
+
+              if (!imageUrl) return;
+
+              const cleanUrl = imageUrl.split('?')[0];
+
+              setBaseImage(cleanUrl);
+              setSelectedImage(cleanUrl);
+              setActiveEffect(null);
+              setOpenImageModal(true);
+            }}
           >
             <WandSparkles size={16} />
           </button>
