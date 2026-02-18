@@ -408,3 +408,134 @@ export const createProduct = async (
     return next(error);
   }
 };
+
+// get shop products for the seller
+export const getShopProducts = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const products = await prisma.products.findMany({
+      where: {
+        shopId: req?.seller?.shop?.id,
+      },
+      include: {
+        images: true,
+      },
+    });
+    return res.status(200).json({
+      success: true,
+      products,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+// delete product
+export const deleteProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { productId } = req.params;
+    const sellerId = req?.seller?.shop?.id;
+
+    const product = await prisma.products.findUnique({
+      where: {
+        id: productId,
+      },
+      select: { id: true, shopId: true, isDeleted: true },
+    });
+
+    if (!product) {
+      return next(new ValidationError('Product not found'));
+    }
+
+    if (product.shopId !== sellerId) {
+      return next(new ValidationError('Unauthorized action'));
+    }
+
+    if (product.isDeleted) {
+      return next(new ValidationError('Product is already deleted'));
+    }
+
+    const deletedProduct = await prisma.products.update({
+      where: { id: productId },
+      data: {
+        isDeleted: true,
+        deletedAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      },
+    });
+
+    return res.status(200).json({
+      message:
+        'Product is scheduled for deletion in 24 hours. You can restore it within this time',
+      deletedAt: deletedProduct.deletedAt,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+// restore product
+export const restoreProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { productId } = req.params;
+    const sellerId = req?.seller?.shop?.id;
+
+    // Fetch the product to check if it exists and is deleted
+    const product = await prisma.products.findUnique({
+      where: {
+        id: productId,
+      },
+      select: { id: true, shopId: true, isDeleted: true, deletedAt: true },
+    });
+
+    // If product not found
+    if (!product) {
+      return next(new ValidationError('Product not found'));
+    }
+
+    // Check if the seller has access to this product
+    if (product.shopId !== sellerId) {
+      return next(new ValidationError('Unauthorized action'));
+    }
+
+    // If product is not deleted, no need to restore
+    if (!product.isDeleted) {
+      return next(new ValidationError('Product is not deleted'));
+    }
+
+    // Check if the product is within the 24-hour restoration window
+    const timeSinceDeleted =
+      new Date().getTime() - new Date(product.deletedAt!).getTime();
+    const restorationWindow = 24 * 60 * 60 * 1000;
+
+    if (timeSinceDeleted > restorationWindow) {
+      return next(new ValidationError('The restoration window has expired'));
+    }
+
+    // Proceed to restore the product
+    const restoredProduct = await prisma.products.update({
+      where: { id: productId },
+      data: {
+        isDeleted: false,
+        deletedAt: null,
+      },
+    });
+
+    return res.status(200).json({
+      message: 'Product has been restored successfully.',
+      product: restoredProduct,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};

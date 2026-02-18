@@ -118,12 +118,12 @@ const SidebarWrapper = () => {
               />
               <SidebarItem
                 title="All Products"
-                isActive={activeSidebar === '/dashboard/products'}
-                href="/dashboard/products"
+                isActive={activeSidebar === '/dashboard/all-products'}
+                href="/dashboard/all-products"
                 icon={
                   <PackageSearch
                     size={24}
-                    color={getIconColor('/dashboard/products')}
+                    color={getIconColor('/dashboard/all-products')}
                   />
                 }
               />

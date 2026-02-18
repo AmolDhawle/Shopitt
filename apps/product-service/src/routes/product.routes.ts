@@ -3,9 +3,12 @@ import {
   createDiscountCode,
   createProduct,
   deleteDiscountCode,
+  deleteProduct,
   deleteProductImage,
   getCategories,
   getDiscountCodes,
+  getShopProducts,
+  restoreProduct,
   uploadProductImage,
 } from '../controllers/product.controller';
 import { authorizeRole, requireAuth } from '@shopitt/middleware';
@@ -48,6 +51,26 @@ router.post(
   requireAuth,
   authorizeRole('seller'),
   createProduct,
+);
+
+router.get(
+  '/get-shop-products',
+  requireAuth,
+  authorizeRole('seller'),
+  getShopProducts,
+);
+
+router.delete(
+  '/delete-product/:productId',
+  requireAuth,
+  authorizeRole('seller'),
+  deleteProduct,
+);
+router.put(
+  '/restore-product/:productId',
+  requireAuth,
+  authorizeRole('seller'),
+  restoreProduct,
 );
 
 export default router;
