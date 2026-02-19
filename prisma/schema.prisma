@@ -1,0 +1,176 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma/client"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Images {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  file_id    String
+  url        String
+  userId     String?   @unique @db.ObjectId
+  shopId     String?   @unique @db.ObjectId
+  users      Users?    @relation(fields: [userId], references: [id])
+  shops      Shops?    @relation(fields: [shopId], references: [id])
+  products   Products? @relation(fields: [productsId], references: [id])
+  productsId String?   @db.ObjectId
+}
+
+model Users {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  email       String        @unique
+  password    String?
+  isVerified  Boolean       @default(false)
+  following   String[]
+  avatar      Images?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  shopReviews ShopReviews[]
+}
+
+model ShopReviews {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      Users    @relation(fields: [userId], references: [id])
+  rating    Float
+  reviews   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  shopId    String?  @db.ObjectId
+  shops     Shops?   @relation(fields: [shopId], references: [id])
+}
+
+model Shops {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  bio           String?
+  category      String
+  avatar        Images?
+  coverBanner   String?
+  address       String
+  opening_hours String?
+  website       String?
+  socialLinks   Json[]
+  ratings       Float         @default(0)
+  reviews       ShopReviews[]
+  sellerId      String        @unique @db.ObjectId
+  sellers       Sellers       @relation(fields: [sellerId], references: [id])
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  products      Products[]
+}
+
+model Sellers {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  email         String   @unique
+  phone_number  String
+  country_code  String
+  password      String?
+  isVerified    Boolean  @default(false)
+  paymentStatus String?  @default("not_started") // not_started | onboarding | pending | active | restricted
+  stripeId      String?
+  shop          Shops?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  shopId        String?  @db.ObjectId
+}
+
+model RefreshToken {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  token       String      @unique
+  subjectId   String      @db.ObjectId
+  subjectType AuthSubject
+  expiresAt   DateTime
+  createdAt   DateTime    @default(now())
+
+  @@index([subjectId, subjectType])
+}
+
+enum AuthSubject {
+  USER
+  SELLER
+}
+
+model SiteConfig {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  categories    String[]
+  subCategories Json
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+}
+
+model DiscountCode {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  publicName    String
+  discountType  DiscountType
+  discountValue Float
+
+  discountCode String
+  sellerId     String @db.ObjectId
+
+  isActive   Boolean   @default(true)
+  expiresAt  DateTime?
+  usageLimit Int?
+  usedCount  Int       @default(0)
+
+  minimumOrderAmount    Int?
+  maximumDiscountAmount Int?
+  applicableProducts    String[] @db.ObjectId
+  applicableCategories  String[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([discountCode, sellerId])
+}
+
+enum ProductStatus {
+  Active
+  Pending
+  Draft
+}
+
+model Products {
+  id                    String        @id @default(auto()) @map("_id") @db.ObjectId
+  title                 String
+  shortDescription     String
+  tags                  String[]
+  warranty              String
+  slug                  String        @unique
+  brand                 String?
+  category              String?
+  subcategory           String?
+  regularPrice         Int
+  salePrice            Int
+  ratings               Float         @default(0)
+  ratingsCount          Int           @default(0)
+  status                ProductStatus @default(Active)
+  stock                 Int
+  sizes                 String[]
+  colors                String[]
+  discountCodes         String[]      @db.ObjectId
+  images                Images[]
+  videoUrl             String?
+  customSpecifications Json?
+  customProperties     Json
+  cashOnDelivery      String
+  detailedDescription  String
+  startingDate         DateTime?
+  endingDate           DateTime?
+  isDeleted             Boolean       @default(false)
+  deletedAt             DateTime?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  shopId                String        @db.ObjectId
+  shop                  Shops         @relation(fields: [shopId], references: [id])
+}

@@ -36,7 +36,7 @@
           "watchDepsName": "watch-deps"
         }
       },
-      "exclude": ["libs/middleware/*"]
+      "exclude": ["libs/middleware/*", "libs/components/*", "libs/imagekit/*"]
     },
     {
       "plugin": "@nx/jest/plugin",
@@ -86,7 +86,7 @@
     },
     {
       "plugin": "@nx/js/typescript",
-      "include": ["libs/middleware/*"],
+      "include": ["libs/middleware/*", "libs/components/*", "libs/imagekit/*"],
       "options": {
         "typecheck": {
           "targetName": "typecheck"

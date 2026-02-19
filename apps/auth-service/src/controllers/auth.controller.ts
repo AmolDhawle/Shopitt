@@ -595,6 +595,7 @@ export const loginSeller = async (
 
     const existingSeller = await prisma.sellers.findUnique({
       where: { email },
+      include: { shop: true },
     });
 
     if (!existingSeller || !existingSeller.isVerified) {
@@ -658,7 +659,15 @@ export const loginSeller = async (
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    req.seller = existingSeller;
+    req.seller = {
+      id: existingSeller.id,
+      email: existingSeller.email,
+      name: existingSeller.name,
+      phone_number: existingSeller.phone_number,
+      country_code: existingSeller.country_code,
+      stripeId: existingSeller.stripeId,
+      shop: existingSeller.shop,
+    };
 
     return res.status(200).json({
       success: true,

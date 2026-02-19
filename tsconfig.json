@@ -2,7 +2,6 @@
   "extends": "./tsconfig.base.json",
   "compileOnSave": false,
   "files": [],
-
   "references": [
     {
       "path": "./apps/auth-service-e2e"
@@ -30,11 +29,15 @@
     },
     {
       "path": "./apps/seller-ui"
+    },
+    {
+      "path": "./libs/components"
+    },
+    {
+      "path": "./apps/product-service"
+    },
+    {
+      "path": "./libs/imagekit"
     }
   ]
-  // "compilerOptions": {
-  //   "allowImportingTsExtensions": true,
-  //   "allowSyntheticDefaultImports": true,
-  //   "esModuleInterop": true
-  // }
 }

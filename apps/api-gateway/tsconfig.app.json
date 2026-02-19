@@ -7,5 +7,10 @@
     "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo"
   },
   "include": ["src/**/*.ts", "src/**/*.json"],
-  "exclude": []
+  "exclude": [],
+  "references": [
+    {
+      "path": "../../libs/prisma-client/tsconfig.lib.json"
+    }
+  ]
 }

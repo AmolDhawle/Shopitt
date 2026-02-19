@@ -5,4 +5,5 @@ export type SellerContext = {
   phone_number: string;
   country_code: string;
   stripeId?: string | null;
+  shop: any;
 };
