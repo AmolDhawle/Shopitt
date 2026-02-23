@@ -5,6 +5,7 @@ import {
   deleteDiscountCode,
   deleteProduct,
   deleteProductImage,
+  getAllProducts,
   getCategories,
   getDiscountCodes,
   getShopProducts,
@@ -72,5 +73,7 @@ router.put(
   authorizeRole('seller'),
   restoreProduct,
 );
+
+router.get('/get-all-products', getAllProducts);
 
 export default router;

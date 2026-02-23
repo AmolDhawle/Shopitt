@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { prisma } from '@shopitt/prisma-client';
 import { imagekit } from '@shopitt/imagekit';
 import { AuthenticationError, ValidationError } from '@shopitt/error-handler';
+import { Prisma } from '@shopitt/prisma-client';
 
 export enum DiscountType {
   PERCENTAGE = 'PERCENTAGE',
@@ -534,6 +535,100 @@ export const restoreProduct = async (
     return res.status(200).json({
       message: 'Product has been restored successfully.',
       product: restoredProduct,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+// get all products
+export const getAllProducts = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const skip = (page - 1) * limit;
+    const type = req.query.type;
+    const category = req.query.category as string | undefined;
+    const minPrice = req.query.minPrice
+      ? parseInt(req.query.minPrice as string)
+      : undefined;
+    const maxPrice = req.query.maxPrice
+      ? parseInt(req.query.maxPrice as string)
+      : undefined;
+    const rating = req.query.rating
+      ? parseFloat(req.query.rating as string)
+      : undefined;
+
+    // Start building filters for Prisma query
+    const andFilters: Prisma.ProductsWhereInput[] = [];
+    // const now = new Date();
+
+    // Soft delete filter
+    andFilters.push({ isDeleted: false });
+
+    // Category filter
+    if (category) {
+      andFilters.push({ category });
+    }
+
+    // Price filter
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      andFilters.push({
+        salePrice: {
+          gte: minPrice,
+          lte: maxPrice,
+        },
+      });
+    }
+
+    // Rating filter
+    if (rating !== undefined) {
+      andFilters.push({
+        ratings: { gte: rating },
+      });
+    }
+
+    // Final where filter (combine all filters)
+    const baseFilter: Prisma.ProductsWhereInput = {
+      AND: andFilters,
+    };
+
+    // Order by logic
+    const orderBy: Prisma.ProductsOrderByWithRelationInput =
+      type === 'latest' ? { createdAt: 'desc' } : { totalSales: 'desc' };
+
+    // Fetch products, count, and top 10 products (if needed)
+    const [products, total, top10Products] = await Promise.all([
+      prisma.products.findMany({
+        skip,
+        take: limit,
+        where: baseFilter,
+        orderBy,
+        include: {
+          images: true,
+          shop: true,
+        },
+      }),
+      prisma.products.count({ where: baseFilter }),
+      prisma.products.findMany({
+        take: 10,
+        where: baseFilter,
+        orderBy,
+      }),
+    ]);
+
+    // Return response with paginated products and top 10
+    return res.status(200).json({
+      products,
+      top10By: type === 'latest' ? 'latest' : 'topSales',
+      top10Products,
+      total,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
     });
   } catch (error) {
     return next(error);

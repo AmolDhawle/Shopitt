@@ -29,7 +29,7 @@ const HeaderBottom = () => {
     >
       <div
         className={`max-w-7xl mx-auto px-4 flex items-center justify-between relative ${
-          isSticky ? 'pt-3 pb-2' : 'py-0'
+          isSticky ? 'pt-3' : 'py-0'
         }`}
       >
         {/* All Categories */}
@@ -55,7 +55,7 @@ const HeaderBottom = () => {
           />
         )}
 
-        <div className="ml-auto mx-4 overflow-x-auto scrollbar-hide">
+        <div className="m-auto mx-4 flex justify-between overflow-x-auto scrollbar-hide">
           <div className="flex items-center whitespace-nowrap">
             {navItems.map((item, index) => (
               <Link

@@ -16,9 +16,17 @@ model Images {
   shopId     String?   @unique @db.ObjectId
   users      Users?    @relation(fields: [userId], references: [id])
   shops      Shops?    @relation(fields: [shopId], references: [id])
-  products   Products? @relation(fields: [productsId], references: [id])
-  productsId String?   @db.ObjectId
 }
+
+model ProductImages {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  file_id    String
+  url        String
+
+  productId  String   @db.ObjectId
+  product    Products @relation(fields: [productId], references: [id])
+}
+
 
 model Users {
   id          String        @id @default(auto()) @map("_id") @db.ObjectId
@@ -159,7 +167,8 @@ model Products {
   sizes                 String[]
   colors                String[]
   discountCodes         String[]      @db.ObjectId
-  images                Images[]
+  totalSales Int @default(0)
+  images                ProductImages[]
   videoUrl             String?
   customSpecifications Json?
   customProperties     Json

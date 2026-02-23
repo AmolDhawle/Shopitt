@@ -17,8 +17,8 @@ import useUser from '../../hooks/useUser';
 const Header = () => {
   const { user, isLoading } = useUser();
   return (
-    <div className="w-full ">
-      <div className="bg-[#3489FF]">
+    <div className="w-full">
+      <div className="bg-[#2874f0]">
         <div className="max-w-7xl mx-auto px-4 py-5 flex items-center justify-between">
           <div>
             <Link href="/">
@@ -50,7 +50,7 @@ const Header = () => {
                         Hello,
                       </span>
                       <span className="text-lg text-white font-medium cursor-pointer">
-                        {isLoading ? "..." : user?.name?.split(' ')[0]}
+                        {isLoading ? '...' : user?.name?.split(' ')[0]}
                       </span>
                     </Link>
                   </>
