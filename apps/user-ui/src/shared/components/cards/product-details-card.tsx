@@ -5,12 +5,40 @@ import Rating from '../rating';
 import { Heart, MapPin, MessageCircleMore, ShoppingBag, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-const ProductDetailsCard = ({
-  data,
-  setOpen,
-}: {
+interface ProductDetailsCardProps {
   data: any;
   setOpen: (open: boolean) => void;
+  user: any;
+  location: any;
+  deviceInfo: any;
+  addToCart: (product: any, user: any, location: any, deviceInfo: any) => void;
+  addToWishlist: (
+    product: any,
+    user: any,
+    location: any,
+    deviceInfo: any,
+  ) => void;
+  removeFromWishlist: (
+    product: any,
+    user: any,
+    location: any,
+    deviceInfo: any,
+  ) => void;
+  isWishlisted: boolean;
+  isInCart: boolean;
+}
+
+const ProductDetailsCard: React.FC<ProductDetailsCardProps> = ({
+  data,
+  setOpen,
+  user,
+  location,
+  deviceInfo,
+  addToCart,
+  addToWishlist,
+  removeFromWishlist,
+  isWishlisted,
+  isInCart,
 }) => {
   console.log('data', data);
   const [activeImage, setActiveImage] = useState(0);
@@ -192,11 +220,28 @@ const ProductDetailsCard = ({
                   +
                 </button>
               </div>
-              <button className="flex items-center gap-2 px-4 py-2 bg-[#ff5722] hover:bg-[#e64a19] text-white font-medium rounded-lg transition">
+              <button
+                disabled={isInCart}
+                className={`flex items-center gap-2 px-4 py-2 bg-[#ff5722] hover:bg-[#e64a19] text-white font-medium rounded-lg transition ${isInCart ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+              >
                 <ShoppingBag size={20} /> Add to cart
               </button>
               <button className="opacity-[.7] cursor-pointer">
-                <Heart size={30} fill="red" color="transparent" />
+                <Heart
+                  size={30}
+                  fill={isWishlisted ? 'red' : 'transparent'}
+                  stroke={isWishlisted ? 'red' : '#4B5563'}
+                  onClick={() =>
+                    isWishlisted
+                      ? removeFromWishlist(data.id, user, location, deviceInfo)
+                      : addToWishlist(
+                          { ...data, quantity: 1 },
+                          user,
+                          location,
+                          deviceInfo,
+                        )
+                  }
+                />
               </button>
             </div>
             <div className="mt-3">

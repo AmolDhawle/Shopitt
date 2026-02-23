@@ -13,9 +13,13 @@ import {
 } from '../../assets/svgs/heart-icon';
 import HeaderBottom from './header-bottom';
 import useUser from '../../hooks/useUser';
+import { useStore } from '../../store';
 
 const Header = () => {
   const { user, isLoading } = useUser();
+  const wishlist = useStore((state: any) => state.wishlist);
+  const cart = useStore((state: any) => state.cart);
+
   return (
     <div className="w-full">
       <div className="bg-[#2874f0]">
@@ -76,7 +80,7 @@ const Header = () => {
                 <HeartIconOutline size={24} stroke="white" />
                 <div className="w-4 h-4 border-none bg-red-500 rounded-full flex items-center justify-center absolute right-[-6px] top-[-4px]">
                   <span className="text-white font-medium text-sm text-center">
-                    0
+                    {wishlist?.length}
                   </span>
                 </div>
               </Link>
@@ -84,7 +88,7 @@ const Header = () => {
                 <CartIconOutline size={24} stroke="white" />
                 <div className="w-4 h-4 border-none bg-red-500 rounded-full flex items-center justify-center absolute right-[-6px] top-[-4px]">
                   <span className="text-white font-medium text-sm text-center">
-                    0
+                    {cart?.length}
                   </span>
                 </div>
               </Link>
