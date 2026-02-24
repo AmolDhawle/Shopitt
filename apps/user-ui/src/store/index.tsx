@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-type Product = {
+export type Product = {
   id: string;
   title: string;
   price: number;
@@ -10,7 +10,7 @@ type Product = {
   shopId: string;
 };
 
-type Store = {
+export type Store = {
   cart: Product[];
   wishlist: Product[];
   addToCart: (

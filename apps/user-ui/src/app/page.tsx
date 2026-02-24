@@ -22,10 +22,6 @@ const Page = () => {
     staleTime: 1000 * 60 * 2,
   });
 
-  console.log('products:', products);
-  console.log('isLoading:', isLoading);
-  console.log('isError:', isError);
-
   const { data: latestProducts } = useQuery({
     queryKey: ['latest-products'],
     queryFn: async () => {
