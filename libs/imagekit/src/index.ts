@@ -1,1 +1,1 @@
-export * from './lib/imagekit.js';
+export * from './lib/imagekit';

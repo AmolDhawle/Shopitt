@@ -36,7 +36,13 @@
           "watchDepsName": "watch-deps"
         }
       },
-      "exclude": ["libs/middleware/*", "libs/components/*", "libs/imagekit/*"]
+      "exclude": [
+        "libs/middleware/*",
+        "libs/components/*",
+        "libs/imagekit/*",
+        "libs/kafka/*",
+        "libs/redpanda-node/*"
+      ]
     },
     {
       "plugin": "@nx/jest/plugin",
@@ -48,7 +54,8 @@
         "apps/api-gateway-e2e/**/*",
         "apps/middleware-e2e/**/*",
         "libs/middleware-e2e/**/*",
-        "apps/auth-service/**/*"
+        "apps/auth-service/**/*",
+        "apps/kafka-service-e2e/**/*"
       ]
     },
     {
@@ -86,7 +93,13 @@
     },
     {
       "plugin": "@nx/js/typescript",
-      "include": ["libs/middleware/*", "libs/components/*", "libs/imagekit/*"],
+      "include": [
+        "libs/middleware/*",
+        "libs/components/*",
+        "libs/imagekit/*",
+        "libs/kafka/*",
+        "libs/redpanda-node/*"
+      ],
       "options": {
         "typecheck": {
           "targetName": "typecheck"

@@ -35,7 +35,6 @@ const CartPage = () => {
   };
 
   const increaseQuantity = (id: string) => {
-    console.log('Hellp');
     useStore.setState((state: any) => ({
       cart: state.cart.map((item: any) =>
         item.id === id && item.quantity < item.stock

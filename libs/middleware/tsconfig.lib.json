@@ -9,8 +9,6 @@
     "declaration": true,
     "declarationMap": true,
     "types": ["node"],
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
     "target": "esnext"
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts"],
