@@ -8,8 +8,13 @@ import {
   getAllProducts,
   getCategories,
   getDiscountCodes,
+  getFilteredEvents,
+  getFilteredProducts,
+  getFilteredShops,
+  getProductDetails,
   getShopProducts,
   restoreProduct,
+  searchProducts,
   uploadProductImage,
 } from '../controllers/product.controller';
 import { authorizeRole, requireAuth } from '@shopitt/middleware';
@@ -75,5 +80,10 @@ router.put(
 );
 
 router.get('/get-all-products', getAllProducts);
+router.get('/get-product/:slug', getProductDetails);
+router.get('/get-filtered-products', getFilteredProducts);
+router.get('/get-filtered-offers', getFilteredEvents);
+router.get('/get-filtered-shops', getFilteredShops);
+router.get('/search-products', searchProducts);
 
 export default router;
