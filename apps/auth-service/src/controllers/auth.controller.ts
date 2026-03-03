@@ -760,7 +760,7 @@ export const createShop = async (
         opening_hours,
         website,
         socialLinks: socialLinks ?? [],
-        sellerId,
+        sellerId: seller.id,
       },
     });
 
