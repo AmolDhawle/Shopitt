@@ -416,13 +416,21 @@ const ProductDetails = ({ productDetails }: { productDetails: any }) => {
         </div>
       </div>
 
-      <div className="w-[90%] lg:w-[80%] mx-auto mt-5">
-        <div className="bg-white min-h-[60vh] h-full p-5">
-          <h3 className="text-lg font-semibold">
+      <div className="w-[90%] md:w-[80%] mx-auto mt-8">
+        <div className="bg-white rounded-xl shadow-lg border border-gray-800 p-6 md:p-10">
+          <h3 className="text-2xl font-semibold text-black mb-6 break-words">
             Product details of {productDetails?.title}
           </h3>
+
           <div
-            className="prose prose-sm text-slate-200 max-w-none"
+            className="prose prose-invert max-w-full
+           prose-h1:text-3xl
+           prose-h2:text-2xl
+           prose-h3:text-xl
+           prose-li:marker:text-gray-400
+           prose-blockquote:border-gray-600
+           prose-blockquote:text-gray-300
+           break-words"
             dangerouslySetInnerHTML={{
               __html: productDetails?.detailedDescription,
             }}

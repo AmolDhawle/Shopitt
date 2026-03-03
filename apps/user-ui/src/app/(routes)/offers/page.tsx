@@ -8,19 +8,19 @@ import React, { useEffect, useState } from 'react';
 import { Range } from 'react-range';
 
 const MIN = 0;
-const MAX = 20000;
+const MAX = 300000;
 
 const Page = () => {
   const router = useRouter();
   const [isProductLoading, setIsProductLoading] = useState(false);
-  const [priceRange, setPriceRange] = useState([0, 20000]);
+  const [priceRange, setPriceRange] = useState([0, 300000]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [products, setProducts] = useState<any[]>([]);
   const [totalPages, setTotalPages] = useState(1);
-  const [tempPriceRange, setTempPriceRange] = useState([0, 20000]);
+  const [tempPriceRange, setTempPriceRange] = useState([0, 300000]);
 
   const colors = [
     { name: 'Black', code: '#000' },
@@ -47,7 +47,7 @@ const Page = () => {
       params.set('sizes', selectedSizes.join(','));
     }
     params.set('page', page.toString());
-    router.replace(`/products?${decodeURIComponent(params.toString())}`);
+    router.replace(`/offers?${decodeURIComponent(params.toString())}`);
   };
 
   const fetchFilteredProducts = async () => {
@@ -69,7 +69,7 @@ const Page = () => {
       query.set('limit', '12');
 
       const res = await axiosInstance.get(
-        `/product/api/get-filtered-products?${query.toString()}`,
+        `/product/api/get-filtered-offers?${query.toString()}`,
       );
       setProducts(res.data.products);
       setTotalPages(res.data.pagination.totalPages);
@@ -285,7 +285,7 @@ const Page = () => {
                     key={product.id}
                     className="bg-white rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-300"
                   >
-                    <ProductCard product={product} />
+                    <ProductCard product={product} isEvent={true} />
                   </div>
                 ))}
               </div>

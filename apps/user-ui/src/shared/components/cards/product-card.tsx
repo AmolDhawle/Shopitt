@@ -52,6 +52,8 @@ const ProductCard = ({
     return;
   }, [isEvent, product?.endingDate]);
 
+  console.log('IS event', isEvent);
+
   return (
     <div className="w-full min-h-[350px] h-max bg-white rounded-lg relative">
       {isEvent && (
@@ -108,7 +110,7 @@ const ProductCard = ({
         </span>
       </div>
       {isEvent && timeLeft && (
-        <div className="mt-2 ">
+        <div className="mt-2 ml-2">
           <span className="inline-block text-xs bg-orange-100 self-baseline ">
             {timeLeft}
           </span>

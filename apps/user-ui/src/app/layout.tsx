@@ -2,6 +2,7 @@ import Header from '../shared/widgets/header';
 import './global.css';
 import { Poppins, Roboto } from 'next/font/google';
 import Provider from './provider';
+import Footer from '../shared/widgets/footer';
 
 export const metadata = {
   title: 'Shopitt',
@@ -31,6 +32,7 @@ export default function RootLayout({
         <Provider>
           <Header />
           {children}
+          <Footer />
         </Provider>
       </body>
     </html>

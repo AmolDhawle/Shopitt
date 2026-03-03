@@ -332,6 +332,9 @@ export const createProduct = async (
       custom_properties = {},
       cash_on_delivery,
       detailed_description,
+      isEvent = false,
+      startingDate,
+      endingDate,
     } = req.body;
 
     if (
@@ -349,6 +352,16 @@ export const createProduct = async (
       images.length === 0
     ) {
       return next(new ValidationError('Missing required priduct fields'));
+    }
+
+    if (isEvent) {
+      if (!startingDate || !endingDate) {
+        return next(new ValidationError('Event must have start and end date'));
+      }
+
+      if (new Date(startingDate) >= new Date(endingDate)) {
+        return next(new ValidationError('End date must be after start date'));
+      }
     }
 
     if (!req.seller?.id) {
@@ -397,6 +410,9 @@ export const createProduct = async (
               url: image.file_url,
             })),
         },
+        isEvent,
+        startingDate: isEvent ? new Date(startingDate) : null,
+        endingDate: isEvent ? new Date(endingDate) : null,
       },
       include: { images: true },
     });
@@ -635,6 +651,62 @@ export const getAllProducts = async (
   }
 };
 
+// get all events
+export const getAllEvents = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const skip = (page - 1) * limit;
+    const type = req.query.type;
+
+    const orderBy: Prisma.ProductsOrderByWithRelationInput =
+      type === 'totalSales' ? { totalSales: 'desc' } : { createdAt: 'desc' };
+
+    const now = new Date();
+
+    const baseFilter = {
+      isEvent: true,
+      startingDate: { lte: now },
+      endingDate: { gte: now },
+    };
+
+    // Fetch events, count, and top 10 products (if needed)
+    const [events, total, top10BySales] = await Promise.all([
+      prisma.products.findMany({
+        skip,
+        take: limit,
+        where: baseFilter,
+        orderBy,
+        include: {
+          images: true,
+          shop: true,
+        },
+      }),
+      prisma.products.count({ where: baseFilter }),
+      prisma.products.findMany({
+        take: 10,
+        where: baseFilter,
+        orderBy: { totalSales: 'desc' },
+      }),
+    ]);
+
+    // Return response with paginated products and top 10
+    return res.status(200).json({
+      events,
+      top10BySales,
+      total,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 // get product details
 export const getProductDetails = async (
   req: Request,
@@ -691,7 +763,7 @@ export const getFilteredProducts = async (
         gte: parsedPriceRange[0],
         lte: parsedPriceRange[1],
       },
-      // startingDate: null,
+      isEvent: false,
     };
 
     if (categories && (categories as string[]).length > 0) {
@@ -744,7 +816,7 @@ export const getFilteredProducts = async (
   }
 };
 
-// get filterd events
+// get filterd offers
 export const getFilteredEvents = async (
   req: Request,
   res: Response,
@@ -770,13 +842,19 @@ export const getFilteredEvents = async (
 
     const skip = (parsedPage - 1) * parsedLimit;
 
+    const now = new Date();
+
     const filters: Record<string, any> = {
+      isEvent: true,
+      startingDate: {
+        lte: now,
+      },
+      endingDate: {
+        gte: now,
+      },
       salePrice: {
         gte: parsedPriceRange[0],
         lte: parsedPriceRange[1],
-      },
-      NOT: {
-        startingDate: null,
       },
     };
 
@@ -871,7 +949,6 @@ export const getFilteredShops = async (
         take: parsedLimit,
         include: {
           sellers: true,
-
           products: true,
         },
       }),
@@ -986,7 +1063,7 @@ export const topShops = async (
 
     // Merge sales with shop data
     const enrichedShops = shops.map((shop) => {
-      const salesData = topShopsData.find((s: any) => s.shopId === s.id);
+      const salesData = topShopsData.find((s: any) => s.shopId === shop.id);
       return {
         ...shop,
         totalSales: salesData?._sum.total ?? 0,
