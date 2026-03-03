@@ -43,7 +43,13 @@ interface ProductFormValues {
   custom_specifications: { name: string; value: string }[];
   custom_properties: { label: string; values: string[] }[];
   cash_on_delivery: string;
-  detailed_description: string;
+  detailed_description: {
+    html: '';
+    text: '';
+  };
+  isEvent: boolean;
+  startingDate?: string;
+  endingDate?: string;
 }
 
 const Page = () => {
@@ -60,6 +66,10 @@ const Page = () => {
       images: [null],
       custom_specifications: [],
       custom_properties: [],
+      detailed_description: {
+        html: '',
+        text: '',
+      },
     },
   });
 
@@ -73,6 +83,7 @@ const Page = () => {
   const [activeEffect, setActiveEffect] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
   const router = useRouter();
+  const isEvent = watch('isEvent');
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['categories'],
@@ -111,9 +122,13 @@ const Page = () => {
   }, [selectedCategory, subCategoriesData]);
 
   const onSubmit = async (data: any) => {
+    const payload = {
+      ...data,
+      detailed_description: data.detailed_description.html,
+    };
     try {
       setLoading(true);
-      await axiosInstance.post('/product/api/create-product', data);
+      await axiosInstance.post('/product/api/create-product', payload);
       router.push('/dashboard/all-products');
     } catch (error: any) {
       toast.error(error?.data?.message);
@@ -292,8 +307,8 @@ const Page = () => {
                   {...register('short_description', {
                     required: 'Description is required',
                     maxLength: {
-                      value: 150,
-                      message: 'Description cannot exceed 150 words',
+                      value: 250,
+                      message: 'Description cannot exceed 250 words',
                     },
                   })}
                 />
@@ -405,6 +420,31 @@ const Page = () => {
                   </option>
                 </select>
               </div>
+              <div className="mt-4">
+                <label className="flex items-center space-x-2 text-gray-300">
+                  <input
+                    type="checkbox"
+                    {...register('isEvent')}
+                    className="accent-blue-500"
+                  />
+                  <span>Schedule as Limited-Time Event</span>
+                </label>
+              </div>
+
+              {isEvent && (
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <input
+                    type="datetime-local"
+                    {...register('startingDate', { required: true })}
+                    className="input-style text-black"
+                  />
+                  <input
+                    type="datetime-local"
+                    {...register('endingDate', { required: true })}
+                    className="input-style text-black"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="w-2/4">
@@ -498,21 +538,25 @@ const Page = () => {
                   name="detailed_description"
                   control={control}
                   rules={{
-                    required: 'Detailed description is required.',
                     validate: (value) => {
-                      const wordCount = value
-                        ?.split(/\s+/)
-                        .filter((word: string) => word).length;
-                      return (
-                        wordCount >= 100 ||
-                        'Description must be atleast 100 words.'
-                      );
+                      const wordCount = value.text
+                        .trim()
+                        .split(/\s+/)
+                        .filter(Boolean).length;
+
+                      if (wordCount < 100)
+                        return `Minimum 100 words required. Currently: ${wordCount}`;
+
+                      if (wordCount > 1000)
+                        return `Maximum 1000 words allowed.`;
+
+                      return true;
                     },
                   }}
                   render={({ field }) => (
                     <RichTextEditor
-                      value={field.value}
-                      onChange={field.onChange}
+                      value={field.value.html}
+                      onChange={(html, text) => field.onChange({ html, text })}
                     />
                   )}
                 />
