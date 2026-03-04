@@ -29,7 +29,7 @@ const HeaderBottom = () => {
   return (
     <div
       className={`w-full bg-[#49a6e4] transition-all duration-300 ${
-        isSticky ? 'fixed top-0 left-0 z-[100] shadow-lg' : 'relative'
+        isSticky ? 'md:fixed top-0 left-0 z-[100] shadow-lg' : 'relative'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4">
@@ -61,7 +61,7 @@ const HeaderBottom = () => {
               <Link
                 key={index}
                 href={item.href}
-                className="text-white font-medium text-lg whitespace-nowrap"
+                className="text-white font-medium text-md md:text-lg whitespace-nowrap"
               >
                 {item.title}
               </Link>

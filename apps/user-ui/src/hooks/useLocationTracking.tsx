@@ -5,37 +5,43 @@ import { useEffect, useState } from 'react';
 const LOCATION_STORAGE_KEY = 'user_location';
 const LOCATION_EXPIRY_DAYS = 20;
 
-const getStoredLocation = () => {
-  const storedData = localStorage.getItem(LOCATION_STORAGE_KEY);
-
-  if (!storedData) return null;
-
-  const parsedData = JSON.parse(storedData);
-  const expiryTime = LOCATION_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
-
-  const isExpired = Date.now() - parsedData.timestamp > expiryTime;
-
-  return isExpired ? null : parsedData;
+type LocationType = {
+  country: string;
+  city: string;
+  timestamp: number;
 };
 
 const useLocationTracking = () => {
-  const [location, setLocation] = useState<{
-    country: string;
-    city: string;
-  } | null>(getStoredLocation());
-  useEffect(() => {
-    if (location) return;
+  const [location, setLocation] = useState<LocationType | null>(null);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const storedData = localStorage.getItem(LOCATION_STORAGE_KEY);
+
+    if (storedData) {
+      const parsedData: LocationType = JSON.parse(storedData);
+      const expiryTime = LOCATION_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
+      const isExpired = Date.now() - parsedData.timestamp > expiryTime;
+
+      if (!isExpired) {
+        setLocation(parsedData);
+        return;
+      }
+    }
+
+    // Fetch new location if none or expired
     fetch('http://ip-api.com/json/')
       .then((res) => res.json())
       .then((data) => {
-        const newLocation = {
+        const newLocation: LocationType = {
           country: data?.country,
           city: data?.city,
-          timeStamp: Date.now(),
+          timestamp: Date.now(),
         };
 
         localStorage.setItem(LOCATION_STORAGE_KEY, JSON.stringify(newLocation));
+
         setLocation(newLocation);
       })
       .catch((error) => console.log('Failed to get location', error));

@@ -44,6 +44,7 @@ app.get('/gateway-health', (req, res) => {
 });
 
 app.use('/product', proxy('http://localhost:6002')); // Product Service
+app.use('/user', proxy('http://localhost:6003')); // User Service
 app.use('/', proxy('http://localhost:6001')); // Auth Service
 
 const port = process.env.PORT || 8080;

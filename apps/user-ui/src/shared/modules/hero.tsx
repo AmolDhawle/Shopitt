@@ -32,7 +32,7 @@ const Hero = () => {
         <div className="md:w-1/2 mt-8 md:mt-0 flex justify-center">
           <div className="relative w-[350px] h-[350px] md:w-[500px] md:h-[500px] transform hover:scale-105 transition duration-500 ease-in-out">
             <Image
-              src="https://ik.imagekit.io/5frbx53sr/products/product-1771399593718_TZjHhVjST.jpg?updatedAt=1771399597860"
+              src="https://ik.imagekit.io/5frbx53sr/products/watch-6.avif"
               alt="Product Image"
               layout="fill"
               objectFit="cover"

@@ -18,7 +18,6 @@ interface ShopCardProps {
 }
 
 const ShopCard: React.FC<ShopCardProps> = ({ shop }) => {
-  console.log('Folloeewewrs', shop);
   return (
     <div className="w-full rounded-md cursor-pointer bg-white border border-gray-200 shadow-sm overflow-hidden transitiion">
       {/* Cover photo */}

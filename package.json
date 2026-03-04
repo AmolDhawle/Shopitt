@@ -8,7 +8,8 @@
     "auth-docs": "node apps/auth-service/src/swagger-auth.js",
     "webhook-docs": "node apps/auth-service/src/swagger-webhooks.js",
     "product-docs": "node apps/product-service/src/swagger.js",
-    "docs": "npm run auth-docs && npm run webhook-docs && npm run product-docs",
+    "user-docs": "node apps/user-service/src/swagger.js",
+    "docs": "npm run auth-docs && npm run webhook-docs && npm run product-docs && npm run user-docs",
     "user-ui": "npx nx run-many --target=dev --projects=user-ui",
     "seller-ui": "npx nx run-many --target=dev --projects=seller-ui"
   },

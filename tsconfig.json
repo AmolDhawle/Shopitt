@@ -44,6 +44,9 @@
     },
     {
       "path": "./libs/redpanda-node"
+    },
+    {
+      "path": "./apps/user-service"
     }
   ]
 }

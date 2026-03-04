@@ -24,7 +24,6 @@ const RichTextEditor = ({
     const text = editor.getText().trim();
     const words = text.split(/\s+/).filter(Boolean).length;
 
-    // 🔒 Hard stop if exceeds maxWords
     if (words > maxWords) {
       editor.deleteText(editor.getLength() - 2, 1);
       return;
@@ -66,7 +65,7 @@ const RichTextEditor = ({
 
     /* Increase actual typing area */
     .custom-quill .ql-editor {
-      min-height: 350px;   /* 🔥 increase usable height */
+      min-height: 350px;   
       padding: 16px;
       color: white;
     }

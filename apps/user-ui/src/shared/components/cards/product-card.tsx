@@ -52,8 +52,6 @@ const ProductCard = ({
     return;
   }, [isEvent, product?.endingDate]);
 
-  console.log('IS event', isEvent);
-
   return (
     <div className="w-full min-h-[350px] h-max bg-white rounded-lg relative">
       {isEvent && (

@@ -14,6 +14,7 @@ import {
 import HeaderBottom from './header-bottom';
 import useUser from '../../hooks/useUser';
 import { useStore } from '../../store';
+import { capitalize } from '../../utils/capitalize';
 
 const Header = () => {
   const { user, isLoading } = useUser();
@@ -46,15 +47,17 @@ const Header = () => {
               <div className="flex items-center gap-2">
                 {!isLoading && user ? (
                   <>
-                    <Link href="/login">
+                    <Link href="/profile">
                       <ProfileIcon />
                     </Link>
-                    <Link href="/login">
+                    <Link href="/profile">
                       <span className="block text-lg text-white font-medium cursor-pointer">
                         Hello,
                       </span>
                       <span className="text-lg text-white font-medium cursor-pointer">
-                        {isLoading ? '...' : user?.name?.split(' ')[0]}
+                        {isLoading
+                          ? '...'
+                          : capitalize(user?.name?.split(' ')[0])}
                       </span>
                     </Link>
                   </>

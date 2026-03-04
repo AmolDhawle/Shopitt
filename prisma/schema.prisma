@@ -39,6 +39,7 @@ model Users {
   updatedAt   DateTime      @updatedAt
   shopReviews ShopReviews[]
   orders      Orders[]
+  addresses Address[]
 }
 
 model ShopReviews {
@@ -122,6 +123,8 @@ model SiteConfig {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
   categories    String[]
   subCategories Json
+  logo  String?
+  banner  String?
 }
 
 enum DiscountType {
@@ -209,9 +212,10 @@ model UserAnalytics {
   country String?
   city    String?
   device  String?
+  recommendations Json?
 
   lastVisited DateTime
-  lastTrained DateTime?
+  lastTrained DateTime? @default(now())
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -264,6 +268,7 @@ model Orders {
 
   subtotal    Int
   discount    Int @default(0)
+  couponCode String
   tax         Int @default(0)
   shippingFee Int @default(0)
   total       Int
@@ -274,7 +279,7 @@ model Orders {
   paymentMethod String? // COD / STRIPE 
   transactionId String?
 
-  shippingAddress Json
+  shippingAddressId String?
 
   placedAt    DateTime  @default(now())
   deliveredAt DateTime?
@@ -304,4 +309,31 @@ model OrderItems {
 
   @@index([orderId])
   @@index([productId])
+}
+
+enum addressType {
+  Home
+  Work
+  Other
+}
+
+model Address {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  userId String @db.ObjectId
+  user   Users  @relation(fields: [userId], references: [id])
+
+  label   addressType  
+  name    String   
+  street  String
+  city    String
+  zip     String
+  country String
+
+  isDefault Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
