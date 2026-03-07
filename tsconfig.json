@@ -47,6 +47,9 @@
     },
     {
       "path": "./apps/user-service"
+    },
+    {
+      "path": "./apps/order-service"
     }
   ]
 }

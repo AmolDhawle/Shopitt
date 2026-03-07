@@ -10,9 +10,10 @@ export const addUserAddress = async (
 ) => {
   try {
     const userId = req.user?.id;
-    const { label, name, street, city, zip, country, isDefault } = req.body;
+    const { label, line1, line2, city, postalCode, country, isDefault } =
+      req.body;
 
-    if (!label || !name || !street || !city || !zip || !country) {
+    if (!label || !line1 || !line2 || !city || !postalCode || !country) {
       return new ValidationError('All fields are required');
     }
 
@@ -36,10 +37,10 @@ export const addUserAddress = async (
       data: {
         userId,
         label,
-        name,
+        line1,
         city,
-        street,
-        zip,
+        line2,
+        postalCode,
         country,
         isDefault,
       },

@@ -39,7 +39,7 @@ model Users {
   updatedAt   DateTime      @updatedAt
   shopReviews ShopReviews[]
   orders      Orders[]
-  addresses Address[]
+  addresses   Address[]
 }
 
 model ShopReviews {
@@ -123,8 +123,8 @@ model SiteConfig {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
   categories    String[]
   subCategories Json
-  logo  String?
-  banner  String?
+  logo          String?
+  banner        String?
 }
 
 enum DiscountType {
@@ -209,9 +209,9 @@ model UserAnalytics {
 
   actions Json @default("[]")
 
-  country String?
-  city    String?
-  device  String?
+  country         String?
+  city            String?
+  device          String?
   recommendations Json?
 
   lastVisited DateTime
@@ -267,10 +267,10 @@ model Orders {
   items OrderItems[]
 
   subtotal    Int
-  discount    Int @default(0)
-  couponCode String
-  tax         Int @default(0)
-  shippingFee Int @default(0)
+  discount    Int     @default(0)
+  couponCode  String?
+  tax         Int     @default(0)
+  shippingFee Int     @default(0)
   total       Int
 
   orderStatus   OrderStatus   @default(PENDING)
@@ -279,7 +279,8 @@ model Orders {
   paymentMethod String? // COD / STRIPE 
   transactionId String?
 
-  shippingAddressId String?
+  shippingAddressId String?  @db.ObjectId
+  shippingAddress   Address? @relation(fields: [shippingAddressId], references: [id])
 
   placedAt    DateTime  @default(now())
   deliveredAt DateTime?
@@ -323,17 +324,52 @@ model Address {
   userId String @db.ObjectId
   user   Users  @relation(fields: [userId], references: [id])
 
-  label   addressType  
-  name    String   
-  street  String
-  city    String
-  zip     String
-  country String
+  label      addressType
+  line1      String
+  line2      String
+  city       String
+  postalCode String
+  country    String
 
   isDefault Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  orders    Orders[]
 
   @@index([userId])
+}
+
+enum NotificationType {
+  ORDER
+  MESSAGE
+  SYSTEM
+  REVIEW
+  PROMOTION
+}
+
+model Notifications {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  title   String
+  message String
+
+  type NotificationType @default(SYSTEM)
+
+  creatorId  String? @db.ObjectId
+  receiverId String
+
+  redirectLink String?
+
+  entityId String? @db.ObjectId // orderId, productId, etc
+
+  isRead Boolean @default(false)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([receiverId])
+  @@index([creatorId])
+  @@index([type])
 }

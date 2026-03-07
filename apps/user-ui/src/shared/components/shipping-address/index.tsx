@@ -19,10 +19,10 @@ const ShippingAddressSection = () => {
   } = useForm({
     defaultValues: {
       label: 'Home',
-      name: '',
-      street: '',
+      line1: '',
+      line2: '',
       city: '',
-      zip: '',
+      postalCode: '',
       country: 'India',
       isDefault: false,
     },
@@ -101,10 +101,10 @@ const ShippingAddressSection = () => {
                   <MapPin className="w-5 h-5 mt-0.5 text-gray-500" />
                   <div>
                     <p className="font-medium">
-                      {address.label} - {address.name}
+                      {address.label} - {address.line1}
                     </p>
                     <p>
-                      {address.street}, {address.city}, {address.zip},{' '}
+                      {address.line2}, {address.city}, {address.postalCode},{' '}
                       {address.country}
                     </p>
                   </div>
@@ -159,39 +159,37 @@ const ShippingAddressSection = () => {
                 </select>
               </div>
 
-              {/* Name */}
+              {/* Address Line 1 */}
               <div className="space-y-1">
                 <label className="text-sm font-medium text-gray-700">
-                  Full Name
+                  Address Line 1
                 </label>
                 <input
                   type="text"
-                  {...register('name', { required: 'Name is required' })}
+                  {...register('line1', { required: 'Address is required' })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
                 />
-                {errors.name && (
-                  <p className="text-red-500 text-xs">{errors.name.message}</p>
+                {errors.line1 && (
+                  <p className="text-red-500 text-xs">{errors.line1.message}</p>
                 )}
               </div>
 
-              {/* Street */}
+              {/* Address Line 2 */}
               <div className="space-y-1">
                 <label className="text-sm font-medium text-gray-700">
-                  Street Address
+                  Address Line 2
                 </label>
                 <input
                   type="text"
-                  {...register('street', { required: 'Street is required' })}
+                  {...register('line2', { required: 'Address is required' })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
                 />
-                {errors.street && (
-                  <p className="text-red-500 text-xs">
-                    {errors.street.message}
-                  </p>
+                {errors.line2 && (
+                  <p className="text-red-500 text-xs">{errors.line2.message}</p>
                 )}
               </div>
 
-              {/* City + Zip Grid */}
+              {/* City + Postal COde Grid */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="text-sm font-medium text-gray-700">
@@ -211,15 +209,19 @@ const ShippingAddressSection = () => {
 
                 <div className="space-y-1">
                   <label className="text-sm font-medium text-gray-700">
-                    Zip Code
+                    Postal Code
                   </label>
                   <input
                     type="text"
-                    {...register('zip', { required: 'Zip Code is required' })}
+                    {...register('postalCode', {
+                      required: 'Postal Code is required',
+                    })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
                   />
-                  {errors.zip && (
-                    <p className="text-red-500 text-xs">{errors.zip.message}</p>
+                  {errors.postalCode && (
+                    <p className="text-red-500 text-xs">
+                      {errors.postalCode.message}
+                    </p>
                   )}
                 </div>
               </div>

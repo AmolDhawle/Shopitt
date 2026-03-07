@@ -11,6 +11,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 
 const CartPage = () => {
   const router = useRouter();
@@ -25,6 +26,26 @@ const CartPage = () => {
   const [couponCode, setCouponCode] = useState('');
   const [selectedAddressId, setSelectedAddressid] = useState('');
   const removeFromCart = useStore((state: any) => state.removeFromCart);
+
+  const createPaymentSession = async () => {
+    setLoading(true);
+    try {
+      const res = await axiosInstance.post(
+        '/order/api/create-payment-session',
+        {
+          cart,
+          selectedAddressId,
+          couponCode: {},
+        },
+      );
+      const sessionId = res.data.sessionId;
+      router.push(`/checkout?sessionId=${sessionId}`);
+    } catch (error) {
+      toast.error('Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const decreaseQuantity = (id: string) => {
     useStore.setState((state: any) => ({
@@ -65,7 +86,7 @@ const CartPage = () => {
   });
 
   useEffect(() => {
-    if (addresses.length > 0 && !selectedAddressId) {
+    if (addresses?.length > 0 && !selectedAddressId) {
       const defaultAddr = addresses.find((addr: any) => addr.isDefault);
       if (defaultAddr) {
         setSelectedAddressid(defaultAddr.id);
@@ -262,7 +283,7 @@ const CartPage = () => {
                       ))}
                     </select>
                   )}
-                  {addresses.length === 0 && (
+                  {addresses?.length === 0 && (
                     <p className="text-sm text-slate-800">
                       Please add an address from profile to create an order!
                     </p>
@@ -289,6 +310,7 @@ const CartPage = () => {
                 </div>
                 <button
                   disabled={loading}
+                  onClick={createPaymentSession}
                   className="w-full flex items-center justify-center gap-2 cursor-pointer mt-4 py-3 bg-[#010f1c] text-white hover:bg-[#0989FF] transition-all rounded-lg"
                 >
                   {loading && <Loader2 className="animate-spin w-5 h-5" />}
