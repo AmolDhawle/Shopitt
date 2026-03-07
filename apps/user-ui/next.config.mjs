@@ -7,6 +7,9 @@ import { composePlugins, withNx } from '@nx/next';
 const nextConfig = {
   // Nx-specific options
   nx: {},
+  images: {
+    remotePatterns: [{ hostname: 'ik.imagekit.io' }],
+  },
 };
 
 // List your Next.js plugins here

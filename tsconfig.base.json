@@ -10,8 +10,10 @@
     "importHelpers": true,
     "isolatedModules": true,
     "lib": ["es2022"],
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
+    // "module": "nodenext",
+    // "moduleResolution": "nodenext",
+    "moduleResolution": "node",
+    "module": "ESNext",
     "noEmitOnError": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
@@ -20,12 +22,12 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "esnext",
-    "customConditions": ["@shopitt/source"],
+    // "customConditions": ["@shopitt/source"],
     "paths": {
       "@shopitt/prisma": ["generated/prisma/*"],
-      "@shopitt/middleware": ["libs/middleware/src/index.ts"],
-      "@shopitt/ui": ["libs/ui/src/index.ts"],
-      "@shopitt/imagekit": ["libs/imagekit/src/index.ts"]
+      "@shopitt/middleware": ["libs/middleware/src"],
+      "@shopitt/ui": ["libs/ui/src"],
+      "@shopitt/imagekit": ["libs/imagekit/src"]
     },
     "typeRoots": ["./node_modules/@types"]
   },

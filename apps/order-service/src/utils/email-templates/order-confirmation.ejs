@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Shopitt Order Confirmation</title>
+
+<style>
+body{
+  font-family: Arial, Helvetica, sans-serif;
+  background:#f6f6f6;
+  margin:0;
+  padding:0;
+}
+
+.container{
+  max-width:620px;
+  margin:auto;
+  background:white;
+  padding:30px;
+}
+
+.header{
+  text-align:center;
+  margin-bottom:25px;
+}
+
+.logo{
+  font-size:26px;
+  font-weight:bold;
+  color:#4f46e5;
+}
+
+.order-items{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:15px;
+}
+
+.order-items th,
+.order-items td{
+  padding:10px;
+  border-bottom:1px solid #eee;
+  text-align:left;
+}
+
+.total{
+  font-weight:bold;
+  font-size:16px;
+}
+
+.footer{
+  text-align:center;
+  color:#777;
+  font-size:13px;
+  margin-top:40px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+  <div class="logo">Shopitt</div>
+  <p>Your order has been confirmed 🎉</p>
+</div>
+
+<p>Hi <strong><%= name %></strong>,</p>
+
+<p>
+Thank you for shopping with <strong>Shopitt</strong>.  
+We've received your order and it's now being processed.
+</p>
+
+<h3>Order Summary</h3>
+
+<table class="order-items">
+<thead>
+<tr>
+<th>Product</th>
+<th>Options</th>
+<th>Qty</th>
+<th>Price</th>
+</tr>
+</thead>
+
+<tbody>
+
+<% cart.forEach(item => { %>
+<tr>
+
+<td>
+<%= item.name || "Product" %>
+</td>
+
+<td>
+<% if(item.selectedOptions?.size){ %>
+Size: <%= item.selectedOptions.size %><br>
+<% } %>
+
+<% if(item.selectedOptions?.color){ %>
+Color: <%= item.selectedOptions.color %>
+<% } %>
+</td>
+
+<td>
+<%= item.quantity %>
+</td>
+
+<td>
+₹<%= (item.salePrice).toFixed(2) %>
+</td>
+
+</tr>
+<% }) %>
+
+</tbody>
+</table>
+
+<br>
+
+<table class="order-items">
+
+<tr class="total">
+<td>Total Paid</td>
+<td>₹<%= (totalAmount).toFixed(2) %></td>
+</tr>
+
+</table>
+
+<p style="margin-top:20px;">
+We'll notify you once your order ships.
+</p>
+
+<div class="footer">
+<p>If you have any questions, contact support@shopitt.com</p>
+<p>© <%= new Date().getFullYear() %> Shopitt</p>
+</div>
+
+</div>
+
+</body>
+</html>

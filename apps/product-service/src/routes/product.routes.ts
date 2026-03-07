@@ -5,10 +5,18 @@ import {
   deleteDiscountCode,
   deleteProduct,
   deleteProductImage,
+  getAllEvents,
+  getAllProducts,
   getCategories,
   getDiscountCodes,
+  getFilteredEvents,
+  getFilteredProducts,
+  getFilteredShops,
+  getProductDetails,
   getShopProducts,
   restoreProduct,
+  searchProducts,
+  topShops,
   uploadProductImage,
 } from '../controllers/product.controller';
 import { authorizeRole, requireAuth } from '@shopitt/middleware';
@@ -72,5 +80,14 @@ router.put(
   authorizeRole('seller'),
   restoreProduct,
 );
+
+router.get('/get-all-products', getAllProducts);
+router.get('/get-all-events', getAllEvents);
+router.get('/get-product/:slug', getProductDetails);
+router.get('/get-filtered-products', getFilteredProducts);
+router.get('/get-filtered-offers', getFilteredEvents);
+router.get('/get-filtered-shops', getFilteredShops);
+router.get('/search-products', searchProducts);
+router.get('/top-shops', topShops);
 
 export default router;

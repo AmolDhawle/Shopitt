@@ -38,6 +38,18 @@
     },
     {
       "path": "./libs/imagekit"
+    },
+    {
+      "path": "./apps/kafka-service"
+    },
+    {
+      "path": "./libs/redpanda-node"
+    },
+    {
+      "path": "./apps/user-service"
+    },
+    {
+      "path": "./apps/order-service"
     }
   ]
 }

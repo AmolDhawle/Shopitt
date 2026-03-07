@@ -38,5 +38,10 @@
     "jest.config.cts",
     "**/*.spec.ts",
     "**/*.test.ts"
+  ],
+  "references": [
+    {
+      "path": "../../libs/redpanda-node"
+    }
   ]
 }

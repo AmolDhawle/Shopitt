@@ -1,8 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "module": "nodenext",
-    "target": "esnext",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "importHelpers": true,

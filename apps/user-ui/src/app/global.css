@@ -512,3 +512,9 @@ summary svg {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+.prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
