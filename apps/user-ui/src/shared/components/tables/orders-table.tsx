@@ -70,7 +70,10 @@ const OrdersTable = () => {
       <table className="w-full text-sm border-collapse">
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
-            <tr className="border-b border-b-gray-200 text-left">
+            <tr
+              key={headerGroup.id}
+              className="border-b border-b-gray-200 text-left"
+            >
               {headerGroup.headers.map((header) => (
                 <th
                   key={header.id}
@@ -92,7 +95,7 @@ const OrdersTable = () => {
               className="border-b border-b-gray-200 hover:bg-gray-50"
             >
               {row.getVisibleCells().map((cell) => (
-                <td className="py-2 px-3">
+                <td key={cell.id} className="py-2 px-3">
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               ))}
