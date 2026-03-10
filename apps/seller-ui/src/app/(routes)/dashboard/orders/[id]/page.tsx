@@ -20,7 +20,7 @@ const formatStatus = (status: string) =>
     .toLowerCase()
     .replace(/\b\w/g, (l) => l.toUpperCase());
 
-const Page = () => {
+const OrderDetails = () => {
   const params = useParams();
   const orderId = params.id as string;
 
@@ -106,25 +106,6 @@ const Page = () => {
         <label className="text-sm font-medium text-gray-300 mr-3">
           Update Order Status:
         </label>
-
-        {/* <select
-          value={currentStatus}
-          onChange={handleStatusChange}
-          disabled={updating}
-          className={`border bg-transparent text-gray-200 border-gray-300 rounded-md px-2 py-1`}
-        >
-          {statuses.map((status, index) => (
-            <option
-              key={status}
-              value={status}
-              // Disable all previous statuses
-              disabled={index < currentIndex}
-              className={`${index < currentIndex ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-            >
-              {formatStatus(status)}
-            </option>
-          ))}
-        </select> */}
         <select
           value={currentStatus}
           onChange={handleStatusChange}
@@ -137,7 +118,7 @@ const Page = () => {
             <option
               key={status}
               value={status}
-              disabled={index < currentIndex} // prevent moving backward
+              disabled={index < currentIndex}
               className={`${index < currentIndex ? 'text-gray-500 bg-gray-900' : 'text-gray-200 bg-gray-900'}`}
             >
               {formatStatus(status)}
@@ -296,4 +277,4 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default OrderDetails;

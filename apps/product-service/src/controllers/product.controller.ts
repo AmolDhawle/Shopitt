@@ -261,6 +261,11 @@ export const uploadProductImage = async (
     }
     const { fileName } = req.body;
 
+    if (!fileName) {
+      return res.status(400).json({
+        message: 'Image is required',
+      });
+    }
     const response = await imagekit.upload({
       file: fileName,
       fileName: `product-${Date.now()}`,
