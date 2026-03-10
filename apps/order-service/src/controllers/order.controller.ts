@@ -14,6 +14,14 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-12-15.clover',
 });
 
+interface CartItem {
+  id: string;
+  shopId: string;
+  salePrice: number;
+  quantity: number;
+  discountCode?: string[];
+}
+
 /**
  * CREATE PAYMENT SESSION
  */
@@ -567,6 +575,86 @@ export const updateOrderStatus = async (
       success: true,
       message: 'Order status updated successfully',
       order: updatedOrder,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const verifyCouponCode = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { couponCode, cart } = req.body as {
+      couponCode: string;
+      cart: CartItem[];
+    };
+
+    if (!couponCode || !cart?.length) {
+      return next(new ValidationError('Coupon code and cart are required'));
+    }
+
+    // Extract shop IDs and find the discount
+    const shopIds = [...new Set(cart.map((i) => i.shopId))].filter(
+      (id): id is string => typeof id === 'string',
+    );
+
+    let discount;
+
+    for (const shopId of shopIds) {
+      discount = await prisma.discountCode.findFirst({
+        where: {
+          discountCode: couponCode,
+          shopId,
+          isActive: true,
+          expiresAt: { gte: new Date() },
+        },
+      });
+      if (discount) break;
+    }
+
+    if (!discount) {
+      return next(new ValidationError("Coupon code isn't valid for this cart"));
+    }
+
+    // Apply discount to matching products
+    const discountIdSet = new Set([discount.id]);
+    const matchingProducts = cart.filter((item) =>
+      item.discountCode?.some((d) => discountIdSet.has(d)),
+    );
+
+    if (!matchingProducts.length) {
+      return res.status(200).json({
+        valid: false,
+        discountAmount: 0,
+        message: 'No eligible product found in cart for this coupon',
+      });
+    }
+
+    let discountAmount = 0;
+
+    for (const item of matchingProducts) {
+      const price = item.salePrice * item.quantity;
+      let itemDiscount = 0;
+
+      if (discount.discountType === 'PERCENTAGE') {
+        itemDiscount = (price * discount.discountValue) / 100;
+      } else if (discount.discountType === 'FIXED') {
+        itemDiscount = discount.discountValue;
+      }
+
+      discountAmount += Math.min(itemDiscount, price);
+    }
+
+    return res.status(200).json({
+      valid: true,
+      discount: discount.discountValue,
+      discountAmount, // number
+      discountedProductIds: matchingProducts.map((p) => p.id),
+      discountType: discount.discountType,
+      message: `Discount applied to ${matchingProducts.length} eligible product(s)`,
     });
   } catch (error) {
     return next(error);

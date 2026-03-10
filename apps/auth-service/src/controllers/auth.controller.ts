@@ -50,8 +50,8 @@ export const registerUser = async (
     }
 
     // OTP restriction and request tracking
-    await checkOtpRestrictions(email, next);
-    await trackOtpRequests(email, next);
+    await checkOtpRestrictions(email);
+    await trackOtpRequests(email);
 
     // If user exists but unverified, update info or resend OTP
     if (!existingUser) {
@@ -475,8 +475,8 @@ export const registerSeller = async (
     }
 
     // OTP restrictions and tracking
-    await checkOtpRestrictions(email, next);
-    await trackOtpRequests(email, next);
+    await checkOtpRestrictions(email);
+    await trackOtpRequests(email);
 
     // Send OTP for seller activation
     await sendOtp(name, email, 'seller-activation-mail');

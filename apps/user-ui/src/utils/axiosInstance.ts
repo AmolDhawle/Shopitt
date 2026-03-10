@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import { runRedirectToLogin } from './redirect';
 
 const axiosInstance = axios.create({
@@ -6,12 +6,29 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 
+// Track refresh state
 let isRefreshing = false;
-type RefreshSubscriber = () => void;
 
-let refreshSubscribers: RefreshSubscriber[] = [];
+// Queue pending requests while refreshing
+let failedQueue: {
+  resolve: (value?: unknown) => void;
+  reject: (error?: unknown) => void;
+}[] = [];
 
-// Handle logout and prevent infinite loops
+// Process queued requests after refresh
+const processQueue = (error: unknown) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(true);
+    }
+  });
+
+  failedQueue = [];
+};
+
+// Handle logout safely
 const handleLogout = () => {
   const publicPaths = ['/login', '/signup', '/forgot-password'];
   const currentPath = window.location.pathname;
@@ -21,36 +38,26 @@ const handleLogout = () => {
   }
 };
 
-// Handle adding a new access token to the queued requests
-const subscribeTokenRefresh = (callback: () => void) => {
-  refreshSubscribers.push(callback);
-};
-
-// Execute the queued requests after refresh
-const onRefreshSuccess = () => {
-  refreshSubscribers.forEach((callback) => callback());
-  refreshSubscribers = [];
-};
-
-// Handle Api requests
-axiosInstance.interceptors.request.use(
-  (config) => config,
-  (error) => Promise.reject(error),
-);
-
-// Handle expired token and refresh logic
+// RESPONSE INTERCEPTOR
 axiosInstance.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-    const is401 = error?.response?.status === 401;
-    const isRetry = originalRequest?._retry;
-    const isAuthRequired = originalRequest?.requireAuth === true;
 
-    if (is401 && isRetry && isAuthRequired) {
+  async (error: AxiosError) => {
+    const originalRequest = error.config as AxiosRequestConfig & {
+      _retry?: boolean;
+    };
+
+    const status = error.response?.status;
+
+    // Only handle 401
+    if (status === 401 && !originalRequest?._retry) {
       if (isRefreshing) {
-        return new Promise((resolve) => {
-          subscribeTokenRefresh(() => resolve(axiosInstance(originalRequest)));
+        // Queue requests while refresh happens
+        return new Promise((resolve, reject) => {
+          failedQueue.push({
+            resolve: () => resolve(axiosInstance(originalRequest)),
+            reject,
+          });
         });
       }
 
@@ -58,21 +65,21 @@ axiosInstance.interceptors.response.use(
       isRefreshing = true;
 
       try {
+        // Refresh token request
         await axios.post(
           `${process.env.NEXT_PUBLIC_SERVER_URI}/api/refresh`,
           {},
           { withCredentials: true },
         );
 
-        isRefreshing = false;
-        onRefreshSuccess();
-
+        processQueue(null);
         return axiosInstance(originalRequest);
-      } catch (error) {
-        isRefreshing = false;
-        refreshSubscribers = [];
+      } catch (refreshError) {
+        processQueue(refreshError);
         handleLogout();
-        return Promise.reject(error);
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     }
 

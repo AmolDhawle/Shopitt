@@ -2,6 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { useState } from 'react';
+import { Toaster } from 'react-hot-toast';
 
 const Provider = ({ children }: { children: React.ReactNode }) => {
   const [queryClient] = useState(
@@ -16,7 +17,10 @@ const Provider = ({ children }: { children: React.ReactNode }) => {
       }),
   );
   return (
-    <QueryClientProvider client={queryClient}>{children} </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      {children}
+      <Toaster position="top-center" reverseOrder={false} />
+    </QueryClientProvider>
   );
 };
 
