@@ -40,6 +40,7 @@ model Users {
   shopReviews ShopReviews[]
   orders      Orders[]
   addresses   Address[]
+  orderGroups OrderGroups[]
 }
 
 model ShopReviews {
@@ -140,7 +141,7 @@ model DiscountCode {
   discountValue Float
 
   discountCode String
-  sellerId     String @db.ObjectId
+  shopId       String @db.ObjectId
 
   isActive   Boolean   @default(true)
   expiresAt  DateTime?
@@ -155,7 +156,7 @@ model DiscountCode {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([discountCode, sellerId])
+  @@unique([discountCode, shopId])
 }
 
 enum ProductStatus {
@@ -255,14 +256,31 @@ enum PaymentStatus {
   REFUNDED
 }
 
+enum OrderTimelineStatus {
+  ORDER_PLACED
+  PAYMENT_CONFIRMED
+  PACKED
+  SHIPPED
+  OUT_FOR_DELIVERY
+  DELIVERY_ATTEMPTED
+  DELIVERED
+  CANCELLED
+  RETURN_REQUESTED
+  RETURN_APPROVED
+  RETURNED
+  REFUND_INITIATED
+  REFUNDED
+}
+
 model Orders {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
-  userId String @db.ObjectId
-  user   Users  @relation(fields: [userId], references: [id])
-
-  shopId String @db.ObjectId
-  shop   Shops  @relation(fields: [shopId], references: [id])
+  orderGroupId String?      @db.ObjectId
+  orderGroup   OrderGroups? @relation(fields: [orderGroupId], references: [id])
+  user     Users   @relation(fields: [userId], references: [id])
+  userId    String  @db.ObjectId
+  shop     Shops   @relation(fields: [shopId], references: [id])
+  shopId    String  @db.ObjectId
 
   items OrderItems[]
 
@@ -276,20 +294,35 @@ model Orders {
   orderStatus   OrderStatus   @default(PENDING)
   paymentStatus PaymentStatus @default(PENDING)
 
-  paymentMethod String? // COD / STRIPE 
+  paymentMethod String?
   transactionId String?
 
   shippingAddressId String?  @db.ObjectId
   shippingAddress   Address? @relation(fields: [shippingAddressId], references: [id])
 
-  placedAt    DateTime  @default(now())
-  deliveredAt DateTime?
+  placedAt DateTime @default(now())
+
+  statusHistory OrderStatusHistory[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
   @@index([shopId])
   @@index([userId])
+  
+}
+
+model OrderStatusHistory {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  orderId String @db.ObjectId
+  order   Orders @relation(fields: [orderId], references: [id])
+
+  status OrderTimelineStatus
+  note   String?
+
+  createdAt DateTime @default(now())
+
+  @@index([orderId])
 }
 
 model OrderItems {
@@ -310,6 +343,23 @@ model OrderItems {
 
   @@index([orderId])
   @@index([productId])
+}
+
+model OrderGroups {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  userId String @db.ObjectId
+  users  Users  @relation(fields: [userId], references: [id])
+
+  totalAmount   Int
+  paymentStatus PaymentStatus
+  paymentMethod String?
+  transactionId String?
+
+  orders Orders[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum addressType {
