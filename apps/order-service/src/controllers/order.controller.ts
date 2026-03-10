@@ -1,4 +1,8 @@
-import { BadRequestError } from '@shopitt/error-handler';
+import {
+  BadRequestError,
+  NotFoundError,
+  ValidationError,
+} from '@shopitt/error-handler';
 import { Request, Response, NextFunction } from 'express';
 import Stripe from 'stripe';
 import { redis } from '@shopitt/redis';
@@ -261,28 +265,66 @@ export const stripeWebhook = async (req: Request, res: Response) => {
       const discount = coupon?.discountAmount || 0;
       const total = subtotal - discount;
 
+      // Doesn't work for indian sellers/accounts
+
+      // await stripe.transfers.create({
+      //   amount: sellerAmount,
+      //   currency: 'inr',
+      //   destination: seller.stripeAccountId,
+      //   source_transaction: paymentIntent.latest_charge as string,
+      //   description: `Payout for order ${order.id}`,
+      // });
+
+      const orderGroup = await tx.orderGroups.create({
+        data: {
+          userId,
+          totalAmount: pricing.totalAmount,
+          paymentStatus: 'PAID',
+          paymentMethod: 'STRIPE',
+          transactionId: paymentIntent.id,
+        },
+      });
+
       await tx.orders.create({
         data: {
+          orderGroup: {
+            connect: { id: orderGroup.id },
+          },
+
           user: {
             connect: { id: userId },
           },
+
           shop: {
             connect: { id: seller.shopId },
           },
+
           subtotal,
           discount,
           total,
           couponCode: coupon?.code || '',
           paymentStatus: 'PAID',
           orderStatus: 'CONFIRMED',
+
           paymentMethod: 'STRIPE',
           transactionId: paymentIntent.id,
+
           shippingAddress: shippingAddressId
             ? { connect: { id: shippingAddressId } }
             : undefined,
+
+          statusHistory: {
+            create: [
+              { status: 'ORDER_PLACED' },
+              { status: 'PAYMENT_CONFIRMED' },
+            ],
+          },
+
           items: {
             create: items.map((item: any) => ({
-              productId: item.id,
+              product: {
+                connect: { id: item.id },
+              },
               quantity: item.quantity,
               price: item.salePrice,
               size: item.selectedOptions?.size || null,
@@ -313,4 +355,220 @@ export const stripeWebhook = async (req: Request, res: Response) => {
   await redis.del(`payment-session:${sessionId}`);
 
   return res.json({ received: true });
+};
+
+// get all orders
+export const getSellerOrders = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const shop = await prisma.shops.findUnique({
+      where: {
+        sellerId: req.seller?.id,
+      },
+    });
+
+    // fetch all orders for this shop
+    const orders = await prisma.orders.findMany({
+      where: {
+        shopId: shop?.id,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            avatar: true,
+          },
+        },
+        orderGroup: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      orders,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+// get order details
+export const getOrderDetails = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const orderId = req.params.id;
+    const order = await prisma.orders.findUnique({
+      where: {
+        id: orderId,
+      },
+      include: {
+        items: true,
+        statusHistory: {
+          orderBy: {
+            createdAt: 'asc',
+          },
+        },
+      },
+    });
+
+    if (!order) {
+      return next(new ValidationError('Order not found with the id!'));
+    }
+
+    const shippingAddress = order.shippingAddressId
+      ? await prisma.address.findUnique({
+          where: {
+            id: order?.shippingAddressId,
+          },
+        })
+      : null;
+
+    const coupon =
+      order.couponCode && order.shopId
+        ? await prisma.discountCode.findUnique({
+            where: {
+              discountCode_shopId: {
+                discountCode: order.couponCode,
+                shopId: order.shopId,
+              },
+            },
+          })
+        : null;
+
+    // fetch all product details
+    const productIds = order.items.map((item) => item.productId);
+
+    const products = await prisma.products.findMany({
+      where: {
+        id: { in: productIds },
+      },
+      select: {
+        id: true,
+        title: true,
+        images: true,
+      },
+    });
+
+    const productMap = new Map(products.map((p) => [p.id, p]));
+
+    const items = order.items.map((item) => ({
+      ...item,
+      selectedOptions: {
+        size: item.size,
+        color: item.color,
+      },
+      product: productMap.get(item.productId) || null,
+    }));
+
+    return res.status(200).json({
+      success: true,
+      order: {
+        ...order,
+        items,
+        shippingAddress,
+        couponCode: coupon,
+      },
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+// update order status
+export const updateOrderStatus = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { id } = req.params;
+    const orderId = id;
+    const { status } = req.body;
+    console.log('Status', status);
+    console.log('OrderId', orderId);
+    if (!orderId || !status) {
+      return res.status(400).json({
+        error: 'Missing order ID or status.',
+      });
+    }
+
+    const allowedStatuses = [
+      'ORDER_PLACED',
+      'PAYMENT_CONFIRMED',
+      'PACKED',
+      'SHIPPED',
+      'OUT_FOR_DELIVERY',
+      'DELIVERED',
+      'CANCELLED',
+    ];
+
+    if (!allowedStatuses.includes(status)) {
+      return next(new ValidationError('Invalid order status'));
+    }
+
+    const order = await prisma.orders.findUnique({
+      where: { id: orderId },
+      include: {
+        statusHistory: true,
+      },
+    });
+
+    if (!order) {
+      return next(new NotFoundError('Order not found'));
+    }
+
+    // map timeline → orderStatus
+    let orderStatus = order.orderStatus;
+
+    if (
+      status === 'PACKED' ||
+      status === 'SHIPPED' ||
+      status === 'OUT_FOR_DELIVERY'
+    ) {
+      orderStatus = 'SHIPPED';
+    }
+
+    if (status === 'DELIVERED') {
+      orderStatus = 'DELIVERED';
+    }
+
+    if (status === 'CANCELLED') {
+      orderStatus = 'CANCELLED';
+    }
+
+    const [updatedOrder] = await prisma.$transaction([
+      prisma.orders.update({
+        where: { id: orderId },
+        data: {
+          orderStatus,
+        },
+      }),
+
+      prisma.orderStatusHistory.create({
+        data: {
+          orderId,
+          status,
+        },
+      }),
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Order status updated successfully',
+      order: updatedOrder,
+    });
+  } catch (error) {
+    return next(error);
+  }
 };

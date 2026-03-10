@@ -43,18 +43,13 @@ export const validateRegistrationData = (
 };
 
 // Check OTP restrictions before sending or verifying OTP requests
-export const checkOtpRestrictions = async (
-  email: string,
-  next: NextFunction,
-): Promise<void> => {
+export const checkOtpRestrictions = async (email: string): Promise<void> => {
   // Check if user is already locked
   if (await redis.get(`otp_lock:${email}`)) {
-    return next(
-      new RateLimitExceededError(
-        `Too many failed OTP attempts. Please try again after ${
-          LOCK_TTL / 60
-        } minutes.`,
-      ),
+    throw new RateLimitExceededError(
+      `Too many failed OTP attempts. Please try again after ${
+        LOCK_TTL / 60
+      } minutes.`,
     );
   }
 
@@ -62,27 +57,24 @@ export const checkOtpRestrictions = async (
   const attempts = Number((await redis.get(`otp_attempts:${email}`)) ?? 0);
   if (attempts >= MAX_ATTEMPTS) {
     await redis.set(`otp_lock:${email}`, '1', 'EX', LOCK_TTL);
-    return next(
-      new RateLimitExceededError(
-        `Too many failed OTP attempts. Please try again after ${
-          LOCK_TTL / 60
-        } minutes.`,
-      ),
+
+    throw new RateLimitExceededError(
+      `Too many failed OTP attempts. Please try again after ${
+        LOCK_TTL / 60
+      } minutes.`,
     );
   }
 
   // Check OTP request cooldown
   if (await redis.get(`otp_cooldown:${email}`)) {
-    return next(
-      new RateLimitExceededError(
-        `OTP request limit reached. Please try again after ${COOLDOWN_TTL} seconds.`,
-      ),
+    throw new RateLimitExceededError(
+      `OTP request limit reached. Please try again after ${COOLDOWN_TTL} seconds.`,
     );
   }
 };
 
 // Track OTP requests to prevent spamming of OTP requests
-export const trackOtpRequests = async (email: string, next: NextFunction) => {
+export const trackOtpRequests = async (email: string) => {
   const otpRequestKey = `otp_request_count:${email}`;
   const spamLockKey = `otp_spam_lock:${email}`;
   const MAX_REQUESTS = 5;
@@ -90,10 +82,8 @@ export const trackOtpRequests = async (email: string, next: NextFunction) => {
   // Check if user is already locked for spamming OTP requests
   const isLocked = await redis.get(spamLockKey);
   if (isLocked) {
-    return next(
-      new RateLimitExceededError(
-        'Too many OTP requests. Please try again after 1 hour.',
-      ),
+    throw new RateLimitExceededError(
+      'Too many OTP requests. Please try again after 1 hour.',
     );
   }
 
@@ -108,10 +98,9 @@ export const trackOtpRequests = async (email: string, next: NextFunction) => {
   // If user exceeds limit, lock them for spamming OTP requests
   if (requests > MAX_REQUESTS) {
     await redis.set(spamLockKey, '1', 'EX', LOCK_TTL);
-    return next(
-      new ValidationError(
-        'Too many OTP requests. Please try again after 1 hour.',
-      ),
+
+    throw new ValidationError(
+      'Too many OTP requests. Please try again after 1 hour.',
     );
   }
 };
@@ -192,7 +181,7 @@ export const handleForgotPassword = async (
     const { email } = req.body;
 
     if (!email) {
-      return next(new BadRequestError('Email is required'));
+      throw new BadRequestError('Email is required');
     }
 
     // Try user first
@@ -215,8 +204,8 @@ export const handleForgotPassword = async (
       });
     }
 
-    await checkOtpRestrictions(email, next);
-    await trackOtpRequests(email, next);
+    await checkOtpRestrictions(email);
+    await trackOtpRequests(email);
 
     await sendOtp(account.name, email, 'forgot-password-reset-mail');
 

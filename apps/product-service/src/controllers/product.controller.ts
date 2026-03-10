@@ -91,9 +91,9 @@ export const createDiscountCode = async (
     // Check duplicate for same seller
     const existingCode = await prisma.discountCode.findUnique({
       where: {
-        discountCode_sellerId: {
+        discountCode_shopId: {
           discountCode: normalizedCode,
-          sellerId,
+          shopId: req.seller?.shop?.id!,
         },
       },
     });
@@ -111,7 +111,7 @@ export const createDiscountCode = async (
         discountType,
         discountValue,
         discountCode: normalizedCode,
-        sellerId,
+        shopId: req.seller?.shop?.id,
         expiresAt: expiresAt ? new Date(expiresAt) : undefined,
         usageLimit,
         minimumOrderAmount,
@@ -136,9 +136,9 @@ export const createDiscountCode = async (
 // Get Discount Codes
 export const getDiscountCodes = async (req: Request, res: Response) => {
   try {
-    const sellerId = req.seller?.id;
+    const shopId = req.seller?.shop?.id;
 
-    if (!sellerId) {
+    if (!shopId) {
       return res.status(401).json({ message: 'Unauthorized' });
     }
 
@@ -149,7 +149,7 @@ export const getDiscountCodes = async (req: Request, res: Response) => {
     const skip = (pageNumber - 1) * limitNumber;
 
     const whereClause: any = {
-      sellerId,
+      shopId,
     };
 
     // Filter by active status
@@ -221,7 +221,7 @@ export const deleteDiscountCode = async (req: Request, res: Response) => {
     const discountCode = await prisma.discountCode.findFirst({
       where: {
         id,
-        sellerId,
+        shopId: req.seller?.shop?.id!,
       },
     });
 
@@ -256,12 +256,19 @@ export const uploadProductImage = async (
   next: NextFunction,
 ) => {
   try {
-    console.log('Hit controller');
+    if (!req.seller?.id) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
     const { fileName } = req.body;
 
+    if (!fileName) {
+      return res.status(400).json({
+        message: 'Image is required',
+      });
+    }
     const response = await imagekit.upload({
       file: fileName,
-      fileName: `product-${Date.now()}.jpg`,
+      fileName: `product-${Date.now()}`,
       folder: '/products',
     });
 
@@ -458,7 +465,7 @@ export const deleteProduct = async (
 ) => {
   try {
     const { productId } = req.params;
-    const sellerId = req?.seller?.shop?.id;
+    const shopId = req?.seller?.shop?.id;
 
     const product = await prisma.products.findUnique({
       where: {
@@ -471,7 +478,7 @@ export const deleteProduct = async (
       return next(new ValidationError('Product not found'));
     }
 
-    if (product.shopId !== sellerId) {
+    if (product.shopId !== shopId) {
       return next(new ValidationError('Unauthorized action'));
     }
 
@@ -505,7 +512,7 @@ export const restoreProduct = async (
 ) => {
   try {
     const { productId } = req.params;
-    const sellerId = req?.seller?.shop?.id;
+    const shopId = req?.seller?.shop?.id;
 
     // Fetch the product to check if it exists and is deleted
     const product = await prisma.products.findUnique({
@@ -521,7 +528,7 @@ export const restoreProduct = async (
     }
 
     // Check if the seller has access to this product
-    if (product.shopId !== sellerId) {
+    if (product.shopId !== shopId) {
       return next(new ValidationError('Unauthorized action'));
     }
 
