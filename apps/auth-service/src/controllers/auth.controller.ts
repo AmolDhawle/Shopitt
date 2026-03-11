@@ -50,8 +50,8 @@ export const registerUser = async (
     }
 
     // OTP restriction and request tracking
-    await checkOtpRestrictions(email, next);
-    await trackOtpRequests(email, next);
+    await checkOtpRestrictions(email);
+    await trackOtpRequests(email);
 
     // If user exists but unverified, update info or resend OTP
     if (!existingUser) {
@@ -475,8 +475,8 @@ export const registerSeller = async (
     }
 
     // OTP restrictions and tracking
-    await checkOtpRestrictions(email, next);
-    await trackOtpRequests(email, next);
+    await checkOtpRestrictions(email);
+    await trackOtpRequests(email);
 
     // Send OTP for seller activation
     await sendOtp(name, email, 'seller-activation-mail');
@@ -822,5 +822,75 @@ export const createStripeConnection = async (
     res.json({ success: true, url: accountLink.url });
   } catch (error) {
     return next(error);
+  }
+};
+
+// update user password
+export const updateUserPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const userId = req.user?.id;
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return next(new ValidationError('All fields are required'));
+    }
+
+    if (newPassword !== confirmPassword) {
+      return next(new ValidationError('Passwords do not match'));
+    }
+
+    if (currentPassword === newPassword) {
+      return next(
+        new ValidationError('New password cannot be same as current password'),
+      );
+    }
+
+    // Password strength validation
+    if (!passwordRegex.test(newPassword)) {
+      return next(
+        new ValidationError(
+          'Password must be at least 8 characters long and include uppercase, lowercase, number, and special character.',
+        ),
+      );
+    }
+
+    const user = await prisma.users.findUnique({
+      where: { id: userId },
+      select: { id: true, password: true },
+    });
+
+    if (!user || !user.password) {
+      return next(new AuthenticationError('Invalid credentials'));
+    }
+
+    const isPasswordCorrect = await bcrypt.compare(
+      currentPassword,
+      user.password,
+    );
+
+    if (!isPasswordCorrect) {
+      return next(new AuthenticationError('Current password is incorrect'));
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+    await prisma.users.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Password updated successfully',
+    });
+  } catch (error) {
+    next(error);
   }
 };

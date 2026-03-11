@@ -1,36 +1,39 @@
 import { useQuery } from '@tanstack/react-query';
 import axiosInstance from '../utils/axiosInstance';
 import { useAuthStore } from '../store/authStore';
-import { isProtected } from '../utils/protected';
+import { useEffect } from 'react';
 
-// fetch user data from API
-const fetchUser = async (isLoggedIn: boolean) => {
-  const config = isLoggedIn ? isProtected : {};
-  const response = await axiosInstance.get('/api/me', config);
+// fetch user data
+const fetchUser = async () => {
+  const response = await axiosInstance.get('/api/me');
   return response.data.user;
 };
 
 const useUser = () => {
-  const { setLoggedIn, isLoggedIn } = useAuthStore();
+  const { setLoggedIn } = useAuthStore();
+
   const {
     data: user,
     isPending,
     isError,
   } = useQuery({
     queryKey: ['user'],
-    queryFn: () => fetchUser(isLoggedIn),
+    queryFn: fetchUser,
     staleTime: 1000 * 60 * 5,
     retry: false,
-    // @ts-ignore
-    onSuccess: () => {
-      setLoggedIn(true);
-    },
-    onError: () => {
-      setLoggedIn(false);
-    },
   });
 
-  return { user: user as any, isLoading: isPending, isError };
+  // handle success/error manually
+  useEffect(() => {
+    if (user) {
+      setLoggedIn(true);
+    }
+    if (isError) {
+      setLoggedIn(false);
+    }
+  }, [user, isError, setLoggedIn]);
+
+  return { user, isLoading: isPending, isError };
 };
 
 export default useUser;

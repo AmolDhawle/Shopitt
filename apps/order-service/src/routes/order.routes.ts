@@ -4,7 +4,9 @@ import {
   createPaymentSession,
   getOrderDetails,
   getSellerOrders,
+  getUserOrders,
   updateOrderStatus,
+  verifyCouponCode,
   verifyingPaymentSession,
 } from '../controllers/order.controller';
 import { authorizeRole, requireAuth } from '@shopitt/middleware';
@@ -27,5 +29,7 @@ router.put(
   authorizeRole('seller'),
   updateOrderStatus,
 );
+router.put('/verify-coupon', requireAuth, verifyCouponCode);
+router.get('/get-user-orders', requireAuth, getUserOrders);
 
 export default router;

@@ -214,7 +214,7 @@ export const handleForgotPassword = async (
       message: 'If the email exists, an OTP has been sent.',
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
