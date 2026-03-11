@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 
-export const authorizeRole = (requiredRole: 'user' | 'seller') => {
+export const authorizeRole = (requiredRole: 'user' | 'seller' | 'admin') => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.role || req.role !== requiredRole) {
       return res.status(403).json({

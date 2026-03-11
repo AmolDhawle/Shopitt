@@ -15,6 +15,7 @@ import {
   getSeller,
   loginSeller,
   updateUserPassword,
+  loginAdmin,
 } from '../controllers/auth.controller';
 import { requireAuth } from '@shopitt/middleware';
 import { authorizeRole } from '@shopitt/middleware';
@@ -50,5 +51,6 @@ router.post('/forgot-password', userForgotPassword);
 router.post('/forgot-password/verify-otp', verifyUserForPasswordReset);
 router.post('/forgot-password/reset', resetUserPassword);
 router.post('/change-password', requireAuth, updateUserPassword);
+router.post('/login-admin', loginAdmin);
 
 export default router;

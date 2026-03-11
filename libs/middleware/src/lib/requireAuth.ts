@@ -7,7 +7,8 @@ import { prisma } from '@shopitt/prisma-client';
 interface JwtPayload {
   sellerId?: string;
   userId?: string;
-  role: 'user' | 'seller';
+  adminId?: string;
+  role: 'user' | 'seller' | 'admin';
 }
 
 export const requireAuth = async (
@@ -38,6 +39,10 @@ export const requireAuth = async (
       throw new AuthenticationError('Invalid user token');
     }
 
+    if (payload.role === 'admin' && !payload.adminId) {
+      throw new AuthenticationError('Invalid admin token');
+    }
+
     // Fetch account details based on role
     let account;
     if (payload.role === 'user') {
@@ -65,6 +70,14 @@ export const requireAuth = async (
         throw new AuthenticationError('Seller not found');
       }
       req.seller = account; // Attach seller info
+    } else if (payload.role === 'admin') {
+      account = await prisma.users.findUnique({
+        where: { id: payload.userId },
+      });
+
+      if (!account) throw new AuthenticationError('Admin not found');
+
+      req.admin = account;
     }
 
     // Store the role in req.role

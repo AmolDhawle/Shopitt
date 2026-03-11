@@ -12,7 +12,8 @@
     "order-docs": "node apps/order-service/src/swagger.js",
     "docs": "npm run auth-docs && npm run webhook-docs && npm run product-docs && npm run user-docs && npm run order-docs",
     "user-ui": "npx nx run-many --target=dev --projects=user-ui",
-    "seller-ui": "npx nx run-many --target=dev --projects=seller-ui"
+    "seller-ui": "npx nx run-many --target=dev --projects=seller-ui",
+    "admin-ui": "npx nx run-many --target=dev --projects=admin-ui"
   },
   "private": true,
   "dependencies": {
