@@ -27,11 +27,18 @@ model ProductImages {
   product   Products @relation(fields: [productId], references: [id])
 }
 
+enum UserRole {
+  USER
+  ADMIN
+
+}
+
 model Users {
   id          String        @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   email       String        @unique
   password    String?
+  role        UserRole @default(USER)
   isVerified  Boolean       @default(false)
   following   String[]
   avatar      Images?
@@ -118,6 +125,7 @@ model RefreshToken {
 enum AuthSubject {
   USER
   SELLER
+  ADMIN
 }
 
 model SiteConfig {

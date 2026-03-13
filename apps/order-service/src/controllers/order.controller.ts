@@ -688,3 +688,34 @@ export const getUserOrders = async (
     return next(error);
   }
 };
+
+// get admin orders
+export const getAdminOrders = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    // Fetch all orders
+    const orders = await prisma.orders.findMany({
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+          },
+        },
+        shop: true,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      orders,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};

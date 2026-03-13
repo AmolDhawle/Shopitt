@@ -12,7 +12,7 @@ import {
   Bell,
   Calendar,
   CalendarPlus,
-  Home,
+  LayoutDashboard,
   ListOrdered,
   LogOut,
   Mail,
@@ -75,7 +75,7 @@ const SidebarWrapper = () => {
         <Sidebar.Body className="body sidebar">
           <SidebarItem
             title="Dashboard"
-            icon={<Home />}
+            icon={<LayoutDashboard />}
             isActive={activeSidebar === '/dashboard'}
             href="/dashboard"
           />

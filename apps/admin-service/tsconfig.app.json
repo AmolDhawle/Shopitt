@@ -1,0 +1,27 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc/apps/admin-service",
+    "types": ["node", "express"],
+    "rootDir": "../../",
+    "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
+    "allowImportingTsExtensions": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "../../libs/middleware/src/**/*.ts",
+    "../../libs/imagekit/src/**/*.ts"
+  ],
+  "exclude": [],
+  "references": [
+    {
+      "path": "../../libs/middleware/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/error-handler/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/prisma-client/tsconfig.lib.json"
+    }
+  ]
+}

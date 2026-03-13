@@ -2,6 +2,7 @@ import express, { Router } from 'express';
 import {
   createPaymentIntent,
   createPaymentSession,
+  getAdminOrders,
   getOrderDetails,
   getSellerOrders,
   getUserOrders,
@@ -31,5 +32,11 @@ router.put(
 );
 router.put('/verify-coupon', requireAuth, verifyCouponCode);
 router.get('/get-user-orders', requireAuth, getUserOrders);
+router.get(
+  '/get-admin-orders',
+  requireAuth,
+  authorizeRole('admin'),
+  getAdminOrders,
+);
 
 export default router;

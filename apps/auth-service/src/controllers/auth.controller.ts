@@ -213,10 +213,15 @@ export const refreshToken = async (
 
     const payload = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET!) as {
       subjectId: string;
-      role: 'user' | 'seller';
+      role: 'user' | 'seller' | 'admin';
     };
 
-    const subjectType = payload.role === 'user' ? 'USER' : 'SELLER';
+    const subjectType =
+      payload.role === 'user'
+        ? 'USER'
+        : payload.role === 'seller'
+          ? 'SELLER'
+          : 'ADMIN';
 
     const hashed = hashToken(token);
 
@@ -237,12 +242,9 @@ export const refreshToken = async (
     });
 
     const newAccessToken = jwt.sign(
-      {
-        role: payload.role,
-        ...(payload.role === 'user'
-          ? { userId: payload.subjectId }
-          : { sellerId: payload.subjectId }),
-      },
+      payload.role === 'seller'
+        ? { role: payload.role, sellerId: payload.subjectId }
+        : { role: payload.role, userId: payload.subjectId },
       process.env.ACCESS_TOKEN_SECRET!,
       { expiresIn: '15m' },
     );
@@ -889,6 +891,105 @@ export const updateUserPassword = async (
     res.status(200).json({
       success: true,
       message: 'Password updated successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// login admin
+export const loginAdmin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return next(new ValidationError('Email and password are required!'));
+    }
+
+    const user = await prisma.users.findUnique({ where: { email } });
+
+    if (!user) {
+      return next(new AuthenticationError("User doesn't exists!"));
+    }
+
+    if (user.role !== 'ADMIN') {
+      return next(new AuthenticationError('Not authorized as admin'));
+    }
+
+    // verify password
+    const isMatch = await bcrypt.compare(password, user.password!);
+    if (!isMatch) {
+      return next(new AuthenticationError('Invalid email or password'));
+    }
+
+    // Generate JWT tokens
+    const accessToken = jwt.sign(
+      { subjectId: user.id, role: 'admin' },
+      process.env.ACCESS_TOKEN_SECRET!,
+      { expiresIn: '15m' },
+    );
+
+    const refreshToken = jwt.sign(
+      { subjectId: user.id, role: 'admin' },
+      process.env.REFRESH_TOKEN_SECRET!,
+      { expiresIn: '7d' },
+    );
+
+    await prisma.refreshToken.create({
+      data: {
+        subjectId: user.id,
+        subjectType: 'ADMIN',
+        token: hashToken(refreshToken),
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+    });
+
+    // store the referesh token and access token in httpOnly cookies
+    setCookie(res, 'accessToken', accessToken, {
+      httpOnly: true,
+      maxAge: 15 * 60 * 1000, // 15 minutes
+    });
+
+    setCookie(res, 'refreshToken', refreshToken, {
+      httpOnly: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    res.status(200).json({
+      message: 'Login successful!',
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+// Get current authenticated admin
+export const getAdmin = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void => {
+  try {
+    if (!req.admin) {
+      res.status(401).json({
+        success: false,
+        message: 'Unauthorized',
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      admin: req.admin,
     });
   } catch (error) {
     next(error);
