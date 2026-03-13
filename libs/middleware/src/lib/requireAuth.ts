@@ -5,9 +5,9 @@ import { getEnv } from './env.js';
 import { prisma } from '@shopitt/prisma-client';
 
 interface JwtPayload {
-  sellerId?: string;
+  subjectId?: string;
   userId?: string;
-  adminId?: string;
+  sellerId?: string;
   role: 'user' | 'seller' | 'admin';
 }
 
@@ -20,42 +20,45 @@ export const requireAuth = async (
     const token =
       req.cookies?.accessToken || req.headers.authorization?.split(' ')[1];
 
-    // Token must exist
     if (!token) {
       throw new AuthenticationError('Authentication required');
     }
 
-    // Verify token
     const payload = jwt.verify(
       token,
       getEnv('ACCESS_TOKEN_SECRET'),
     ) as JwtPayload;
 
-    if (payload.role === 'seller' && !payload.sellerId) {
-      throw new AuthenticationError('Invalid seller token');
+    // Support multiple token formats
+    const accountId = payload.subjectId || payload.userId || payload.sellerId;
+
+    if (!accountId) {
+      throw new AuthenticationError('Invalid token payload');
     }
 
-    if (payload.role === 'user' && !payload.userId) {
-      throw new AuthenticationError('Invalid user token');
-    }
-
-    if (payload.role === 'admin' && !payload.adminId) {
-      throw new AuthenticationError('Invalid admin token');
-    }
-
-    // Fetch account details based on role
     let account;
-    if (payload.role === 'user') {
+
+    // USER OR ADMIN
+    if (payload.role === 'user' || payload.role === 'admin') {
       account = await prisma.users.findUnique({
-        where: { id: payload.userId },
+        where: { id: accountId },
       });
+
       if (!account) {
         throw new AuthenticationError('User not found');
       }
-      req.user = account; // Attach user info
-    } else if (payload.role === 'seller') {
+
+      req.user = account;
+
+      if (payload.role === 'admin') {
+        req.admin = account;
+      }
+    }
+
+    // SELLER
+    if (payload.role === 'seller') {
       account = await prisma.sellers.findUnique({
-        where: { id: payload.sellerId },
+        where: { id: accountId },
         include: {
           shop: {
             select: {
@@ -66,27 +69,19 @@ export const requireAuth = async (
           },
         },
       });
+
       if (!account) {
         throw new AuthenticationError('Seller not found');
       }
-      req.seller = account; // Attach seller info
-    } else if (payload.role === 'admin') {
-      account = await prisma.users.findUnique({
-        where: { id: payload.userId },
-      });
 
-      if (!account) throw new AuthenticationError('Admin not found');
-
-      req.admin = account;
+      req.seller = account;
     }
 
-    // Store the role in req.role
     req.role = payload.role;
 
     next();
   } catch (error) {
-    // Token expired or invalid
-    console.log('jwt-VERIFY-ERROR', error);
+    console.log('JWT VERIFY ERROR:', error);
     return next(new AuthenticationError('Invalid or expired access token'));
   }
 };

@@ -915,6 +915,10 @@ export const loginAdmin = async (
       return next(new AuthenticationError("User doesn't exists!"));
     }
 
+    if (user.role !== 'ADMIN') {
+      return next(new AuthenticationError('Not authorized as admin'));
+    }
+
     // verify password
     const isMatch = await bcrypt.compare(password, user.password!);
     if (!isMatch) {
@@ -956,9 +960,38 @@ export const loginAdmin = async (
 
     res.status(200).json({
       message: 'Login successful!',
-      user: { id: user.id, email: user.email, name: user.name },
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      },
     });
   } catch (error) {
     return next(error);
+  }
+};
+
+// Get current authenticated admin
+export const getAdmin = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void => {
+  try {
+    if (!req.admin) {
+      res.status(401).json({
+        success: false,
+        message: 'Unauthorized',
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      admin: req.admin,
+    });
+  } catch (error) {
+    next(error);
   }
 };
