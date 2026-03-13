@@ -1,0 +1,35 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Admin Service API",
+    "description": "API for admin service",
+    "version": "1.0.0"
+  },
+  "host": "localhost:6005",
+  "basePath": "/admin/api",
+  "schemes": ["http"],
+  "paths": {
+    "/get-all-products": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  }
+}
