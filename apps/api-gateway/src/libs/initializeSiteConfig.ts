@@ -23,8 +23,26 @@ const initializeSiteConfig = async () => {
               'Wearables',
             ],
           },
+          logo: 'https://ik.imagekit.io/5frbx53sr/logo/logo.png',
+          banner: 'https://ik.imagekit.io/5frbx53sr/products/watch-6.avif',
         },
       });
+
+      console.log('SiteConfig created');
+    } else {
+      await prisma.siteConfig.update({
+        where: { id: existingConfig.id },
+        data: {
+          logo:
+            existingConfig.logo ??
+            'https://ik.imagekit.io/5frbx53sr/logo/logo.png',
+          banner:
+            existingConfig.banner ??
+            'https://ik.imagekit.io/5frbx53sr/products/watch-6.avif',
+        },
+      });
+
+      console.log('SiteConfig verified');
     }
   } catch (error) {
     console.log('Error initializing site config:', error);

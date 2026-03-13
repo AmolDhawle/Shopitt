@@ -1,7 +1,5 @@
 'use client';
 
-import useSeller from 'apps/seller-ui/src/hooks/useSeller';
-import useSidebar from 'apps/seller-ui/src/hooks/useSidebar';
 import { usePathname } from 'next/navigation';
 import React, { useEffect } from 'react';
 import Box from '../box';
@@ -11,26 +9,27 @@ import SidebarItem from './sidebar.item';
 import {
   Bell,
   Calendar,
-  CalendarPlus,
+  FileClock,
   LayoutDashboard,
   ListOrdered,
   LogOut,
-  Mail,
   PackageSearch,
+  PencilRuler,
   Settings,
-  SquarePlus,
-  TicketPercent,
+  Store,
+  Users,
   Wallet,
 } from 'lucide-react';
 import SidebarMenu from './sidebar.menu';
-import Logo from '../../../assets/images/image.png';
+import Logo from '../../../app/assets/images/logo.png';
 import Image from 'next/image';
+import useSidebar from 'apps/admin-ui/src/hooks/useSidebar';
+import useAdmin from 'apps/admin-ui/src/hooks/useAdmin';
 
 const SidebarWrapper = () => {
   const { activeSidebar, setActiveSidebar } = useSidebar();
   const pathName = usePathname();
-  const { seller } = useSeller();
-  console.log('Seller', seller);
+  const { admin } = useAdmin();
 
   useEffect(() => {
     setActiveSidebar(pathName);
@@ -55,17 +54,17 @@ const SidebarWrapper = () => {
       <Sidebar.Header>
         <Box>
           <Link
-            href="/dashboard"
+            href="/"
             className="flex flex-col justify-center items-center text-center gap-2"
           >
             <Image src={Logo} alt="Shopitt Logo" width={160} height={160} />
 
             <Box>
               <h3 className="text-xl font-medium text-[#ecedee]">
-                {seller?.shop?.name}
+                {admin?.name}
               </h3>
               <h5 className="font-medium text-xs text-[#ecedeecf] whitespace-nowrap overflow-hidden text-ellipsis max-w-[170px]">
-                {seller?.shop?.address}
+                {admin?.email}
               </h5>
             </Box>
           </Link>
@@ -103,19 +102,6 @@ const SidebarWrapper = () => {
                   />
                 }
               />
-            </SidebarMenu>
-            <SidebarMenu title="Products">
-              <SidebarItem
-                title="Create Product"
-                isActive={activeSidebar === '/dashboard/create-product'}
-                href="/dashboard/create-product"
-                icon={
-                  <SquarePlus
-                    size={24}
-                    color={getIconColor('/dashboard/create-product')}
-                  />
-                }
-              />
               <SidebarItem
                 title="All Products"
                 isActive={activeSidebar === '/dashboard/all-products'}
@@ -124,19 +110,6 @@ const SidebarWrapper = () => {
                   <PackageSearch
                     size={24}
                     color={getIconColor('/dashboard/all-products')}
-                  />
-                }
-              />
-            </SidebarMenu>
-            <SidebarMenu title="Events">
-              <SidebarItem
-                isActive={activeSidebar === '/dashboard/create-event'}
-                title="Create Event"
-                href="/dashboard/create-event"
-                icon={
-                  <CalendarPlus
-                    size={24}
-                    color={getIconColor('/dashboard/create-event')}
                   />
                 }
               />
@@ -151,24 +124,45 @@ const SidebarWrapper = () => {
                   />
                 }
               />
-            </SidebarMenu>
-            <SidebarMenu title="Controllers">
               <SidebarItem
-                isActive={activeSidebar === '/dashboard/inbox'}
-                title="Inbox"
-                href="/dashboard/inbox"
+                title="Users"
+                isActive={activeSidebar === '/dashboard/users'}
+                href="/dashboard/users"
                 icon={
-                  <Mail size={24} color={getIconColor('/dashboard/inbox')} />
+                  <Users size={24} color={getIconColor('/dashboard/users')} />
                 }
               />
               <SidebarItem
-                title="Settings"
-                isActive={activeSidebar === '/dashboard/settings'}
-                href="/dashboard/settings"
+                title="Sellers"
+                isActive={activeSidebar === '/dashboard/sellers'}
+                href="/dashboard/sellers"
+                icon={
+                  <Store size={24} color={getIconColor('/dashboard/users')} />
+                }
+              />
+            </SidebarMenu>
+
+            <SidebarMenu title="Controllers">
+              <SidebarItem
+                isActive={activeSidebar === '/dashboard/loggers'}
+                title="Loggers"
+                href="/dashboard/loggers"
+                icon={
+                  <FileClock
+                    size={24}
+                    color={getIconColor('/dashboard/loggers')}
+                  />
+                }
+              />
+
+              <SidebarItem
+                title="Management"
+                isActive={activeSidebar === '/dashboard/management'}
+                href="/dashboard/management"
                 icon={
                   <Settings
                     size={24}
-                    color={getIconColor('/dashboard/settings')}
+                    color={getIconColor('/dashboard/management')}
                   />
                 }
               />
@@ -184,18 +178,20 @@ const SidebarWrapper = () => {
                 }
               />
             </SidebarMenu>
-            <SidebarMenu title="Extras">
+            <SidebarMenu title="Customization">
               <SidebarItem
-                isActive={activeSidebar === '/dashboard/discount-codes'}
-                title="Discount Codes"
-                href="/dashboard/discount-codes"
+                isActive={activeSidebar === '/dashboard/customization'}
+                title="All Customization"
+                href="/dashboard/customization"
                 icon={
-                  <TicketPercent
+                  <PencilRuler
                     size={24}
-                    color={getIconColor('/dashboard/discount-codes')}
+                    color={getIconColor('/dashboard/customization')}
                   />
                 }
               />
+            </SidebarMenu>
+            <SidebarMenu title="Extras">
               <SidebarItem
                 isActive={activeSidebar === '/dashboard/logout'}
                 title="Logout"

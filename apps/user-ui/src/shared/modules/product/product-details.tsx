@@ -24,7 +24,7 @@ import axiosInstance from 'apps/user-ui/src/utils/axiosInstance';
 const ProductDetails = ({ productDetails }: { productDetails: any }) => {
   const { user, isLoading } = useUser();
   const location = useLocationTracking();
-  const deviceInfo = useDeviceTracking();
+  const deviceInfo: any = useDeviceTracking();
   const [currentImage, setCurrentImage] = useState(
     productDetails?.images[0]?.url,
   );
@@ -50,10 +50,10 @@ const ProductDetails = ({ productDetails }: { productDetails: any }) => {
   const removeFromWishlist = useStore((state: any) => state.removeFromWishlist);
   const wishlist = useStore((state: any) => state.wishlist);
   const isWishlisted = wishlist.some(
-    (item: any) => item.id === productDetails.id,
+    (item: any) => item.id === productDetails?.id,
   );
   const cart = useStore((state: any) => state.cart);
-  const isInCart = cart.some((items: any) => items.id === productDetails.id);
+  const isInCart = cart.some((items: any) => items.id === productDetails?.id);
 
   const prevImage = () => {
     if (currentIndex > 0) {
@@ -193,7 +193,7 @@ const ProductDetails = ({ productDetails }: { productDetails: any }) => {
                 onClick={() =>
                   isWishlisted
                     ? removeFromWishlist(
-                        productDetails.id,
+                        productDetails?.id,
                         user,
                         location,
                         deviceInfo,

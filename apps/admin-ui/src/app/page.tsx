@@ -58,6 +58,7 @@ const Page = () => {
                 message: 'Invalid email address',
               },
             })}
+            className="text-white"
           />
           <div className="mt-3">
             <Input
@@ -67,6 +68,7 @@ const Page = () => {
               {...register('password', {
                 required: 'Password is required',
               })}
+              className="text-white"
             />
           </div>
           <button

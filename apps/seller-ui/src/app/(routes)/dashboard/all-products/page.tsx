@@ -139,7 +139,7 @@ const ProductList = () => {
         cell: ({ row }: any) => (
           <div className="flex gap-3">
             <Link
-              href={`/product/${row.original.id}`}
+              href={`${process.env.NEXT_PUBLIC_USER_UI_LINK}/product/${row.original.slug}`}
               className="text-blue-400 hover:text-blue-300 transition"
             >
               <Eye size={18} />
