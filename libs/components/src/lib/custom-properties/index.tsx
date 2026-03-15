@@ -2,13 +2,12 @@ import {
   Control,
   Controller,
   FieldValues,
-  ArrayPath,
   FieldErrors,
   Path,
 } from 'react-hook-form';
-import Input from '../input/index.tsx';
+import Input from '../input/index';
 import { Plus, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 type CustomPropertiesProps<T extends FieldValues> = {
   control: Control<T>;

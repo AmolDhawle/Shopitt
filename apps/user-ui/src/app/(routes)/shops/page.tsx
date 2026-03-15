@@ -51,7 +51,7 @@ const Page = () => {
       const res = await axiosInstance.get(
         `/product/api/get-filtered-shops?${query.toString()}`,
       );
-      console.log('res', res);
+
       setShops(res.data.shops);
       setTotalPages(res.data.pagination.totalPages);
     } catch (error) {

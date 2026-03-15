@@ -1,4 +1,4 @@
-import { PrismaClient } from "../../../../generated/prisma/client/client.js";
+import { PrismaClient } from '../../../../generated/prisma/client';
 
 declare global {
   namespace globalThis {
@@ -9,10 +9,10 @@ declare global {
 const prisma =
   globalThis.prismadb ??
   new PrismaClient({
-    datasourceUrl: process.env.DATABASE_URL,
+    datasourceUrl: process.env.DATABASE_URL!,
   });
 
-if (process.env.NODE_ENV !== "production") {
+if (process.env.NODE_ENV !== 'production') {
   globalThis.prismadb = prisma;
 }
 

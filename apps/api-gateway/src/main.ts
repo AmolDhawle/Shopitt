@@ -49,6 +49,7 @@ app.use('/product', proxy('http://localhost:6002')); // Product Service
 app.use('/user', proxy('http://localhost:6003')); // User Service
 app.use('/order', proxy('http://localhost:6004')); // Order Service
 app.use('/admin', proxy('http://localhost:6005')); // Admin Service
+app.use('/chatting', proxy('http://localhost:6006')); // Chatting Service
 app.use('/', proxy('http://localhost:6001')); // Auth Service
 
 const port = process.env.PORT || 8080;

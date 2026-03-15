@@ -4,6 +4,55 @@
   "private": true,
   "nx": {
     "targets": {
+      "build": {
+        "executor": "@nx/esbuild:esbuild",
+        "outputs": [
+          "{options.outputPath}"
+        ],
+        "defaultConfiguration": "production",
+        "options": {
+          "platform": "node",
+          "outputPath": "dist/apps/api-gateway",
+          "format": [
+            "esm"
+          ],
+          "bundle": true,
+          "main": "apps/api-gateway/src/main.ts",
+          "tsConfig": "apps/api-gateway/tsconfig.app.json",
+          "external": [
+            "@prisma/client",
+            "@shopitt/prisma"
+          ],
+          "assets": [
+            {
+              "input": "apps/api-gateway/swagger",
+              "glob": "swagger-output.json",
+              "output": "swagger"
+            }
+          ],
+          "esbuildOptions": {
+            "sourcemap": true,
+            "outExtension": {
+              ".js": ".js"
+            },
+            "banner": {
+              "js": "import { createRequire } from 'module'; const require = createRequire(import.meta.url); const __filename = import.meta.url; const __dirname = import.meta.url;"
+            }
+          }
+        },
+        "configurations": {
+          "development": {},
+          "production": {
+            "generateLockfile": true,
+            "esbuildOptions": {
+              "sourcemap": false,
+              "outExtension": {
+                ".js": ".js"
+              }
+            }
+          }
+        }
+      },
       "prune-lockfile": {
         "dependsOn": [
           "build"

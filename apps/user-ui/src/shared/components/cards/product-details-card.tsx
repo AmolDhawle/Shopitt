@@ -40,7 +40,6 @@ const ProductDetailsCard: React.FC<ProductDetailsCardProps> = ({
   isWishlisted,
   isInCart,
 }) => {
-  console.log('data', data);
   const [activeImage, setActiveImage] = useState(0);
   const [isSelected, setIsSelected] = useState(data?.colors?.[0] || '');
   const [isSizeSelected, setIsSizeSelected] = useState(data?.sizes?.[0] || '');

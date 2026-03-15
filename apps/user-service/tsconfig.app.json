@@ -1,14 +1,16 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "../../dist/out-tsc/apps/user-service",
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "emitDeclarationOnly": false,
+    "outDir": "../../dist/apps/user-service",
+    "rootDir": "src",
     "types": ["node", "express"],
-    "rootDir": "../../",
-    "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
-    "allowImportingTsExtensions": true
+    "tsBuildInfoFile": "../../dist/apps/user-service/tsconfig.tsbuildinfo"
   },
-  "include": ["src/**/*.ts", "../../libs/middleware/src/**/*.ts"],
-  "exclude": [],
+  "include": ["src/**/*.ts", "src/**/*.d.ts"],
   "references": [
     {
       "path": "../../libs/middleware/tsconfig.lib.json"

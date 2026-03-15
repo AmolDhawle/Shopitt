@@ -6,7 +6,7 @@ import {
   useFieldArray,
   FieldPath,
 } from 'react-hook-form';
-import Input from '../input/index.tsx';
+import Input from '../input/index';
 import { PlusCircle, Trash } from 'lucide-react';
 
 type CustomSpecificationsProps<

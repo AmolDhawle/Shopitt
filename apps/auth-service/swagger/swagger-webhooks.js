@@ -13,7 +13,7 @@ const doc = {
 };
 
 const outputFile = './swagger-webhooks.json';
-const endpointsFiles = ['./routes/webhook.router.ts'];
+const endpointsFiles = ['../src/routes/webhook.router.ts'];
 
 swaggerAutogen()(outputFile, endpointsFiles, doc).then(() => {
   console.log('Webhook swagger generated');

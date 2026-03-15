@@ -86,7 +86,7 @@ const ProductDetails = ({ productDetails }: { productDetails: any }) => {
       const res = await axiosInstance.get(
         `/product/api/get-filtered-products?${query.toString()}`,
       );
-      console.log('res', res);
+
       setRecommendedProducts(res.data.products);
     } catch (error) {
       console.log('Failed to fetch filtered products', error);

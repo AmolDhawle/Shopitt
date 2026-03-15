@@ -2,18 +2,16 @@
   "extends": "../../tsconfig.base.json",
 
   "compilerOptions": {
-    "outDir": "../../dist/out-tsc/apps/auth-service",
-    "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "typeRoots": ["./node_modules/@types", "./types"]
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "emitDeclarationOnly": false,
+    "outDir": "../../dist/apps/auth-service",
+    "rootDir": "src",
+    "types": ["node", "express"],
+    "tsBuildInfoFile": "../../dist/apps/auth-service/tsconfig.tsbuildinfo"
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.json",
-    "src/types/**/*.d.ts",
-    "../../libs/middleware/src/**/*.ts"
-  ],
+  "include": ["src/**/*.ts", "src/**/*.json", "src/**/*.d.ts"],
   "exclude": [
     "out-tsc",
     "dist",
@@ -28,10 +26,10 @@
   ],
   "references": [
     {
-      "path": "../../libs/middleware/tsconfig.lib.json"
+      "path": "../../libs/redis/tsconfig.lib.json"
     },
     {
-      "path": "../../libs/redis/tsconfig.lib.json"
+      "path": "../../libs/middleware/tsconfig.lib.json"
     },
     {
       "path": "../../libs/prisma-client/tsconfig.lib.json"

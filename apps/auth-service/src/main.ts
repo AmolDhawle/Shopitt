@@ -9,12 +9,17 @@ import path from 'path';
 import cookieParser from 'cookie-parser';
 
 // Swagger files
-const authSwagger = JSON.parse(
-  fs.readFileSync(path.join(__dirname, 'swagger-auth.json'), 'utf8'),
+const authSwaggerPath = path.join(__dirname, 'swagger/swagger-auth.json');
+const authSwaggerDocument = JSON.parse(
+  fs.readFileSync(authSwaggerPath, 'utf8'),
 );
 
-const webhookSwagger = JSON.parse(
-  fs.readFileSync(path.join(__dirname, 'swagger-webhooks.json'), 'utf8'),
+const webhookSwaggerPath = path.join(
+  __dirname,
+  'swagger/swagger-webhooks.json',
+);
+const webhookSwaggerDocument = JSON.parse(
+  fs.readFileSync(webhookSwaggerPath, 'utf8'),
 );
 
 const port = process.env.PORT ? Number(process.env.PORT) : 6001;
@@ -45,21 +50,21 @@ app.get('/', (req, res) => {
 // Swagger UIs
 app.use(
   '/api-docs/auth',
-  swaggerUi.serveFiles(authSwagger),
-  swaggerUi.setup(authSwagger),
+  swaggerUi.serveFiles(authSwaggerDocument),
+  swaggerUi.setup(authSwaggerDocument),
 );
 app.use(
   '/api-docs/webhooks',
-  swaggerUi.serveFiles(webhookSwagger),
-  swaggerUi.setup(webhookSwagger),
+  swaggerUi.serveFiles(webhookSwaggerDocument),
+  swaggerUi.setup(webhookSwaggerDocument),
 );
 
 app.get('/docs-json/auth', (req, res) => {
-  res.json(authSwagger);
+  res.json(authSwaggerDocument);
 });
 
 app.get('/docs-json/webhooks', (req, res) => {
-  res.json(webhookSwagger);
+  res.json(webhookSwaggerDocument);
 });
 
 const server = app.listen(port, () => {

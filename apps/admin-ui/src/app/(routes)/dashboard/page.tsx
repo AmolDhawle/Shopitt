@@ -14,7 +14,7 @@ const deviceData = [
   { name: 'Computer', value: 25, fill: '#60a5fa' },
 ];
 
-const COLORS = ['#4ade80', '#facc15', '#60a5fa'];
+// const COLORS = ['#4ade80', '#facc15', '#60a5fa'];
 
 const ordersData = [
   { month: 'Jan', count: 120 },

@@ -1,8 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { AuthenticationError } from '@shopitt/error-handler';
-import { getEnv } from './env.js';
+import { getEnv } from './env';
 import { prisma } from '@shopitt/prisma-client';
+import { UserContext } from '../types/userContext';
+import { AdminContext } from '../types/adminContext';
+import { SellerContext } from '../types/sellerContext';
 
 interface JwtPayload {
   subjectId?: string;
@@ -48,10 +51,10 @@ export const requireAuth = async (
         throw new AuthenticationError('User not found');
       }
 
-      req.user = account;
+      req.user = account as unknown as UserContext;
 
       if (payload.role === 'admin') {
-        req.admin = account;
+        req.admin = account as unknown as AdminContext;
       }
     }
 
@@ -74,7 +77,7 @@ export const requireAuth = async (
         throw new AuthenticationError('Seller not found');
       }
 
-      req.seller = account;
+      req.seller = account as unknown as SellerContext;
     }
 
     req.role = payload.role;

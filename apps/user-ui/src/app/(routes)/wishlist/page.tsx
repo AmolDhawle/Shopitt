@@ -18,7 +18,6 @@ const Wishlist = () => {
   const wishlist = useStore((state: any) => state.wishlist);
   const [warningMessage, setWarningMessage] = useState<string | null>(null);
   const [isDisabled, setIsDisabled] = useState(false);
-  console.log('Add to cart', addToCart);
 
   const decreaseQuantity = (id: string) => {
     useStore.setState((state: any) => ({

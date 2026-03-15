@@ -12,24 +12,32 @@
         "defaultConfiguration": "production",
         "options": {
           "platform": "node",
-          "outputPath": "apps/admin-service/dist",
+          "outputPath": "dist/apps/admin-service",
           "format": [
-            "cjs"
+            "esm"
           ],
-          "bundle": false,
+          "bundle": true,
           "main": "apps/admin-service/src/main.ts",
           "tsConfig": "apps/admin-service/tsconfig.app.json",
+          "external": [
+            "@prisma/client",
+            "@shopitt/prisma",
+            "@shopitt/prisma-client"
+          ],
           "assets": [
             {
-              "input": "apps/admin-service/src",
+              "input": "apps/admin-service/swagger",
               "glob": "swagger-output.json",
-              "output": "apps/admin-service/src"
+              "output": "swagger"
             }
           ],
           "esbuildOptions": {
             "sourcemap": true,
             "outExtension": {
               ".js": ".js"
+            },
+            "banner": {
+              "js": "import { createRequire } from 'module'; const require = createRequire(import.meta.url); import { fileURLToPath } from 'url'; import { dirname } from 'path'; const __filename = fileURLToPath(import.meta.url); const __dirname = dirname(__filename);"
             }
           }
         },
@@ -89,7 +97,14 @@
         ],
         "options": {
           "buildTarget": "@shopitt/admin-service:build",
-          "runBuildTargetDependencies": false
+          "runBuildTargetDependencies": false,
+          "runtimeArgs": [
+            "--inspect=9230",
+            "--import",
+            "tsx",
+            "--import",
+            "dotenv/config"
+          ]
         },
         "configurations": {
           "development": {

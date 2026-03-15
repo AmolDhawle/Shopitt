@@ -1,22 +1,24 @@
 'use client';
-import ImagePlaceholder from 'apps/seller-ui/src/shared/components/image-placeholder';
+import ImagePlaceholder from '@seller-ui/shared/components/image-placeholder';
 import { ChevronRight, Wand, X } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import {
-  CustomProperties,
-  Input,
-  RichTextEditor,
-  SizeSelector,
-} from '@shopitt/components';
+
+import { CustomProperties, Input, SizeSelector } from '@shopitt/components';
 import { ColorSelector, CustomSpecifications } from '@shopitt/components';
 import { useQuery } from '@tanstack/react-query';
-import axiosInstance from 'apps/seller-ui/src/utils/axiosInstance';
+import axiosInstance from '@seller-ui/utils/axiosInstance';
 import Link from 'next/link';
 import Image from 'next/image';
-import { enhancements } from 'apps/seller-ui/src/utils/AI.enhancements';
+import { enhancements } from '@seller-ui/utils/AI.enhancements';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import dynamic from 'next/dynamic';
+
+const RichTextEditor = dynamic(
+  () => import('@shopitt/components').then((mod) => mod.RichTextEditor),
+  { ssr: false },
+);
 
 interface UploadedImage {
   fileId: string;
@@ -74,7 +76,7 @@ const Page = () => {
   });
 
   const [openImageModal, setOpenImageModal] = useState(false);
-  const [isChanged, setIsChanged] = useState(true);
+  const isChanged = true;
   const [baseImage, setBaseImage] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState('');
   const [imageUploadingLoader, setImageUploadingLoader] = useState(false);
@@ -103,7 +105,7 @@ const Page = () => {
     queryKey: ['shop-discounts'],
     queryFn: async () => {
       const res = await axiosInstance.get('/product/api/get-discount-codes');
-      console.log('REsponse', res);
+
       return res.data?.discounts || [];
     },
   });
@@ -113,9 +115,6 @@ const Page = () => {
 
   const selectedCategory = watch('category');
   const regularPrice = watch('regular_price');
-
-  console.log('Categories', categories);
-  console.log('Subcategories', subCategoriesData);
 
   const subcategories = useMemo(() => {
     return selectedCategory ? subCategoriesData[selectedCategory] || [] : [];
@@ -184,7 +183,6 @@ const Page = () => {
 
       const imageToDelete = updatedImages[index];
       if (imageToDelete && typeof imageToDelete === 'object') {
-        console.log('File tp delete', imageToDelete.fileId);
         await axiosInstance.delete('/product/api/delete-product-image', {
           data: {
             fileId: imageToDelete.fileId!,
@@ -221,8 +219,6 @@ const Page = () => {
       setProcessing(false);
     }
   };
-
-  console.log('SelectedImage', selectedImage);
 
   const handleSaveDraft = () => {};
 

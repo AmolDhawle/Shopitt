@@ -2,17 +2,17 @@ import swaggerAutogen from 'swagger-autogen';
 
 const doc = {
   info: {
-    title: 'Order Service API',
-    description: 'API for order service',
+    title: 'Product Service API',
+    description: 'API for product service',
     version: '1.0.0',
   },
-  host: 'localhost:6003',
-  basePath: '/order/api',
+  host: 'localhost:6002',
+  basePath: '/product/api',
   schemes: ['http'],
 };
 
 const outputFile = './swagger-output.json';
-const endpointsFiles = ['./routes/order.routes.ts'];
+const endpointsFiles = ['../src/routes/product.routes.ts'];
 
 swaggerAutogen()(outputFile, endpointsFiles, doc).then(() => {
   console.log('Swagger documentation generated successfully.');

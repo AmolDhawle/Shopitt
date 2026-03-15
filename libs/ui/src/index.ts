@@ -1,1 +1,2 @@
-export { PhoneInput } from './lib/PhoneInput/PhoneInput.tsx';
+export { PhoneInput } from './lib/PhoneInput/PhoneInput';
+

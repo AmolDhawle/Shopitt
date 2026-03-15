@@ -4,6 +4,50 @@
   "private": true,
   "nx": {
     "targets": {
+      "build": {
+        "executor": "@nx/esbuild:esbuild",
+        "outputs": [
+          "{options.outputPath}"
+        ],
+        "defaultConfiguration": "production",
+        "options": {
+          "platform": "node",
+          "outputPath": "dist/apps/kafka-service",
+          "format": [
+            "esm"
+          ],
+          "bundle": true,
+          "main": "apps/kafka-service/src/main.ts",
+          "tsConfig": "apps/kafka-service/tsconfig.app.json",
+          "external": [
+            "kafkajs",
+            "@prisma/client",
+            "@shopitt/prisma",
+            "@shopitt/prisma-client"
+          ],
+          "esbuildOptions": {
+            "sourcemap": true,
+            "outExtension": {
+              ".js": ".js"
+            },
+            "banner": {
+              "js": "import { createRequire } from 'module'; const require = createRequire(import.meta.url); import { fileURLToPath } from 'url'; import { dirname } from 'path'; const __filename = fileURLToPath(import.meta.url); const __dirname = dirname(__filename);"
+            }
+          }
+        },
+        "configurations": {
+          "development": {},
+          "production": {
+            "generateLockfile": true,
+            "esbuildOptions": {
+              "sourcemap": false,
+              "outExtension": {
+                ".js": ".js"
+              }
+            }
+          }
+        }
+      },
       "prune-lockfile": {
         "dependsOn": [
           "build"
@@ -47,7 +91,14 @@
         ],
         "options": {
           "buildTarget": "@shopitt/kafka-service:build",
-          "runBuildTargetDependencies": false
+          "runBuildTargetDependencies": false,
+          "runtimeArgs": [
+            "--inspect=9230",
+            "--import",
+            "tsx",
+            "--import",
+            "dotenv/config"
+          ]
         },
         "configurations": {
           "development": {

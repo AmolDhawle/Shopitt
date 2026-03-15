@@ -29,11 +29,12 @@ const processQueue = (error: unknown) => {
 
 // Handle logout safely
 const handleLogout = () => {
-  if (window.location.pathname !== '/') {
-    window.location.href === '/';
+  if (typeof window !== 'undefined') {
+    if (window.location.pathname !== '/login') {
+      window.location.href = '/login';
+    }
   }
 };
-
 // RESPONSE INTERCEPTOR
 axiosInstance.interceptors.response.use(
   (response) => response,

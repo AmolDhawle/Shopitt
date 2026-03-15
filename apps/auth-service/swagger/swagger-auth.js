@@ -12,7 +12,7 @@ const doc = {
 };
 
 const outputFile = './swagger-auth.json';
-const endpointsFiles = ['./routes/auth.router.ts'];
+const endpointsFiles = ['../src/routes/auth.router.ts'];
 
 swaggerAutogen()(outputFile, endpointsFiles, doc).then(() => {
   console.log('Swagger documentation generated successfully.');

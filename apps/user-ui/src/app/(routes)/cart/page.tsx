@@ -124,7 +124,7 @@ const CartPage = () => {
   );
 
   // Get addresses
-  const { data: addresses, isLoading } = useQuery({
+  const { data: addresses } = useQuery({
     queryKey: ['shipping-addresses'],
     queryFn: async () => {
       const res = await axiosInstance.get('/user/api/shipping-addresses');
