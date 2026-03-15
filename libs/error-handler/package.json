@@ -6,13 +6,40 @@
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "nx": {
+    "targets": {
+      "build": {
+        "executor": "@nx/js:tsc",
+        "options": {
+          "outputPath": "dist/libs/error-handler",
+          "main": "libs/error-handler/src/index.ts",
+          "tsConfig": "libs/error-handler/tsconfig.lib.json",
+          "bundle": true,
+          "declaration": true,
+          "format": [
+            "esm"
+          ],
+          "platform": "node",
+          "thirdParty": false,
+          "external": [
+            "@prisma/client",
+            "node:fs",
+            "node:path",
+            "node:events"
+          ],
+          "banner": {
+            "js": "import { createRequire } from 'module'; const require = createRequire(import.meta.url);"
+          }
+        }
+      }
+    }
+  },
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "@shopitt/source": "./src/index.ts",
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
     }
   },
   "dependencies": {

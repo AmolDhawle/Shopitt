@@ -146,8 +146,6 @@ const ForgotPassword = () => {
     verifyOtpMutation.mutate();
   };
 
-  const axiosError = verifyOtpMutation.error as AxiosError<{ message: string }>;
-
   const resetPasswordMutation = useMutation({
     mutationFn: async ({ password }: { password: string }) => {
       const response = await axios.post(
@@ -456,6 +454,23 @@ const ForgotPassword = () => {
                       )}
                     </button>
                   </div>
+
+                  {/* PASSWORD STRENGTH */}
+                  {passwordValue && (
+                    <div className="mt-2">
+                      <div className="h-2 w-full rounded bg-gray-200 overflow-hidden">
+                        <div
+                          className={`h-full transition-all ${strength.color}`}
+                          style={{ width: `${(strength.score / 5) * 100}%` }}
+                        />
+                      </div>
+                      <p className="mt-1 text-xs text-gray-600">
+                        Password strength:{' '}
+                        <span className="font-medium">{strength.label}</span>
+                      </p>
+                    </div>
+                  )}
+
                   {errors.password && (
                     <p className="text-red-500 text-sm">
                       {errors.password.message}

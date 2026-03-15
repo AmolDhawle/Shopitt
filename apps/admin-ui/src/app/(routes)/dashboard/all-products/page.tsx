@@ -173,7 +173,6 @@ const ProductList = () => {
         accessorKey: 'createdAt',
         header: 'Date',
         cell: ({ row }: any) => {
-          console.log('row', row);
           const date = new Date(row.original.createdAt).toLocaleDateString();
           return <span className="text-white text-sm">{date}</span>;
         },

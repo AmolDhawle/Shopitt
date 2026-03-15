@@ -25,7 +25,6 @@ const Customizations = () => {
           '/admin/api/get-all-customizations',
         );
         const data = res.data;
-        console.log('data', data);
 
         setCategories(data.categories || []);
         setSubCategories(data.subCategories || {});

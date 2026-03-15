@@ -31,7 +31,7 @@ const ShippingAddressSection = () => {
   const { mutate: addAddress } = useMutation({
     mutationFn: async (payload: any) => {
       const res = await axiosInstance.post('/user/api/add-address', payload);
-      console.log('res', res);
+
       return res.data.address;
     },
     onSuccess: () => {
@@ -55,7 +55,6 @@ const ShippingAddressSection = () => {
       ...data,
       isDefault: data?.isDefault === true,
     });
-    console.log('Data', data);
   };
 
   const { mutate: deleteAddress } = useMutation({

@@ -1,9 +1,11 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "../../dist/out-tsc",
+    "rootDir": "src",
+    "outDir": "../../dist/libs/ui",
+    "tsBuildInfoFile": "../../dist/libs/ui/tsconfig.tsbuildinfo",
     "types": ["node"],
-    "allowImportingTsExtensions": true
+    "emitDeclarationOnly": false
   },
   "exclude": [
     "jest.config.ts",
@@ -17,5 +19,5 @@
     "src/**/*.spec.jsx",
     "src/**/*.test.jsx"
   ],
-  "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.ts", "src/**/*.tsx"]
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
 }

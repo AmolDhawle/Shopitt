@@ -12,24 +12,32 @@
         "defaultConfiguration": "production",
         "options": {
           "platform": "node",
-          "outputPath": "apps/product-service/dist",
+          "outputPath": "dist/apps/product-service",
           "format": [
-            "cjs"
+            "esm"
           ],
-          "bundle": false,
+          "bundle": true,
           "main": "apps/product-service/src/main.ts",
           "tsConfig": "apps/product-service/tsconfig.app.json",
+          "external": [
+            "@prisma/client",
+            "@shopitt/prisma",
+            "@shopitt/prisma-client"
+          ],
           "assets": [
             {
-              "input": "apps/product-service/src",
+              "input": "apps/product-service/swagger",
               "glob": "swagger-output.json",
-              "output": "apps/product-service/src"
+              "output": "swagger"
             }
           ],
           "esbuildOptions": {
             "sourcemap": true,
             "outExtension": {
               ".js": ".js"
+            },
+            "banner": {
+              "js": "import { createRequire } from 'module'; const require = createRequire(import.meta.url); import { fileURLToPath } from 'url'; import { dirname } from 'path'; const __filename = fileURLToPath(import.meta.url); const __dirname = dirname(__filename);"
             }
           }
         },
@@ -89,7 +97,11 @@
         ],
         "options": {
           "buildTarget": "@shopitt/product-service:build",
-          "runBuildTargetDependencies": false
+          "runBuildTargetDependencies": false,
+          "runtimeArgs": [
+            "--import",
+            "tsx"
+          ]
         },
         "configurations": {
           "development": {

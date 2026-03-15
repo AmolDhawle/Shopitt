@@ -34,7 +34,7 @@ const Page = () => {
     queryKey: ['shop-discounts'],
     queryFn: async () => {
       const res = await axiosInstance.get('/product/api/get-discount-codes');
-      console.log('REsponse', res);
+
       return res.data?.discounts || [];
     },
   });

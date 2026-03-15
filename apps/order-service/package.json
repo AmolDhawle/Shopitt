@@ -12,24 +12,32 @@
         "defaultConfiguration": "production",
         "options": {
           "platform": "node",
-          "outputPath": "apps/order-service/dist",
+          "outputPath": "dist/apps/order-service",
           "format": [
-            "cjs"
+            "esm"
           ],
-          "bundle": false,
+          "bundle": true,
           "main": "apps/order-service/src/main.ts",
           "tsConfig": "apps/order-service/tsconfig.app.json",
+          "external": [
+            "@prisma/client",
+            "@shopitt/prisma",
+            "@shopitt/prisma-client"
+          ],
           "assets": [
             {
-              "input": "apps/order-service/src",
+              "input": "apps/order-service/swagger",
               "glob": "swagger-output.json",
-              "output": "apps/order-service/src"
+              "output": "swagger"
             }
           ],
           "esbuildOptions": {
             "sourcemap": true,
             "outExtension": {
               ".js": ".js"
+            },
+            "banner": {
+              "js": "import { createRequire } from 'module'; const require = createRequire(import.meta.url); import { fileURLToPath } from 'url'; import { dirname } from 'path'; const __filename = fileURLToPath(import.meta.url); const __dirname = dirname(__filename);"
             }
           }
         },
@@ -89,7 +97,11 @@
         ],
         "options": {
           "buildTarget": "@shopitt/order-service:build",
-          "runBuildTargetDependencies": false
+          "runBuildTargetDependencies": false,
+          "runtimeArgs": [
+            "--import",
+            "tsx"
+          ]
         },
         "configurations": {
           "development": {

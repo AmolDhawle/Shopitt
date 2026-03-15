@@ -1,6 +1,6 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import { COUNTRIES } from './countries.ts';
+import { COUNTRIES } from './countries';
 
 export function PhoneInput() {
   const {

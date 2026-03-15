@@ -11,7 +11,7 @@ import crypto from 'crypto';
 import { sendEmail } from '../utils/send-email';
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-12-15.clover',
+  apiVersion: '2026-02-25.clover',
 });
 
 interface CartItem {
@@ -503,8 +503,7 @@ export const updateOrderStatus = async (
     const { id } = req.params;
     const orderId = id;
     const { status } = req.body;
-    console.log('Status', status);
-    console.log('OrderId', orderId);
+
     if (!orderId || !status) {
       return res.status(400).json({
         error: 'Missing order ID or status.',

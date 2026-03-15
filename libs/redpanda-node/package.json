@@ -5,6 +5,27 @@
   "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
+  "nx": {
+    "targets": {
+      "build": {
+        "executor": "@nx/esbuild:esbuild",
+        "options": {
+          "outputPath": "dist/libs/redpanda-node",
+          "main": "libs/redpanda-node/src/index.ts",
+          "tsConfig": "libs/redpanda-node/tsconfig.lib.json",
+          "bundle": true,
+          "format": [
+            "esm"
+          ],
+          "platform": "node",
+          "thirdParty": false,
+          "external": [
+            "kafkajs"
+          ]
+        }
+      }
+    }
+  },
   "exports": {
     ".": {
       "types": "./src/index.ts",

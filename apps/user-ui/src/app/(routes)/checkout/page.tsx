@@ -5,7 +5,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import axiosInstance from 'apps/user-ui/src/utils/axiosInstance';
 import { XCircle } from 'lucide-react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import CheckoutForm from 'apps/user-ui/src/shared/components/checkout/checkoutForm';
 import { Address, User } from 'apps/user-ui/src/types';
 
@@ -13,7 +13,7 @@ export const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
 );
 
-const Page = () => {
+const CheckoutContent = () => {
   const [clientSecret, setClientSecret] = useState('');
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [coupon, setCoupon] = useState();
@@ -21,6 +21,7 @@ const Page = () => {
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [address, setAddress] = useState<Address | null>(null);
+
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -59,8 +60,6 @@ const Page = () => {
 
         const shopId = sellers[0].shopId;
         const stripeAccountId = sellers[0].stripeAccountId;
-        console.log(sellers);
-        console.log('VerifyRes', verifyRes);
 
         if (!shopId) {
           throw new Error('Shop not found in payment session');
@@ -140,4 +139,16 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default function Page() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex justify-center items-center min-h-[70vh]">
+          <div className="animate-spin rounded-full w-12 h-12 border-4 border-blue-500 border-t-transparent" />
+        </div>
+      }
+    >
+      <CheckoutContent />
+    </Suspense>
+  );
+}

@@ -7,7 +7,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import axiosInstance from 'apps/admin-ui/src/utils/axiosInstance';
-import { Ban, ChevronRight, Download, Search, Trash2 } from 'lucide-react';
+import { Ban, ChevronRight, Download, Search } from 'lucide-react';
 import Link from 'next/link';
 import { saveAs } from 'file-saver';
 import React, { useDeferredValue, useMemo, useState } from 'react';

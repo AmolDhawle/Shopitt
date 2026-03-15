@@ -1,18 +1,28 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "../../dist/out-tsc/apps/admin-service",
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "emitDeclarationOnly": false,
+    "outDir": "../../dist/apps/admin-service",
+    "rootDir": "src",
     "types": ["node", "express"],
-    "rootDir": "../../",
-    "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
-    "allowImportingTsExtensions": true
+    "tsBuildInfoFile": "../../dist/apps/admin-service/tsconfig.tsbuildinfo"
   },
-  "include": [
-    "src/**/*.ts",
-    "../../libs/middleware/src/**/*.ts",
-    "../../libs/imagekit/src/**/*.ts"
+  "include": ["src/**/*.ts", "src/types/**/*.d.ts"],
+  "exclude": [
+    "out-tsc",
+    "dist",
+    "jest.config.ts",
+    "jest.config.cts",
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+    "src/tests",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/__mocks__/**"
   ],
-  "exclude": [],
   "references": [
     {
       "path": "../../libs/middleware/tsconfig.lib.json"

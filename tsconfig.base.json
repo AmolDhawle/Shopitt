@@ -1,51 +1,45 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "composite": true,
-    "declarationMap": true,
-    "declaration": true,
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022"],
+
+    "strict": true,
+    "skipLibCheck": true,
+
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "emitDeclarationOnly": true,
+
+    "declaration": true,
+    "declarationMap": true,
+    "composite": true,
+
     "importHelpers": true,
     "isolatedModules": true,
-    "lib": ["es2022"],
-    // "module": "nodenext",
-    // "moduleResolution": "nodenext",
-    "moduleResolution": "node",
-    "module": "ESNext",
-    "noEmitOnError": true,
+
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
     "noImplicitReturns": true,
-    "noUnusedLocals": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "target": "esnext",
-    // "customConditions": ["@shopitt/source"],
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+
     "paths": {
-      "@shopitt/prisma": ["generated/prisma/*"],
-      "@shopitt/middleware": ["libs/middleware/src"],
-      "@shopitt/ui": ["libs/ui/src"],
-      "@shopitt/imagekit": ["libs/imagekit/src"]
+      "@shopitt/prisma-client": ["libs/prisma-client/src/index.ts"],
+      "@shopitt/error-handler": ["libs/error-handler/src/index.ts"],
+      "@shopitt/redis": ["libs/redis/src/index.ts"],
+      "@shopitt/redpanda-node": ["libs/redpanda-node/src/index.ts"],
+      "@shopitt/prisma": ["generated/prisma/client/index.d.ts"],
+      "@shopitt/middleware": ["libs/middleware/src/index.ts"],
+      "@shopitt/ui": ["libs/ui/src/index.ts"],
+      "@shopitt/components": ["libs/components/src/index.ts"],
+      "@shopitt/imagekit": ["libs/imagekit/src/index.ts"],
+      "@seller-ui/*": ["apps/seller-ui/src/*"],
+      "@user-ui/*": ["apps/user-ui/src/*"],
+      "@admin-ui/*": ["apps/admin-ui/src/*"]
     },
+
     "typeRoots": ["./node_modules/@types"]
-  },
-  "references": [
-    {
-      "path": "libs/middleware"
-    },
-    {
-      "path": "apps/auth-service"
-    },
-    {
-      "path": "libs/ui"
-    },
-    {
-      "path": "libs/components"
-    },
-    {
-      "path": "libs/imagekit"
-    }
-  ]
+  }
 }

@@ -15,7 +15,7 @@ import { useMemo, useState } from 'react';
 
 const fetchOrders = async () => {
   const res = await axiosInstance.get('/order/api/get-seller-orders');
-  console.log('Res', res);
+
   return res.data.orders;
 };
 

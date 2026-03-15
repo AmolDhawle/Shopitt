@@ -1,2 +1,2 @@
-export * from './lib/error-handler.js';
-export * from './lib/app-error.js';
+export * from './lib/error-handler';
+export * from './lib/app-error';

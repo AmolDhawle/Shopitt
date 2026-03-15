@@ -1,14 +1,16 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "../../dist/out-tsc/apps/order-service",
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "emitDeclarationOnly": false,
+    "outDir": "../../dist/apps/order-service",
+    "rootDir": "src",
     "types": ["node", "express"],
-    "rootDir": "../../",
-    "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
-    "allowImportingTsExtensions": true
+    "tsBuildInfoFile": "../../dist/apps/order-service/tsconfig.tsbuildinfo"
   },
-  "include": ["src/**/*.ts", "../../libs/middleware/src/**/*.ts"],
-  "exclude": [],
+  "include": ["src/**/*.ts", "src/**/*.d.ts"],
   "references": [
     {
       "path": "../../libs/middleware/tsconfig.lib.json"
@@ -17,10 +19,10 @@
       "path": "../../libs/prisma-client/tsconfig.lib.json"
     },
     {
-      "path": "../../libs/error-handler/tsconfig.lib.json"
+      "path": "../../libs/redis/tsconfig.lib.json"
     },
     {
-      "path": "../../libs/redis/tsconfig.lib.json"
+      "path": "../../libs/error-handler/tsconfig.lib.json"
     }
   ]
 }

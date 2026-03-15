@@ -8,7 +8,7 @@ import router from './routes/admin.routes';
 
 // Swagger files
 const adminSwagger = JSON.parse(
-  fs.readFileSync(path.join(__dirname, 'swagger-output.json'), 'utf8'),
+  fs.readFileSync(path.join(__dirname, 'swagger/swagger-output.json'), 'utf8'),
 );
 
 const app = express();
@@ -36,5 +36,6 @@ app.get('/docs-json/admin', (req, res) => {
 const port = process.env.PORT || 6005;
 const server = app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}/api`);
+  console.log(`Auth docs → http://localhost:${port}/api-docs/auth`);
 });
 server.on('error', console.error);

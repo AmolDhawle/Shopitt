@@ -42,8 +42,6 @@ const OrderDetails = () => {
     }
   };
 
-  console.log('Order', order);
-
   const handleStatusChange = async (
     e: React.ChangeEvent<HTMLSelectElement>,
   ) => {

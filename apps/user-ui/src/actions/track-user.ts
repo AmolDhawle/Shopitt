@@ -13,7 +13,7 @@ export const getProducer = async () => {
   return producer;
 };
 
-export async function sendKafkaEvent(eventData) {
+export async function sendKafkaEvent(eventData: any) {
   const producer = await getProducer();
 
   await producer.send({

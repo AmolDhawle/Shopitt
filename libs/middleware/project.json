@@ -1,5 +1,5 @@
 {
-  "name": "middleware",
+  "name": "@shopitt/middleware",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/middleware/src",
   "projectType": "library",

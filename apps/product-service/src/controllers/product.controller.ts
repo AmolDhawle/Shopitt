@@ -287,7 +287,6 @@ export const deleteProductImage = async (
   next: NextFunction,
 ) => {
   try {
-    console.log('DELETE FILE', req.body);
     const { fileId } = req.body;
 
     if (!fileId) {
@@ -805,8 +804,6 @@ export const getFilteredProducts = async (
       }),
       prisma.products.count({ where: filters }),
     ]);
-
-    console.log('Products', products);
 
     const totalPages = Math.ceil(total / parsedLimit);
 

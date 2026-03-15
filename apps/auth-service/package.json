@@ -19,34 +19,42 @@
         "defaultConfiguration": "production",
         "options": {
           "platform": "node",
-          "outputPath": "apps/auth-service/dist",
+          "outputPath": "dist/apps/auth-service",
           "format": [
-            "cjs"
+            "esm"
           ],
-          "bundle": false,
+          "bundle": true,
           "main": "apps/auth-service/src/main.ts",
           "tsConfig": "apps/auth-service/tsconfig.app.json",
+          "external": [
+            "@prisma/client",
+            "@shopitt/prisma",
+            "@shopitt/prisma-client"
+          ],
           "assets": [
             {
-              "input": "apps/auth-service/src",
+              "input": "apps/auth-service/swagger",
               "glob": "swagger-auth.json",
-              "output": "apps/auth-service/src"
+              "output": "swagger"
             },
             {
-              "input": "apps/auth-service/src",
+              "input": "apps/auth-service/swagger",
               "glob": "swagger-webhooks.json",
-              "output": "apps/auth-service/src"
+              "output": "swagger"
             },
             {
               "input": "apps/auth-service/src/assets",
               "glob": "**/*",
-              "output": "apps/auth-service/src/assets"
+              "output": "assets"
             }
           ],
           "esbuildOptions": {
             "sourcemap": true,
             "outExtension": {
               ".js": ".js"
+            },
+            "banner": {
+              "js": "import { createRequire } from 'module'; const require = createRequire(import.meta.url); const __filename = import.meta.url; const __dirname = import.meta.url;"
             }
           }
         },
@@ -109,7 +117,9 @@
           "runBuildTargetDependencies": false,
           "runtimeArgs": [
             "--inspect=9230",
-            "-r",
+            "--import",
+            "tsx",
+            "--import",
             "dotenv/config"
           ]
         },

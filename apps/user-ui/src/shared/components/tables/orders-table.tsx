@@ -15,9 +15,8 @@ const OrdersTable = () => {
   const { data, isLoading } = useQuery({
     queryKey: ['user-orders'],
     queryFn: async () => {
-      console.log('hellp');
       const res = await axiosInstance.get(`/order/api/get-user-orders`);
-      console.log('Res', res);
+
       return res.data.orders;
     },
   });

@@ -9,7 +9,7 @@ import router from './routes/user.routes';
 
 // Swagger files
 const userSwagger = JSON.parse(
-  fs.readFileSync(path.join(__dirname, 'swagger-output.json'), 'utf8'),
+  fs.readFileSync(path.join(__dirname, 'swagger/swagger-output.json'), 'utf8'),
 );
 const port = process.env.PORT ? Number(process.env.PORT) : 6003;
 

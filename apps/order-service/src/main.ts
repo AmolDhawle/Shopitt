@@ -38,7 +38,7 @@ app.use('/api', router);
 
 // Swagger files
 const orderSwagger = JSON.parse(
-  fs.readFileSync(path.join(__dirname, 'swagger-output.json'), 'utf8'),
+  fs.readFileSync(path.join(__dirname, 'swagger/swagger-output.json'), 'utf8'),
 );
 app.use(
   '/api-docs/order',

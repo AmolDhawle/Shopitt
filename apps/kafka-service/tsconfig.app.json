@@ -1,12 +1,16 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "emitDeclarationOnly": false,
     "outDir": "../../dist/apps/kafka-service",
-
-    "types": ["node", "express"]
+    "rootDir": "src",
+    "types": ["node", "express"],
+    "tsBuildInfoFile": "../../dist/apps/kafka-service/tsconfig.tsbuildinfo"
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist"],
   "references": [
     {
       "path": "../../libs/prisma-client/tsconfig.lib.json"

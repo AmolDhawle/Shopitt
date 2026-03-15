@@ -1,12 +1,11 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "../../dist/out-tsc",
-    "types": ["node"],
-    "allowImportingTsExtensions": true,
-    "jsx": "preserve",
-    "allowJs": true
+    "rootDir": "src",
+    "outDir": "../../dist/libs/components",
+    "jsx": "react-jsx",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "types": ["node"]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "references": []
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
 }

@@ -7,7 +7,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import axiosInstance from 'apps/admin-ui/src/utils/axiosInstance';
-import { Ban, ChevronRight, Download, Search, Trash2 } from 'lucide-react';
+import { ChevronRight, Download, Search } from 'lucide-react';
 import Link from 'next/link';
 import { saveAs } from 'file-saver';
 import React, { useDeferredValue, useMemo, useState } from 'react';
@@ -36,8 +36,6 @@ interface SellersResponse {
 const SellersPage = () => {
   const [globalFilter, setGlobalFilter] = useState('');
 
-  const [selectedSeller, setSelectedSeller] = useState<any>(null);
-  const [showBanModal, setShowBanModal] = useState(false);
   const [page, setPage] = useState(1);
 
   const deferredGlobalFilter = useDeferredValue(globalFilter);
@@ -49,7 +47,7 @@ const SellersPage = () => {
       const res = await axiosInstance.get<SellersResponse>(
         `/admin/api/get-all-sellers?page=${page}&limit=${limit}`,
       );
-      console.log('res', res.data);
+
       return res.data;
     },
     staleTime: 1000 * 60 * 5,

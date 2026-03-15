@@ -1,13 +1,16 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "dist",
-    "types": ["node", "express"],
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "emitDeclarationOnly": false,
+    "outDir": "../../dist/apps/api-gateway",
     "rootDir": "src",
-    "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo"
+    "types": ["node", "express"],
+    "tsBuildInfoFile": "../../dist/apps/api-gateway/tsconfig.tsbuildinfo"
   },
   "include": ["src/**/*.ts", "src/**/*.json"],
-  "exclude": [],
   "references": [
     {
       "path": "../../libs/prisma-client/tsconfig.lib.json"
