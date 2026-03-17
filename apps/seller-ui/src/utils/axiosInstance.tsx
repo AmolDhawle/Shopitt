@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { runRedirectToLogin } from './redirect';
 
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_SERVER_URI,
@@ -10,10 +11,13 @@ type RefreshSubscriber = () => void;
 
 let refreshSubscribers: RefreshSubscriber[] = [];
 
-// Handle logout and prevent infinite loops
+// Handle logout safely
 const handleLogout = () => {
-  if (window.location.pathname !== '/login') {
-    window.location.href = '/login';
+  const publicPaths = ['/login', '/signup', '/forgot-password'];
+  const currentPath = window.location.pathname;
+
+  if (!publicPaths.includes(currentPath)) {
+    runRedirectToLogin();
   }
 };
 

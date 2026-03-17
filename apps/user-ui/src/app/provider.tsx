@@ -1,6 +1,8 @@
 'use client';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { WebSocketProvider } from '@user-ui/context/websocket-context';
+import useUser from '@user-ui/hooks/useUser';
 import React, { useState } from 'react';
 import { Toaster } from 'react-hot-toast';
 
@@ -18,9 +20,25 @@ const Provider = ({ children }: { children: React.ReactNode }) => {
   );
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      <ProvidersWithWebSocket>{children}</ProvidersWithWebSocket>
       <Toaster position="top-center" reverseOrder={false} />
     </QueryClientProvider>
+  );
+};
+
+const ProvidersWithWebSocket = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  const { user, isLoading } = useUser();
+
+  if (isLoading) return null;
+  return (
+    <>
+      {user && <WebSocketProvider user={user}>{children}</WebSocketProvider>}
+      {!user && children}
+    </>
   );
 };
 
