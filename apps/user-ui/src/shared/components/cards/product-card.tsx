@@ -4,9 +4,9 @@ import Rating from '../rating';
 import { Eye, Heart, ShoppingBag } from 'lucide-react';
 import ProductDetailsCard from './product-details-card';
 import { useStore } from 'apps/user-ui/src/store';
-import useUser from 'apps/user-ui/src/hooks/useUser';
 import useLocationTracking from 'apps/user-ui/src/hooks/useLocationTracking';
 import useDeviceTracking from 'apps/user-ui/src/hooks/useDeviceTracking';
+import { useAuthStore } from '@user-ui/store/authStore';
 
 const ProductCard = ({
   product,
@@ -17,7 +17,7 @@ const ProductCard = ({
 }) => {
   const [timeLeft, setTimeLeft] = useState('');
   const [open, setOpen] = useState(false);
-  const { user } = useUser();
+  const user = useAuthStore((s) => s.user);
   const location = useLocationTracking();
   const deviceInfo = useDeviceTracking();
   const addToCart = useStore((state: any) => state.addToCart);

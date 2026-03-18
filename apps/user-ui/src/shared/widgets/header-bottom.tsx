@@ -4,16 +4,17 @@ import { AlignLeft, ChevronDown } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { navItems } from '../../configs/constants';
 import Link from 'next/link';
-import useUser from '../../hooks/useUser';
 import ProfileIcon from '../../assets/svgs/profile-icon';
 import { HeartIconOutline } from '../../assets/svgs/heart-icon';
 import { CartIconOutline } from '../../assets/svgs/shopping-cart-icon';
 import { useStore } from '../../store';
+import { useAuthStore } from '@user-ui/store/authStore';
 
 const HeaderBottom = () => {
   const [show, setShow] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
-  const { user, isLoading } = useUser();
+  const user = useAuthStore((s) => s.user);
+  const isLoading = useAuthStore((s) => s.isLoading);
   const wishlist = useStore((state: any) => state.wishlist);
   const cart = useStore((state: any) => state.cart);
 

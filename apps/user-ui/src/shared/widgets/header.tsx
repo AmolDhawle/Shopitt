@@ -12,12 +12,13 @@ import {
   HeartIconOutline,
 } from '../../assets/svgs/heart-icon';
 import HeaderBottom from './header-bottom';
-import useUser from '../../hooks/useUser';
 import { useStore } from '../../store';
 import { capitalize } from '../../utils/capitalize';
+import { useAuthStore } from '@user-ui/store/authStore';
 
 const Header = () => {
-  const { user, isLoading } = useUser();
+  const user = useAuthStore((s) => s.user);
+  const isLoading = useAuthStore((s) => s.isLoading);
   const wishlist = useStore((state: any) => state.wishlist);
   const cart = useStore((state: any) => state.cart);
 

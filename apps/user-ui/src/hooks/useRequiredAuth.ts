@@ -1,16 +1,17 @@
 import { useRouter } from 'next/navigation';
-import useUser from './useUser';
 import { useEffect } from 'react';
+import { useAuthStore } from '@user-ui/store/authStore';
 
 const useRequireAuth = () => {
   const router = useRouter();
-  const { user, isLoading } = useUser();
+  const user = useAuthStore((s) => s.user);
+  const isLoading = useAuthStore((s) => s.isLoading);
 
   useEffect(() => {
     if (!isLoading && !user) {
       router.replace('/login');
     }
-  }, [user, isLoading, router]);
+  }, [user, isLoading]);
 
   return { user, isLoading };
 };

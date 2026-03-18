@@ -19,7 +19,6 @@ export const WebSocketProvider = ({
   user: any;
 }) => {
   const [wsInstance, setWsInstance] = useState<WebSocket | null>(null);
-  const wsRef = useRef<WebSocket | null>(null);
   const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
@@ -54,11 +53,11 @@ export const WebSocketProvider = ({
       ws: wsInstance,
       unreadCounts,
     }),
-    [unreadCounts],
+    [unreadCounts, wsInstance],
   );
 
   return (
-    <WebSocketContext.Provider value={{ ws: wsInstance, unreadCounts }}>
+    <WebSocketContext.Provider value={value}>
       {children}
     </WebSocketContext.Provider>
   );

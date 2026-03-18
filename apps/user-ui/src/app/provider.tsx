@@ -3,7 +3,8 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WebSocketProvider } from '@user-ui/context/websocket-context';
 import useUser from '@user-ui/hooks/useUser';
-import React, { useState } from 'react';
+import { useAuthStore } from '@user-ui/store/authStore';
+import React, { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 
 const Provider = ({ children }: { children: React.ReactNode }) => {
@@ -18,27 +19,36 @@ const Provider = ({ children }: { children: React.ReactNode }) => {
         },
       }),
   );
+
   return (
     <QueryClientProvider client={queryClient}>
-      <ProvidersWithWebSocket>{children}</ProvidersWithWebSocket>
+      <NonBlockingAuthWrapper>{children}</NonBlockingAuthWrapper>
       <Toaster position="top-center" reverseOrder={false} />
     </QueryClientProvider>
   );
 };
 
-const ProvidersWithWebSocket = ({
+const NonBlockingAuthWrapper = ({
   children,
 }: {
   children: React.ReactNode;
 }) => {
   const { user, isLoading } = useUser();
+  const setUser = useAuthStore((s) => s.setUser);
 
-  if (isLoading) return null;
+  useEffect(() => {
+    if (!isLoading) {
+      setUser(user || null);
+    }
+  }, [user, isLoading, setUser]);
+
   return (
-    <>
-      {user && <WebSocketProvider user={user}>{children}</WebSocketProvider>}
-      {!user && children}
-    </>
+    <WebSocketProvider user={user}>
+      {children}
+      {isLoading && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-200 bg-opacity-60 z-50"></div>
+      )}
+    </WebSocketProvider>
   );
 };
 

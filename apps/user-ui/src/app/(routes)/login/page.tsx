@@ -1,12 +1,12 @@
 'use client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import GoogleButton from '../../../shared/components/google-button';
 import { Eye, EyeOff } from 'lucide-react';
 import { watch } from 'fs';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 
 type FormData = {
@@ -26,6 +26,8 @@ const Login = () => {
     formState: { errors },
   } = useForm<FormData>();
 
+  const queryClient = useQueryClient();
+
   const loginMutation = useMutation({
     mutationFn: async (data: FormData) => {
       const response = await axios.post(
@@ -38,6 +40,7 @@ const Login = () => {
     },
     onSuccess: (data) => {
       setServerError(null);
+      queryClient.invalidateQueries({ queryKey: ['user'] });
       router.push('/');
     },
     onError: (error: AxiosError) => {

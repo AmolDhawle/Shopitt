@@ -1,8 +1,8 @@
 'use client';
 
+import { useAuthStore } from '@user-ui/store/authStore';
 import useDeviceTracking from 'apps/user-ui/src/hooks/useDeviceTracking';
 import useLocationTracking from 'apps/user-ui/src/hooks/useLocationTracking';
-import useUser from 'apps/user-ui/src/hooks/useUser';
 import { useStore } from 'apps/user-ui/src/store';
 import { Trash2 } from 'lucide-react';
 import Image from 'next/image';
@@ -10,7 +10,7 @@ import Link from 'next/link';
 import React, { useState } from 'react';
 
 const Wishlist = () => {
-  const { user } = useUser();
+  const user = useAuthStore((s) => s.user);
   const location = useLocationTracking();
   const deviceInfo = useDeviceTracking();
   const addToCart = useStore((state: any) => state.addToCart);

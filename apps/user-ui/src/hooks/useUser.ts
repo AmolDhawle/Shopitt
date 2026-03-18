@@ -6,11 +6,12 @@ import { useEffect } from 'react';
 // fetch user data
 const fetchUser = async () => {
   const response = await axiosInstance.get('/api/me');
+
   return response.data.user;
 };
 
 const useUser = () => {
-  const { setLoggedIn } = useAuthStore();
+  const { setUser } = useAuthStore();
 
   const {
     data: user,
@@ -23,17 +24,14 @@ const useUser = () => {
     retry: false,
   });
 
-  // handle success/error manually
   useEffect(() => {
     if (user) {
-      setLoggedIn(true);
+      setUser(user);
+    } else if (isError) {
+      setUser(null);
     }
-    if (isError) {
-      setLoggedIn(false);
-    }
-  }, [user, isError, setLoggedIn]);
+  }, [user, isError, setUser]);
 
   return { user, isLoading: isPending, isError };
 };
-
 export default useUser;
