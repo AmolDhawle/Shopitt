@@ -1,9 +1,9 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { useAuthStore } from '@user-ui/store/authStore';
 import useDeviceTracking from 'apps/user-ui/src/hooks/useDeviceTracking';
 import useLocationTracking from 'apps/user-ui/src/hooks/useLocationTracking';
-import useUser from 'apps/user-ui/src/hooks/useUser';
 import { useStore } from 'apps/user-ui/src/store';
 import axiosInstance from 'apps/user-ui/src/utils/axiosInstance';
 import { Loader2, Trash2 } from 'lucide-react';
@@ -15,7 +15,7 @@ import toast from 'react-hot-toast';
 
 const CartPage = () => {
   const router = useRouter();
-  const { user } = useUser();
+  const user = useAuthStore((s) => s.user);
   const location = useLocationTracking();
   const deviceInfo = useDeviceTracking();
   const cart = useStore((state: any) => state.cart);

@@ -15,14 +15,15 @@ import ReactImageMagnify from 'react-image-magnify';
 import Rating from '../../components/rating';
 import Link from 'next/link';
 import { useStore } from 'apps/user-ui/src/store';
-import useUser from 'apps/user-ui/src/hooks/useUser';
 import useLocationTracking from 'apps/user-ui/src/hooks/useLocationTracking';
 import useDeviceTracking from 'apps/user-ui/src/hooks/useDeviceTracking';
 import ProductCard from '../../components/cards/product-card';
 import axiosInstance from 'apps/user-ui/src/utils/axiosInstance';
+import { useAuthStore } from '@user-ui/store/authStore';
 
 const ProductDetails = ({ productDetails }: { productDetails: any }) => {
-  const { user, isLoading } = useUser();
+  const user = useAuthStore((s) => s.user);
+  const isLoading = useAuthStore((s) => s.isLoading);
   const location = useLocationTracking();
   const deviceInfo: any = useDeviceTracking();
   const [currentImage, setCurrentImage] = useState(
