@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import Rating from '../rating';
 import { Heart, MapPin, MessageCircleMore, ShoppingBag, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import axiosInstance from '@user-ui/utils/axiosInstance';
+import { isProtected } from '@user-ui/utils/protected';
 
 interface ProductDetailsCardProps {
   data: any;
@@ -44,10 +46,30 @@ const ProductDetailsCard: React.FC<ProductDetailsCardProps> = ({
   const [isSelected, setIsSelected] = useState(data?.colors?.[0] || '');
   const [isSizeSelected, setIsSizeSelected] = useState(data?.sizes?.[0] || '');
   const [quantity, setQuantity] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
 
   const estimatedDelivery = new Date();
   estimatedDelivery.setDate(estimatedDelivery.getDate() + 5);
   const router = useRouter();
+
+  const handleChat = async () => {
+    if (isLoading) return;
+
+    setIsLoading(true);
+    try {
+      const res = await axiosInstance.post(
+        '/chatting/api/create-user-conversationGroup',
+        { sellerId: data?.shop?.sellerId },
+        isProtected,
+      );
+
+      router.push(`/inbox?conversationId=${res.data.conversation.id}`);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <div
       className="fixed flex items-center justify-center inset-0 w-full bg-[#0000001d] z-50"
@@ -125,7 +147,7 @@ const ProductDetailsCard: React.FC<ProductDetailsCardProps> = ({
               {/* Chat with seller button */}
               <button
                 className="flex cursor-pointer items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium !rounded hover:scale-105 transition"
-                onClick={() => router.push(`/inbox?shopId=${data?.shop?.id}`)}
+                onClick={() => handleChat()}
               >
                 <MessageCircleMore size={20} /> Chat with seller
               </button>

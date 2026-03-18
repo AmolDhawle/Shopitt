@@ -1,6 +1,10 @@
+'use client';
+import { usePathname } from 'next/navigation';
 import React from 'react';
 
 const Footer = () => {
+  const pathname = usePathname();
+  if (pathname === '/inbox') return null;
   return (
     <footer className="bg-black text-gray-400 pt-16">
       {/* Trust Badges */}

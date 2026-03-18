@@ -1,0 +1,14 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Chatting Service API",
+    "description": "API for chatting service",
+    "version": "1.0.0"
+  },
+  "host": "localhost:6006",
+  "basePath": "/chatting/api",
+  "schemes": [
+    "http"
+  ],
+  "paths": {}
+}

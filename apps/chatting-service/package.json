@@ -1,5 +1,5 @@
 {
-  "name": "@shopitt/user-service",
+  "name": "@shopitt/chatting-service",
   "version": "0.0.1",
   "private": true,
   "nx": {
@@ -12,24 +12,24 @@
         "defaultConfiguration": "production",
         "options": {
           "platform": "node",
-          "outputPath": "dist/apps/user-service",
+          "outputPath": "dist/apps/chatting-service",
           "format": [
             "esm"
           ],
           "bundle": true,
-          "main": "apps/user-service/src/main.ts",
-          "tsConfig": "apps/user-service/tsconfig.app.json",
+          "main": "apps/chatting-service/src/main.ts",
+          "tsConfig": "apps/chatting-service/tsconfig.app.json",
+          "assets": [
+            {
+              "input": "apps/chatting-service/swagger",
+              "glob": "swagger-output.json",
+              "output": "swagger"
+            }
+          ],
           "external": [
             "@prisma/client",
             "@shopitt/prisma",
             "@shopitt/prisma-client"
-          ],
-          "assets": [
-            {
-              "input": "apps/user-service/swagger",
-              "glob": "swagger-output.json",
-              "output": "swagger"
-            }
           ],
           "esbuildOptions": {
             "sourcemap": true,
@@ -61,8 +61,8 @@
         "cache": true,
         "executor": "@nx/js:prune-lockfile",
         "outputs": [
-          "{workspaceRoot}/apps/user-service/dist/package.json",
-          "{workspaceRoot}/apps/user-service/dist/package-lock.json"
+          "{workspaceRoot}/apps/chatting-service/dist/package.json",
+          "{workspaceRoot}/apps/chatting-service/dist/package-lock.json"
         ],
         "options": {
           "buildTarget": "build"
@@ -74,7 +74,7 @@
         ],
         "cache": true,
         "outputs": [
-          "{workspaceRoot}/apps/user-service/dist/workspace_modules"
+          "{workspaceRoot}/apps/chatting-service/dist/workspace_modules"
         ],
         "executor": "@nx/js:copy-workspace-modules",
         "options": {
@@ -96,7 +96,7 @@
           "build"
         ],
         "options": {
-          "buildTarget": "@shopitt/user-service:build",
+          "buildTarget": "@shopitt/chatting-service:build",
           "runBuildTargetDependencies": false,
           "runtimeArgs": [
             "--import",
@@ -105,10 +105,10 @@
         },
         "configurations": {
           "development": {
-            "buildTarget": "@shopitt/user-service:build:development"
+            "buildTarget": "@shopitt/chatting-service:build:development"
           },
           "production": {
-            "buildTarget": "@shopitt/user-service:build:production"
+            "buildTarget": "@shopitt/chatting-service:build:production"
           }
         }
       }

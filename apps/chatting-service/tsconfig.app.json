@@ -1,0 +1,31 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "emitDeclarationOnly": false,
+    "outDir": "../../dist/apps/chatting-service",
+    "rootDir": "src",
+    "types": ["node", "express"],
+    "tsBuildInfoFile": "../../dist/apps/chatting-service/tsconfig.tsbuildinfo"
+  },
+  "include": ["src/**/*.ts"],
+  "references": [
+    {
+      "path": "../../libs/middleware/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/error-handler/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/redis/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/redpanda-node/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/prisma-client/tsconfig.lib.json"
+    }
+  ]
+}
