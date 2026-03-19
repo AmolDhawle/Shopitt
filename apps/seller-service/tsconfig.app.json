@@ -20,6 +20,9 @@
     },
     {
       "path": "../../libs/error-handler/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/redis/tsconfig.lib.json"
     }
   ]
 }
