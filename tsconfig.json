@@ -59,6 +59,9 @@
     },
     {
       "path": "./apps/chatting-service"
+    },
+    {
+      "path": "./apps/seller-service"
     }
   ]
 }
