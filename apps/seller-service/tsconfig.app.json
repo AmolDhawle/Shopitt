@@ -1,0 +1,25 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": false,
+    "declaration": false,
+    "declarationMap": false,
+    "emitDeclarationOnly": false,
+    "outDir": "../../dist/apps/seller-service",
+    "rootDir": "src",
+    "types": ["node", "express"],
+    "tsBuildInfoFile": "../../dist/apps/seller-service/tsconfig.tsbuildinfo"
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts"],
+  "references": [
+    {
+      "path": "../../libs/middleware/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/prisma-client/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/error-handler/tsconfig.lib.json"
+    }
+  ]
+}
