@@ -55,11 +55,11 @@ export const WebSocketProvider = ({
       ws: wsInstance,
       unreadCounts,
     }),
-    [unreadCounts],
+    [unreadCounts, wsInstance],
   );
 
   return (
-    <WebSocketContext.Provider value={{ ws: wsInstance, unreadCounts }}>
+    <WebSocketContext.Provider value={value}>
       {children}
     </WebSocketContext.Provider>
   );

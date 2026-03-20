@@ -98,12 +98,22 @@ const Page = () => {
       return;
     }
 
+    const normalize = (value: any) => {
+      if (!value) return [];
+      if (Array.isArray(value)) return value;
+
+      return value.split(',').map((v: string) => v.trim());
+    };
+
     const payload = {
       ...data,
       discountValue: Number(data.discountValue),
       usageLimit: Number(data.usageLimit),
       minimumOrderAmount: Number(data.minimumOrderAmount),
       maximumDiscountAmount: Number(data.maximumDiscountAmount),
+
+      applicableProducts: normalize(data.applicableProducts),
+      applicableCategories: normalize(data.applicableCategories),
     };
 
     createDiscountCodeMutation.mutate(payload);

@@ -1,6 +1,5 @@
 'use client';
 
-import useSeller from 'apps/seller-ui/src/hooks/useSeller';
 import useSidebar from 'apps/seller-ui/src/hooks/useSidebar';
 import { usePathname } from 'next/navigation';
 import React, { useEffect } from 'react';
@@ -25,11 +24,12 @@ import {
 import SidebarMenu from './sidebar.menu';
 import Logo from '../../../assets/images/image.png';
 import Image from 'next/image';
+import { useAuthStore } from '@seller-ui/store/authStore';
 
 const SidebarWrapper = () => {
   const { activeSidebar, setActiveSidebar } = useSidebar();
   const pathName = usePathname();
-  const { seller } = useSeller();
+  const seller = useAuthStore((s) => s.seller);
 
   useEffect(() => {
     setActiveSidebar(pathName);
@@ -196,12 +196,10 @@ const SidebarWrapper = () => {
                 }
               />
               <SidebarItem
-                isActive={activeSidebar === '/dashboard/logout'}
+                isActive={activeSidebar === ''}
                 title="Logout"
-                href="/dashboard/logout"
-                icon={
-                  <LogOut size={24} color={getIconColor('/dashboard/logout')} />
-                }
+                href="/login"
+                icon={<LogOut size={24} color={getIconColor('/login')} />}
               />
             </SidebarMenu>
           </div>

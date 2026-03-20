@@ -64,31 +64,55 @@ export const createDiscountCode = async (
       });
     }
 
-    // Normalize discount code (important)
     const normalizedCode = discountCode.trim().toUpperCase();
 
-    // Validate enum
     if (!Object.values(DiscountType).includes(discountType)) {
       return res.status(400).json({
         message: 'Invalid discount type',
       });
     }
 
-    const productsArray = applicableProducts
-      ? applicableProducts.split(',').map((p: string) => p.trim())
-      : [];
-    const categoriesArray = applicableCategories
-      ? applicableCategories.split(',').map((c: string) => c.trim())
-      : [];
+    // Normalize helper
+    const normalizeToArray = (value: any): string[] => {
+      if (!value) return [];
 
-    // Business rule: percentage must be <= 100
+      if (Array.isArray(value)) return value;
+
+      if (typeof value === 'string') {
+        return value
+          .split(',')
+          .map((v) => v.trim())
+          .filter(Boolean);
+      }
+
+      return [];
+    };
+
+    const productsArray = normalizeToArray(applicableProducts);
+    const categoriesArray = normalizeToArray(applicableCategories);
+
+    // OPTIONAL: validate product IDs only if present
+    const isValidObjectId = (id: string) => /^[a-f\d]{24}$/i.test(id);
+
+    const invalidProductIds = productsArray.filter(
+      (id) => !isValidObjectId(id),
+    );
+
+    if (invalidProductIds.length > 0) {
+      return res.status(400).json({
+        message: 'Some product IDs are invalid',
+        invalidProductIds,
+      });
+    }
+
+    // Business rule
     if (discountType === 'PERCENTAGE' && Number(discountValue) > 100) {
       return res.status(400).json({
         message: 'Percentage discount cannot exceed 100%',
       });
     }
 
-    // Check duplicate for same seller
+    // Duplicate check
     const existingCode = await prisma.discountCode.findUnique({
       where: {
         discountCode_shopId: {
@@ -104,20 +128,26 @@ export const createDiscountCode = async (
       });
     }
 
-    // Create discount code
+    // CREATE
     const discount = await prisma.discountCode.create({
       data: {
         publicName,
         discountType,
-        discountValue,
+        discountValue: Number(discountValue),
         discountCode: normalizedCode,
         shopId: req.seller?.shop?.id,
         expiresAt: expiresAt ? new Date(expiresAt) : undefined,
-        usageLimit,
-        minimumOrderAmount,
-        maximumDiscountAmount,
-        applicableProducts: productsArray,
-        applicableCategories: categoriesArray,
+        usageLimit: usageLimit ? Number(usageLimit) : undefined,
+        minimumOrderAmount: minimumOrderAmount
+          ? Number(minimumOrderAmount)
+          : undefined,
+        maximumDiscountAmount: maximumDiscountAmount
+          ? Number(maximumDiscountAmount)
+          : undefined,
+
+        // IMPORTANT FIXES
+        applicableProducts: productsArray, // must be ObjectIds
+        applicableCategories: categoriesArray, // can be strings like "Mobile"
       },
     });
 
@@ -127,9 +157,7 @@ export const createDiscountCode = async (
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({
-      message: 'Internal server error',
-    });
+    return next(error);
   }
 };
 
@@ -1084,4 +1112,193 @@ export const topShops = async (
     console.log('Error fetching top shops: ', error);
     return next(error);
   }
+};
+
+// Create event for products
+// export const createEventForProducts = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction,
+// ) => {
+//   try {
+//     const { shopId } = req.params;
+
+//     if (!shopId || req.seller?.shop?.id !== shopId) {
+//       return res.status(401).json({ message: 'Unauthorized' });
+//     }
+
+//     const { productIds, startingDate, endingDate, discountPercentage } =
+//       req.body;
+
+//     // Validation
+//     if (!productIds || !Array.isArray(productIds) || productIds.length === 0) {
+//       return res.status(400).json({
+//         message: 'Please select at least one product',
+//       });
+//     }
+
+//     if (!startingDate || !endingDate) {
+//       return res.status(400).json({
+//         message: 'Start and end dates are required',
+//       });
+//     }
+
+//     if (new Date(startingDate) >= new Date(endingDate)) {
+//       return res.status(400).json({
+//         message: 'End date must be after start date',
+//       });
+//     }
+
+//     if (
+//       discountPercentage == null ||
+//       discountPercentage < 0 ||
+//       discountPercentage > 100
+//     ) {
+//       return res.status(400).json({
+//         message: 'Invalid discount percentage',
+//       });
+//     }
+
+//     // Fetch products (ONLY from seller shop)
+//     const products = await prisma.products.findMany({
+//       where: {
+//         id: { in: productIds },
+//         shopId,
+//         isDeleted: false,
+//       },
+//     });
+
+//     if (products.length !== productIds.length) {
+//       return res.status(400).json({
+//         message: 'Some products are invalid or not yours',
+//       });
+//     }
+
+//     // 🚀 Prepare updates
+//     const updates = products.map((product) => {
+//       const salePrice = Math.floor(
+//         product.regularPrice * (1 - discountPercentage / 100),
+//       );
+
+//       return prisma.products.update({
+//         where: { id: product.id },
+//         data: {
+//           isEvent: true,
+//           startingDate: new Date(startingDate),
+//           endingDate: new Date(endingDate),
+//           salePrice,
+//         },
+//       });
+//     });
+
+//     await prisma.$transaction(updates);
+
+//     return res.status(200).json({
+//       success: true,
+//       message: 'Event created for selected products',
+//     });
+//   } catch (error) {
+//     return next(error);
+//   }
+// };
+
+export const createEventForProducts = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { shopId } = req.params;
+
+    if (!shopId || req.seller?.shop?.id !== shopId) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const { productIds, startingDate, endingDate, discountPercentage } =
+      req.body;
+
+    // Validation
+    if (!productIds || !Array.isArray(productIds) || productIds.length === 0) {
+      return res.status(400).json({
+        message: 'Please select at least one product',
+      });
+    }
+
+    if (!startingDate || !endingDate) {
+      return res.status(400).json({
+        message: 'Start and end dates are required',
+      });
+    }
+
+    if (new Date(startingDate) >= new Date(endingDate)) {
+      return res.status(400).json({
+        message: 'End date must be after start date',
+      });
+    }
+
+    if (
+      discountPercentage == null ||
+      discountPercentage < 0 ||
+      discountPercentage > 100
+    ) {
+      return res.status(400).json({
+        message: 'Invalid discount percentage',
+      });
+    }
+
+    // Fetch products (ONLY from seller shop)
+    const products = await prisma.products.findMany({
+      where: {
+        id: { in: productIds },
+        shopId,
+        isDeleted: false,
+      },
+    });
+
+    if (products.length !== productIds.length) {
+      return res.status(400).json({
+        message: 'Some products are invalid or not yours',
+      });
+    }
+
+    // Update products with event info
+    const updates = products.map((product) => {
+      const salePrice = Math.floor(
+        product.regularPrice * (1 - discountPercentage / 100),
+      );
+
+      return prisma.products.update({
+        where: { id: product.id },
+        data: {
+          isEvent: true,
+          startingDate: new Date(startingDate),
+          endingDate: new Date(endingDate),
+          salePrice,
+        },
+      });
+    });
+
+    await prisma.$transaction(updates);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Event created for selected products',
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+// Helper for GET events: derive status dynamically
+export const addEventStatus = (product: any) => {
+  const now = new Date();
+  const start = product.startingDate ? new Date(product.startingDate) : null;
+  const end = product.endingDate ? new Date(product.endingDate) : null;
+
+  let status: 'upcoming' | 'active' | 'expired' = 'expired';
+  if (start && start > now) status = 'upcoming';
+  else if (start && end && start <= now && end >= now) status = 'active';
+  else if (end && end < now) status = 'expired';
+
+  return { ...product, status };
 };
