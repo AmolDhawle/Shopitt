@@ -1,6 +1,7 @@
 import express, { Router } from 'express';
 import {
   createDiscountCode,
+  createEventForProducts,
   createProduct,
   deleteDiscountCode,
   deleteProduct,
@@ -59,6 +60,13 @@ router.post(
   requireAuth,
   authorizeRole('seller'),
   createProduct,
+);
+
+router.post(
+  '/create-event/:shopId',
+  requireAuth,
+  authorizeRole('seller'),
+  createEventForProducts,
 );
 
 router.get(

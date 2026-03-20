@@ -144,29 +144,43 @@ export const getSellerEvents = async (
 ) => {
   try {
     const { shopId } = req.params;
+
+    if (!shopId) throw new BadRequestError('Shop ID is required');
+
     const page = Number(req.query.page) || 1;
     const limit = Math.min(Number(req.query.limit) || 10, 50);
-
     const skip = (page - 1) * limit;
 
-    const products = await prisma.products.findMany({
+    // Total count of events
+    const totalEvents = await prisma.products.count({
       where: {
-        shopId,
+        shopId: shopId.toString(),
         isDeleted: false,
         isEvent: true,
-        status: 'Active',
+      },
+    });
+
+    // Fetch paginated events
+    const events = await prisma.products.findMany({
+      where: {
+        shopId: shopId.toString(),
+        isDeleted: false,
+        isEvent: true,
       },
       skip,
       take: limit,
       orderBy: { createdAt: 'desc' },
-      include: {
-        images: true,
-      },
+      include: { images: true },
     });
 
     return res.status(200).json({
       success: true,
-      products,
+      events,
+      meta: {
+        currentPage: page,
+        totalPages: Math.ceil(totalEvents / limit),
+        totalEvents,
+      },
     });
   } catch (error) {
     return next(error);

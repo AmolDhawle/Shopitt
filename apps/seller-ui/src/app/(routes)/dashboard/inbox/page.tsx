@@ -1,8 +1,8 @@
 'use client';
 
 import { useWebSocket } from '@seller-ui/context/websocket-context';
-import useSeller from '@seller-ui/hooks/useSeller';
 import ChatInput from '@seller-ui/shared/components/chats/chatInput';
+import { useAuthStore } from '@seller-ui/store/authStore';
 import {
   GetSellerConversationsResponse,
   GetSellerMessagesResponse,
@@ -23,7 +23,7 @@ const ChatPage = () => {
   const router = useRouter();
   const messageContainerRef = useRef<HTMLDivElement | null>(null);
   const scrollAnchorRef = useRef<HTMLDivElement | null>(null);
-  const { seller, isLoading: sellerLoading } = useSeller();
+  const seller = useAuthStore((s) => s.seller);
   const queryClient = useQueryClient();
   const conversationId = searchParams.get('conversationId');
   const { ws, unreadCounts } = useWebSocket();
