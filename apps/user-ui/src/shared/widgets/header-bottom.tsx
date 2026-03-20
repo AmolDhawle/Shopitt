@@ -74,10 +74,13 @@ const HeaderBottom = () => {
             <div className="flex items-center gap-6">
               {/* Login Info */}
               <div className="flex items-center gap-2">
-                <Link href="/login">
+                <Link href={user ? '/profile' : '/login'}>
                   <ProfileIcon />
                 </Link>
-                <Link href="/login" className="text-white font-medium text-lg">
+                <Link
+                  href={user ? '/profile' : '/login'}
+                  className="text-white font-medium text-lg"
+                >
                   {!isLoading && user
                     ? `Hello, ${user?.name?.split(' ')[0]}`
                     : 'Hello, Sign in'}

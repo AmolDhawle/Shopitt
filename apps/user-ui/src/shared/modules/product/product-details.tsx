@@ -20,16 +20,19 @@ import useDeviceTracking from 'apps/user-ui/src/hooks/useDeviceTracking';
 import ProductCard from '../../components/cards/product-card';
 import axiosInstance from 'apps/user-ui/src/utils/axiosInstance';
 import { useAuthStore } from '@user-ui/store/authStore';
+import { isProtected } from '@user-ui/utils/protected';
+import { useRouter } from 'next/navigation';
 
 const ProductDetails = ({ productDetails }: { productDetails: any }) => {
   const user = useAuthStore((s) => s.user);
   const isLoading = useAuthStore((s) => s.isLoading);
   const location = useLocationTracking();
   const deviceInfo: any = useDeviceTracking();
+  const router = useRouter();
   const [currentImage, setCurrentImage] = useState(
     productDetails?.images[0]?.url,
   );
-
+  const [isChatLoading, setIsChatLoading] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isSelected, setIsSelected] = useState(
     productDetails?.colors?.[0] || '',
@@ -97,6 +100,25 @@ const ProductDetails = ({ productDetails }: { productDetails: any }) => {
   useEffect(() => {
     fetchFilteredProducts();
   }, [priceRange]);
+
+  const handleChat = async () => {
+    if (isChatLoading) return;
+
+    setIsChatLoading(true);
+    try {
+      const res = await axiosInstance.post(
+        '/chatting/api/create-user-conversationGroup',
+        { sellerId: productDetails?.shop?.sellerId },
+        isProtected,
+      );
+
+      router.push(`/inbox?conversationId=${res.data.conversation.id}`);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsChatLoading(false);
+    }
+  };
 
   return (
     <div className="w-full bg-[#f5f5f5] py-5">
@@ -379,6 +401,7 @@ const ProductDetails = ({ productDetails }: { productDetails: any }) => {
                 </div>
                 <Link
                   href={'#'}
+                  onClick={() => handleChat()}
                   className="text-blue-500 text-sm flex items-center gap-1"
                 >
                   <MessageSquareText />

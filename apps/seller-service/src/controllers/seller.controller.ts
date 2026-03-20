@@ -189,7 +189,7 @@ export const getSellerEvents = async (
 
 // FOLLOW SHOP with Rate limiting
 export const followShop = [
-  followRateLimiter, // Apply rate limiting
+  followRateLimiter,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user?.id;
@@ -212,10 +212,26 @@ export const followShop = [
         return res.status(200).json({ success: true });
       }
 
+      // Add follower to the followers table
       await prisma.shopFollowers.create({
         data: {
           shopId,
           userId,
+        },
+      });
+
+      // Update followers count on Shop
+      await prisma.shops.update({
+        where: { id: shopId },
+        data: {
+          followers: {
+            connect: {
+              shopId_userId: {
+                shopId,
+                userId,
+              },
+            },
+          },
         },
       });
 
@@ -228,7 +244,7 @@ export const followShop = [
 
 // UNFOLLOW SHOP with Rate limiting
 export const unfollowShop = [
-  followRateLimiter, // Apply rate limiting
+  followRateLimiter,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user?.id;
@@ -236,10 +252,26 @@ export const unfollowShop = [
 
       if (!userId) throw new ForbiddenError('Unauthorized');
 
+      // Remove follower from the followers table
       await prisma.shopFollowers.deleteMany({
         where: {
           shopId,
           userId,
+        },
+      });
+
+      // Remove follower from Shop
+      await prisma.shops.update({
+        where: { id: shopId },
+        data: {
+          followers: {
+            disconnect: {
+              shopId_userId: {
+                shopId,
+                userId,
+              },
+            },
+          },
         },
       });
 
