@@ -3,18 +3,14 @@ import { Search } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 import ProfileIcon from '../../assets/svgs/profile-icon';
-import {
-  CartIconFilled,
-  CartIconOutline,
-} from '../../assets/svgs/shopping-cart-icon';
-import {
-  HeartIconFilled,
-  HeartIconOutline,
-} from '../../assets/svgs/heart-icon';
+import { CartIconOutline } from '../../assets/svgs/shopping-cart-icon';
+import { HeartIconOutline } from '../../assets/svgs/heart-icon';
 import HeaderBottom from './header-bottom';
 import { useStore } from '../../store';
 import { capitalize } from '../../utils/capitalize';
 import { useAuthStore } from '@user-ui/store/authStore';
+import Image from 'next/image';
+import Logo from '@user-ui/assets/images/image.png';
 
 const Header = () => {
   const user = useAuthStore((s) => s.user);
@@ -27,10 +23,8 @@ const Header = () => {
       <div className="bg-[#2874f0]">
         <div className="max-w-7xl mx-auto px-4 py-5 flex items-center justify-between">
           <div>
-            <Link href="/">
-              <span className="text-xl md:text-3xl text-white font-bold">
-                Shopitt
-              </span>
+            <Link href="/" className="">
+              <Image src={Logo} alt="Shopitt Logo" width={160} height={160} />
             </Link>
           </div>
           <div className="hidden md:block w-[50%] relative">

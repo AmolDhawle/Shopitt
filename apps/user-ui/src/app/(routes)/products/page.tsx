@@ -8,19 +8,19 @@ import React, { useEffect, useState } from 'react';
 import { Range } from 'react-range';
 
 const MIN = 0;
-const MAX = 20000;
+const MAX = 200000;
 
 const Page = () => {
   const router = useRouter();
   const [isProductLoading, setIsProductLoading] = useState(false);
-  const [priceRange, setPriceRange] = useState([0, 20000]);
+  const [priceRange, setPriceRange] = useState([0, 200000]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [products, setProducts] = useState<any[]>([]);
   const [totalPages, setTotalPages] = useState(1);
-  const [tempPriceRange, setTempPriceRange] = useState([0, 20000]);
+  const [tempPriceRange, setTempPriceRange] = useState([0, 200000]);
 
   const colors = [
     { name: 'Black', code: '#000' },
