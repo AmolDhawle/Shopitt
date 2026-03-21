@@ -36,6 +36,9 @@
     },
     {
       "path": "../../libs/error-handler/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/redpanda-node/tsconfig.lib.json"
     }
   ]
 }

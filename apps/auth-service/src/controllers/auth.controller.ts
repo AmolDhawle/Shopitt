@@ -24,6 +24,7 @@ import crypto from 'crypto';
 import { setCookie } from '../utils/cookies/setCookie';
 import { checkLoginThrottle } from '../middlewares/loginThrottle';
 import Stripe from 'stripe';
+import { sendLogs } from '@shopitt/redpanda-node';
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2026-02-25.clover',
@@ -285,26 +286,33 @@ export const refreshToken = async (
 };
 
 // Get current authenticated user
-export const getMe = (
+export const getMe = async (
   req: Request,
   res: Response,
   next: NextFunction,
-): void => {
+) => {
   try {
     if (!req.user) {
-      res.status(401).json({
+      return res.status(401).json({
         success: false,
         message: 'Unauthorized',
       });
       return;
     }
 
-    res.status(200).json({
+    const user = req.user;
+    await sendLogs({
+      type: 'success',
+      message: `User data retrieved ${user?.email}`,
+      source: 'auth-service',
+    });
+
+    return res.status(200).json({
       success: true,
-      user: req.user,
+      user,
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
