@@ -13,7 +13,8 @@
     "admin-docs": "node apps/admin-service/swagger/swagger.js",
     "order-docs": "node apps/order-service/swagger/swagger.js",
     "chatting-docs": "node apps/chatting-service/swagger/swagger.js",
-    "docs": "npm run auth-docs && npm run webhook-docs && npm run product-docs && npm run user-docs && npm run seller-docs && npm run admin-docs && npm run order-docs  && npm run chatting-docs",
+    "logger-docs": "node apps/logger-service/swagger/swagger.js",
+    "docs": "npm run auth-docs && npm run webhook-docs && npm run product-docs && npm run user-docs && npm run seller-docs && npm run admin-docs && npm run order-docs  && npm run chatting-docs && npm run logger-docs",
     "user-ui": "npx nx run-many --target=dev --projects=user-ui",
     "seller-ui": "npx nx run-many --target=dev --projects=seller-ui",
     "admin-ui": "npx nx run-many --target=dev --projects=admin-ui"
@@ -70,6 +71,7 @@
     "swagger-autogen": "^2.23.7",
     "swagger-ui-express": "^5.0.1",
     "ua-parser-js": "^2.0.9",
+    "ws": "^8.19.0",
     "zustand": "^5.0.11"
   },
   "devDependencies": {
@@ -108,6 +110,7 @@
     "@types/react-image-magnify": "^2.7.4",
     "@types/react-simple-maps": "^3.0.6",
     "@types/sanitize-html": "^2.16.0",
+    "@types/ws": "^8.18.1",
     "autoprefixer": "^10.4.23",
     "dotenv": "^17.2.3",
     "esbuild": "^0.19.2",

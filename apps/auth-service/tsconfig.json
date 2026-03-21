@@ -8,6 +8,9 @@
       "path": "../../libs/middleware"
     },
     {
+      "path": "../../libs/redpanda-node"
+    },
+    {
       "path": "../../libs/error-handler"
     },
     {
