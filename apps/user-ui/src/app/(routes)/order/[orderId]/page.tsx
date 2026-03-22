@@ -85,14 +85,13 @@ const Page = () => {
       {/* Progress Timeline */}
       <div className="mb-10 relative">
         {/* Full gray line */}
-        <div className="absolute top-4 left-4 right-4 h-1 bg-gray-600 z-0"></div>
+        <div className="absolute top-4 left-0 right-0 h-1 bg-gray-300 z-0 rounded"></div>
 
-        {/* Filled line */}
+        {/* Filled blue line */}
         <div
-          className="absolute top-4 h-1 bg-blue-500 z-0 transition-all duration-500"
+          className="absolute top-4 left-0 h-1 bg-blue-500 z-0 rounded transition-all duration-500"
           style={{
-            left: '8px',
-            width: `${(currentIndex + 1 / (statuses.length - 1)) * 100}%`,
+            width: `${(currentIndex / (statuses.length - 1)) * 100}%`,
           }}
         ></div>
 
@@ -106,20 +105,19 @@ const Page = () => {
               <div key={step} className="flex flex-col items-center">
                 <div
                   className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-xs font-semibold
-                    ${
-                      completed
-                        ? 'bg-blue-500 border-blue-500 text-black'
-                        : current
-                          ? 'bg-blue-600 border-blue-600 text-black'
-                          : 'bg-gray-700 border-gray-500 text-gray-300'
-                    }`}
+            ${
+              completed
+                ? 'bg-blue-500 border-blue-500 text-white'
+                : current
+                  ? 'bg-white border-blue-500 text-blue-500'
+                  : 'bg-gray-200 border-gray-500 text-gray-500'
+            }`}
                 >
                   {index + 1}
                 </div>
                 <span
                   className={`text-[11px] mt-2 text-center w-24
-                    ${completed ? 'text-blue-600' : current ? 'text-blue-700' : 'text-gray-700'}
-                  `}
+            ${completed ? 'text-blue-600' : current ? 'text-blue-500' : 'text-gray-500'}`}
                 >
                   {formatStatus(step)}
                 </span>

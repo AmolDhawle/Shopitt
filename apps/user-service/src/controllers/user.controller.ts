@@ -120,3 +120,28 @@ export const getUserAddresses = async (
     return next(error);
   }
 };
+
+// get all users notifications
+export const getUserNotifications = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const notifications = await prisma.notifications.findMany({
+      where: {
+        receiverId: req.user?.id,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      notifications,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};

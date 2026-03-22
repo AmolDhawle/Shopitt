@@ -4,6 +4,7 @@ import {
   BadRequestError,
   NotFoundError,
   ForbiddenError,
+  ValidationError,
 } from '@shopitt/error-handler';
 import rateLimit from 'express-rate-limit';
 import { redis } from '@shopitt/redis';
@@ -307,6 +308,60 @@ export const isFollowingShop = async (
 
     return res.status(200).json({
       isFollowing: !!follow,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+// fetch notifications for sellers
+export const sellerNotifications = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const sellerId = req.seller?.id;
+
+    const notifications = await prisma.notifications.findMany({
+      where: {
+        receiverId: sellerId,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      notifications,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+// mark notifications as read
+export const markNotificationAsRead = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { notificationId } = req.body;
+
+    if (!notificationId) {
+      return next(new ValidationError('Notification id is required!'));
+    }
+
+    const notification = await prisma.notifications.update({
+      where: { id: notificationId },
+      data: { isRead: true },
+    });
+
+    return res.status(200).json({
+      success: true,
+      notification,
     });
   } catch (error) {
     return next(error);

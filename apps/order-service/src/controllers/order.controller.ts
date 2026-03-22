@@ -259,10 +259,22 @@ export const stripeWebhook = async (req: Request, res: Response) => {
     return acc;
   }, {});
 
-  await prisma.$transaction(async (tx) => {
-    for (const seller of sellers) {
-      const items = shopGrouped[seller.shopId];
+  const result = await prisma.$transaction(async (tx) => {
+    const orderGroup = await tx.orderGroups.create({
+      data: {
+        userId,
+        totalAmount: pricing.totalAmount,
+        paymentStatus: 'PAID',
+        paymentMethod: 'STRIPE',
+        transactionId: paymentIntent.id,
+      },
+    });
 
+    const orders = [];
+
+    for (const seller of sellers) {
+      console.log('seller', seller);
+      const items = shopGrouped[seller.shopId];
       if (!items) continue;
 
       const subtotal = items.reduce(
@@ -273,66 +285,37 @@ export const stripeWebhook = async (req: Request, res: Response) => {
       const discount = coupon?.discountAmount || 0;
       const total = subtotal - discount;
 
-      // Doesn't work for indian sellers/accounts
-
-      // await stripe.transfers.create({
-      //   amount: sellerAmount,
-      //   currency: 'inr',
-      //   destination: seller.stripeAccountId,
-      //   source_transaction: paymentIntent.latest_charge as string,
-      //   description: `Payout for order ${order.id}`,
-      // });
-
-      const orderGroup = await tx.orderGroups.create({
-        data: {
-          userId,
-          totalAmount: pricing.totalAmount,
-          paymentStatus: 'PAID',
-          paymentMethod: 'STRIPE',
-          transactionId: paymentIntent.id,
-        },
-      });
-
-      await tx.orders.create({
+      const order = await tx.orders.create({
         data: {
           orderGroup: {
             connect: { id: orderGroup.id },
           },
-
           user: {
             connect: { id: userId },
           },
-
           shop: {
             connect: { id: seller.shopId },
           },
-
           subtotal,
           discount,
           total,
           couponCode: coupon?.code || '',
           paymentStatus: 'PAID',
           orderStatus: 'CONFIRMED',
-
           paymentMethod: 'STRIPE',
           transactionId: paymentIntent.id,
-
           shippingAddress: shippingAddressId
             ? { connect: { id: shippingAddressId } }
             : undefined,
-
           statusHistory: {
             create: [
               { status: 'ORDER_PLACED' },
               { status: 'PAYMENT_CONFIRMED' },
             ],
           },
-
           items: {
             create: items.map((item: any) => ({
-              product: {
-                connect: { id: item.id },
-              },
+              product: { connect: { id: item.id } },
               quantity: item.quantity,
               price: item.salePrice,
               size: item.selectedOptions?.size || null,
@@ -345,19 +328,78 @@ export const stripeWebhook = async (req: Request, res: Response) => {
       // Doesn't work for indian sellers/accounts
 
       // await stripe.transfers.create({
-      //   amount: sellerAmount,
-      //   currency: 'inr',
-      //   destination: seller.stripeAccountId,
-      //   source_transaction: paymentIntent.latest_charge as string,
-      //   description: `Payout for order ${order.id}`,
+      // amount: sellerAmount,
+      // currency: 'inr',
+      // destination: seller.stripeAccountId,
+      // source_transaction: paymentIntent.latest_charge as string,
+      // description: Payout for order ${order.id},
       // });
+
+      console.log('Creating notification for seller:', seller.sellerId);
+
+      // 1. Seller notification
+      await tx.notifications.create({
+        data: {
+          receiverId: seller.sellerId,
+          receiverType: 'SELLER',
+          type: 'ORDER',
+          title: 'New Order Received',
+          message: `You received a new order #${order.id}`,
+          isRead: false,
+          redirectLink: `/orders/${order.id}`,
+          entityId: orderGroup.id,
+        },
+      });
+
+      orders.push(order);
     }
+
+    // 2. User notification
+    await tx.notifications.create({
+      data: {
+        receiverId: userId,
+        receiverType: 'USER',
+        type: 'ORDER',
+        title: 'Order Placed Successfully',
+        message: `Your order #${orderGroup.id} has been placed successfully`,
+        isRead: false,
+        redirectLink: `/order/${orderGroup.id}`,
+      },
+    });
+
+    // 3. Admin notification
+    const admins = await tx.users.findMany({
+      where: {
+        role: 'ADMIN',
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    console.log('Admin', admins);
+
+    await tx.notifications.createMany({
+      data: admins.map((admin) => ({
+        receiverId: admin.id,
+        receiverType: 'ADMIN',
+        type: 'ORDER',
+        title: 'New Order Placed',                                                                                                                                                                                                                                                                                                                                                                                                                                    
+        message: `A new order #${orderGroup.id} has been placed by ${user.name}`,
+        isRead: false,
+        redirectLink: `/admin/orders/${orderGroup.id}`,
+        entityId: orderGroup.id,
+      })),
+    });
+
+    return { orderGroup, orders };
   });
 
   await sendEmail(user.email, 'Order Confirmation', 'order-confirmation', {
     name: user.name,
     cart,
     totalAmount: pricing.totalAmount,
+    trackingUrl: `/order/${result.orderGroup.id}`,
   });
 
   await redis.del(`payment-session:${sessionId}`);

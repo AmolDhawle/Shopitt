@@ -12,7 +12,7 @@ const BreadCrumbs = ({ title }: BreadCrumbsProps) => {
         Dashboard
       </Link>
       <ChevronRight size={20} className="text-gray-200" />
-      <span className="text-white">All Products</span>
+      <span className="text-white">{title}</span>
     </div>
   );
 };

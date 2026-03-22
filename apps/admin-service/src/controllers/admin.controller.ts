@@ -290,3 +290,38 @@ export const getAllSellers = async (
     return next(error);
   }
 };
+
+// get all notifications
+export const getAllNotifications = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const adminId = req.user?.id;
+
+    if (!adminId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Unauthorized',
+      });
+    }
+
+    const notifications = await prisma.notifications.findMany({
+      where: {
+        receiverId: adminId,
+        receiverType: 'ADMIN',
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      notifications,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};

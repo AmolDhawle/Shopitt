@@ -1,8 +1,8 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import BreadCrumbs from 'apps/admin-ui/src/shared/components/breadcrumbs';
-import axiosInstance from 'apps/admin-ui/src/utils/axiosInstance';
+import BreadCrumbs from 'apps/seller-ui/src/shared/components/breadcrumbs';
+import axiosInstance from 'apps/seller-ui/src/utils/axiosInstance';
 import Link from 'next/link';
 import React from 'react';
 
@@ -10,7 +10,10 @@ const Notifications = () => {
   const { data, isLoading } = useQuery({
     queryKey: ['notifications'],
     queryFn: async () => {
-      const res = await axiosInstance.get('/admin/api/get-all-notifications');
+      console.log('in');
+      const res = await axiosInstance.get(
+        '/seller/api/get-seller-notifications',
+      );
 
       return res.data.notifications;
     },

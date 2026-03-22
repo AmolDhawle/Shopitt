@@ -1,9 +1,12 @@
+import useLayout from '@user-ui/hooks/useLayout';
 import { MoveRight } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 const Hero = () => {
   const router = useRouter();
+  const { layout } = useLayout();
+
   return (
     <div className="relative w-full h-[90vh] bg-gradient-to-r from-[#115061] to-[#33a1c9]">
       <div className="absolute inset-0  opacity-30"></div>
@@ -32,7 +35,10 @@ const Hero = () => {
         <div className="md:w-1/2 mt-8 md:mt-0 flex justify-center">
           <div className="relative w-[350px] h-[350px] md:w-[500px] md:h-[500px] transform hover:scale-105 transition duration-500 ease-in-out">
             <Image
-              src="https://ik.imagekit.io/5frbx53sr/products/watch-6.avif"
+              src={
+                layout?.banner ||
+                'https://ik.imagekit.io/5frbx53sr/products/watch-6.avif'
+              }
               alt="Product Image"
               layout="fill"
               objectFit="cover"

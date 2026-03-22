@@ -5,6 +5,7 @@ import {
   getAllAdmins,
   getAllCustomizations,
   getAllEvents,
+  getAllNotifications,
   getAllProducts,
   getAllSellers,
   getAllUsers,
@@ -30,7 +31,7 @@ router.get(
   authorizeRole('admin'),
   getAllAdmins,
 );
-router.put('/add new admin', requireAuth, authorizeRole('admin'), addNewAdmin);
+router.put('/add-new-admin', requireAuth, authorizeRole('admin'), addNewAdmin);
 router.get('/get-all-customizations', getAllCustomizations);
 router.get('/get-all-users', requireAuth, authorizeRole('admin'), getAllUsers);
 router.get(
@@ -38,6 +39,12 @@ router.get(
   requireAuth,
   authorizeRole('admin'),
   getAllSellers,
+);
+router.get(
+  '/get-all-notifications',
+  requireAuth,
+  authorizeRole('admin'),
+  getAllNotifications,
 );
 
 export default router;
