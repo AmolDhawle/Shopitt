@@ -134,7 +134,7 @@ const OrderDetails = () => {
         <div
           className="absolute top-4 h-1 bg-green-500 z-0 transition-all duration-500"
           style={{
-            left: '4px',
+            left: '14px',
             width: `${(currentIndex / (statuses.length - 1)) * 100}%`,
           }}
         ></div>

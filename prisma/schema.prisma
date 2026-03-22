@@ -406,11 +406,18 @@ enum NotificationType {
   PROMOTION
 }
 
+enum ReceiverType {
+  USER
+  SELLER
+  ADMIN
+}
+
 model Notifications {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
   title   String
   message String
+  receiverType ReceiverType @default(USER)
 
   type NotificationType @default(SYSTEM)
 

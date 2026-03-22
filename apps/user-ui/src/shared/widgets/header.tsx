@@ -11,12 +11,14 @@ import { capitalize } from '../../utils/capitalize';
 import { useAuthStore } from '@user-ui/store/authStore';
 import Image from 'next/image';
 import Logo from '@user-ui/assets/images/image.png';
+import useLayout from '@user-ui/hooks/useLayout';
 
 const Header = () => {
   const user = useAuthStore((s) => s.user);
   const isLoading = useAuthStore((s) => s.isLoading);
   const wishlist = useStore((state: any) => state.wishlist);
   const cart = useStore((state: any) => state.cart);
+  const { layout } = useLayout();
 
   return (
     <div className="w-full">
@@ -24,7 +26,12 @@ const Header = () => {
         <div className="max-w-7xl mx-auto px-4 py-5 flex items-center justify-between">
           <div>
             <Link href="/" className="">
-              <Image src={Logo} alt="Shopitt Logo" width={160} height={160} />
+              <Image
+                src={layout?.logo || Logo}
+                alt="Shopitt Logo"
+                width={160}
+                height={160}
+              />
             </Link>
           </div>
           <div className="hidden md:block w-[50%] relative">

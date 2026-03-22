@@ -17,6 +17,7 @@ import {
   updateUserPassword,
   loginAdmin,
   getAdmin,
+  getLayoutData,
 } from '../controllers/auth.controller';
 import { requireAuth } from '@shopitt/middleware';
 import { authorizeRole } from '@shopitt/middleware';
@@ -54,5 +55,6 @@ router.post('/forgot-password/reset', resetUserPassword);
 router.post('/change-password', requireAuth, updateUserPassword);
 router.post('/login-admin', loginAdmin);
 router.get('/admin/me', requireAuth, authorizeRole('admin'), getAdmin);
+router.get('/get-layouts', getLayoutData);
 
 export default router;
