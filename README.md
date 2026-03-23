@@ -1,83 +1,485 @@
-# Shopitt
+# 🛒 Shopitt – Distributed Microservices E-commerce Platform
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+Shopitt is a **production-grade, scalable, multi-vendor e-commerce platform** built using a **microservices architecture within an Nx monorepo**.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is almost ready ✨.
-
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/node?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
-
-## Finish your CI setup
-
-[Click here to finish setting up your workspace!](https://cloud.nx.app/connect/fc8IQRRGii)
-
-## Run tasks
-
-To run the dev server for your app, use:
-
-```sh
-npx nx serve auth-service
-```
-
-To create a production bundle:
-
-```sh
-npx nx build auth-service
-```
-
-To see all available targets to run for a project, run:
-
-```sh
-npx nx show project auth-service
-```
-
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
-
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Add new projects
-
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
-
-Use the plugin's generator to create new projects.
-
-To generate a new application, use:
-
-```sh
-npx nx g @nx/node:app demo
-```
-
-To generate a new library, use:
-
-```sh
-npx nx g @nx/node:lib mylib
-```
-
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
-
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Install Nx Console
-
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
-
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Useful links
-
-Learn more:
-
-- [Learn more about this workspace setup](https://nx.dev/nx-api/node?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-And join the Nx community:
-
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+The system is designed to handle **real-world commerce workflows**, including **product management, orders, payments, real-time notifications, and event-driven communication**, while maintaining modularity and scalability.
 
 ---
+
+# 🧠 System Architecture Overview
+
+Shopitt follows a **hybrid architecture** combining:
+
+- **Synchronous communication (REST APIs)**
+- **Asynchronous event-driven processing (Kafka / WebSockets)**
+
+---
+
+## 🔷 High-Level Architecture
+
+```text
+Clients (User UI / Seller UI / Admin UI)
+                │
+                ▼
+         API Gateway (Entry Point)
+                │
+ ┌──────────────┼──────────────────────────────┐
+ ▼              ▼                              ▼
+Auth        Product Service              Seller Service
+Service           │                              │
+ ▼                ▼                              ▼
+User Service   Order Service               Chatting Service
+                     │
+                     ▼
+             Kafka / Redpanda
+                     │
+                     ▼
+              Logger Service
+                     │
+                     ▼
+            WebSocket Notification Layer
+```
+
+---
+
+# 🏗️ Monorepo Architecture (Nx)
+
+Shopitt uses **Nx Monorepo** to manage all services and shared libraries.
+
+### Benefits
+
+- Shared code via `libs/`
+- Faster builds using dependency graph
+- Centralized codebase
+- Scalable team collaboration
+
+---
+
+# 📁 Applications (apps/)
+
+---
+
+## 🌐 API Gateway
+
+### Purpose
+
+- Acts as the **single entry point** for all client applications
+
+### Responsibilities
+
+- Routes requests to appropriate services
+- Handles cross-service communication
+- Simplifies frontend integration
+
+---
+
+## 🔐 Auth Service
+
+### Purpose
+
+Handles authentication and authorization.
+
+### Features
+
+- JWT-based authentication
+- Role-based access control (`user`, `seller`, `admin`)
+- Secure middleware integration
+
+---
+
+## 🛍️ Product Service
+
+### Purpose
+
+Manages the **complete product lifecycle**
+
+### Features
+
+- Product CRUD operations
+- Image upload via ImageKit
+- Discount code system (percentage / fixed)
+- Event-based pricing system
+- Advanced filtering & search
+- Soft delete with delayed cleanup
+- Cron jobs for automation
+
+### Background Jobs
+
+```text
+Every Hour → Delete soft-deleted products
+Every Minute → Expire product events
+```
+
+---
+
+## 🏪 Seller Service
+
+### Purpose
+
+Handles all **seller and shop-related operations**
+
+### Features
+
+- Shop profile management
+- Seller products & events
+- Follow / unfollow system
+- Seller notifications
+- Redis caching (shop + products)
+- Rate limiting (security)
+
+---
+
+## 👤 User Service
+
+### Purpose
+
+Manages user-specific data.
+
+### Features
+
+- Address management (with default address logic)
+- User notifications
+
+---
+
+## 📦 Order Service
+
+### Purpose
+
+Handles the **complete order lifecycle including payments and notifications**
+
+### Features
+
+- Order creation & validation
+- Stripe payment integration
+- Webhook-based payment confirmation
+- Email notifications
+- Real-time notification triggers
+
+### Responsibilities
+
+1. Validate product data
+2. Create order (pending state)
+3. Initiate Stripe payment
+4. Handle webhook events
+5. Update order status
+6. Trigger notifications
+
+---
+
+## 💬 Chatting Service
+
+### Purpose
+
+Enables real-time communication.
+
+### Features
+
+- Buyer ↔ Seller messaging
+- WebSocket-based communication
+
+---
+
+## 📡 Kafka Service (Event Streaming)
+
+### Purpose
+
+Handles **asynchronous communication between services**
+
+### Built With
+
+- Redpanda (Kafka-compatible)
+
+### Responsibilities
+
+- Event publishing & consumption
+- Decoupling services
+
+### Example Events
+
+- `ORDER_CREATED`
+- `PAYMENT_SUCCESS`
+- `PRODUCT_UPDATED`
+- `NOTIFICATION_TRIGGERED`
+
+---
+
+## 🧾 Logger Service
+
+### Purpose
+
+Centralized logging system.
+
+### Features
+
+- Collect logs from all services
+- Error tracking
+- System monitoring
+
+---
+
+## 🛠️ Admin Service
+
+### Purpose
+
+Handles platform-level control.
+
+### Features
+
+- Manage users, sellers, products
+- Monitor system activity
+
+---
+
+## 🎨 Frontend Applications
+
+| App       | Description         |
+| --------- | ------------------- |
+| user-ui   | Customer storefront |
+| seller-ui | Seller dashboard    |
+| admin-ui  | Admin dashboard     |
+
+---
+
+# 📚 Shared Libraries (libs/)
+
+---
+
+## 🧩 prisma-client
+
+- Shared database client across services
+- Ensures consistent schema usage
+
+---
+
+## 🛡️ middleware
+
+- `requireAuth`
+- `authorizeRole`
+
+Used for authentication and authorization across services.
+
+---
+
+## ❌ error-handler
+
+- Custom error classes
+- Centralized error middleware
+
+---
+
+## ⚡ redis
+
+- Caching layer
+- Used in seller service
+
+---
+
+## 🖼️ imagekit
+
+- Handles image uploads and CDN delivery
+
+---
+
+## 📡 redpanda-node
+
+- Kafka client abstraction
+
+---
+
+## 🎨 ui / components
+
+- Shared frontend components
+
+---
+
+# 🔄 Core Workflows
+
+---
+
+## 🛒 Product Creation Flow
+
+```text
+Seller → API Gateway
+       → Auth Service
+       → Product Service
+       → ImageKit (upload)
+       → Database
+```
+
+---
+
+## 📦 Order & Payment Flow (Real Implementation)
+
+```text
+User → API Gateway
+     → Auth Service
+     → Order Service
+
+Order Service:
+     → Validate products (Product Service)
+     → Create Order (Pending)
+     → Create Stripe Payment Intent
+
+User completes payment
+     ↓
+Stripe Webhook triggers
+     ↓
+Order Service updates order → "Paid"
+     ↓
+Kafka Event published
+     ↓
+Notification System:
+     → Email sent to user
+     → WebSocket event emitted
+     → Seller notified
+     → Admin notified
+```
+
+---
+
+## ❤️ Follow Shop Flow
+
+```text
+User → Seller Service
+     → Check existing follow
+     → Add follower
+     → Update shop followers
+```
+
+---
+
+# 🔔 Real-Time Notification System (WebSockets)
+
+Shopitt implements a **real-time notification system** using WebSockets.
+
+### Supported Roles
+
+- Users
+- Sellers
+- Admins
+
+### Features
+
+- Instant order updates
+- Real-time seller notifications
+- Admin alerts
+
+### Flow
+
+```text
+Event Triggered
+      ↓
+Kafka / Service Event
+      ↓
+WebSocket Server
+      ↓
+Connected Clients
+```
+
+---
+
+# 📧 Notification System (Multi-Channel)
+
+### Channels
+
+- Database notifications
+- WebSocket notifications
+- Email notifications
+
+### Trigger Points
+
+- Order creation
+- Payment success
+- Seller activities
+
+---
+
+# 🧠 Caching Strategy
+
+| Data            | Layer | TTL   |
+| --------------- | ----- | ----- |
+| Seller details  | Redis | 5 min |
+| Seller products | Redis | 5 min |
+
+---
+
+# 🔒 Security Architecture
+
+### Authentication
+
+- JWT-based authentication
+
+### Authorization
+
+- Role-based access control
+
+### Rate Limiting
+
+- Applied on:
+  - Product APIs
+  - Follow/unfollow APIs
+
+### Validation
+
+- Strict input validation across services
+
+---
+
+# ⚡ Background Jobs (Cron)
+
+Located in:
+
+```
+product-service/jobs/
+```
+
+### Tasks
+
+- Delete soft-deleted products after 24 hours
+- Expire product events automatically
+
+---
+
+# 📊 Scalability Strategy
+
+### Horizontal Scaling
+
+- Each service scales independently
+
+### Stateless Design
+
+- No session storage
+
+### Event-Driven Processing
+
+- Kafka handles async workflows
+
+---
+
+# 🧩 Design Patterns Used
+
+- Microservices Architecture
+- Event-Driven Architecture
+- Repository Pattern (Prisma)
+- Middleware Pattern
+- Soft Delete Pattern
+- Caching Pattern
+
+---
+
+# 🚀 System Capabilities
+
+- Multi-vendor marketplace
+- Real-time notifications (WebSockets)
+- Secure payments (Stripe)
+- Event-driven processing (Kafka)
+- Scalable microservices architecture
+- Centralized logging & caching
+
+---
+
+# 👨‍💻 Author
+
+**Amol Dhawle**
+Full Stack Developer (MERN + Microservices + Web3)
