@@ -1,7 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import { prisma } from '@shopitt/prisma-client';
 import { imagekit } from '@shopitt/imagekit';
-import { AuthenticationError, ValidationError } from '@shopitt/error-handler';
+import {
+  AuthenticationError,
+  BadRequestError,
+  NotFoundError,
+  ValidationError,
+} from '@shopitt/error-handler';
 import { Prisma } from '@shopitt/prisma-client';
 
 export enum DiscountType {
@@ -19,7 +24,7 @@ export const getCategories = async (
     const config = await prisma.siteConfig.findFirst();
 
     if (!config) {
-      return res.status(404).json({ message: 'Categories not found' });
+      return next(new NotFoundError('Categories not found'));
     }
 
     return res.status(200).json({
@@ -41,7 +46,7 @@ export const createDiscountCode = async (
     const sellerId = req.seller?.id;
 
     if (!sellerId) {
-      return res.status(401).json({ message: 'Unauthorized' });
+      return next(new AuthenticationError('Unauthorized'));
     }
 
     const {
@@ -59,17 +64,13 @@ export const createDiscountCode = async (
 
     // Basic validation
     if (!publicName || !discountType || !discountValue || !discountCode) {
-      return res.status(400).json({
-        message: 'Required fields are missing',
-      });
+      return next(new ValidationError('Required fields are missing'));
     }
 
     const normalizedCode = discountCode.trim().toUpperCase();
 
     if (!Object.values(DiscountType).includes(discountType)) {
-      return res.status(400).json({
-        message: 'Invalid discount type',
-      });
+      return next(new BadRequestError('Invalid discount type'));
     }
 
     // Normalize helper
@@ -107,9 +108,9 @@ export const createDiscountCode = async (
 
     // Business rule
     if (discountType === 'PERCENTAGE' && Number(discountValue) > 100) {
-      return res.status(400).json({
-        message: 'Percentage discount cannot exceed 100%',
-      });
+      return next(
+        new BadRequestError('Percentage discount cannot exceed 100%'),
+      );
     }
 
     // Duplicate check
@@ -162,12 +163,16 @@ export const createDiscountCode = async (
 };
 
 // Get Discount Codes
-export const getDiscountCodes = async (req: Request, res: Response) => {
+export const getDiscountCodes = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const shopId = req.seller?.shop?.id;
 
     if (!shopId) {
-      return res.status(401).json({ message: 'Unauthorized' });
+      return next(new AuthenticationError('Unauthorized'));
     }
 
     const { page = '1', limit = '10', isActive, search } = req.query;
@@ -225,25 +230,26 @@ export const getDiscountCodes = async (req: Request, res: Response) => {
       discounts,
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      message: 'Internal server error',
-    });
+    return next(error);
   }
 };
 
 // Delete discount code
-export const deleteDiscountCode = async (req: Request, res: Response) => {
+export const deleteDiscountCode = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const sellerId = req.seller?.id;
     const { id } = req.params;
 
     if (!sellerId) {
-      return res.status(401).json({ message: 'Unauthorized' });
+      return next(new AuthenticationError('Unauthorized'));
     }
 
     if (!id) {
-      return res.status(400).json({ message: 'Discount ID is required' });
+      return next(new ValidationError('Discount ID is required'));
     }
 
     const discountCode = await prisma.discountCode.findFirst({
@@ -254,9 +260,7 @@ export const deleteDiscountCode = async (req: Request, res: Response) => {
     });
 
     if (!discountCode) {
-      return res.status(404).json({
-        message: 'Discount not found',
-      });
+      return next(new NotFoundError('Discount not found'));
     }
 
     await prisma.discountCode.update({
@@ -271,10 +275,7 @@ export const deleteDiscountCode = async (req: Request, res: Response) => {
       message: 'Discount code deactivated successfully',
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      message: 'Internal server error',
-    });
+    return next(error);
   }
 };
 
@@ -285,14 +286,12 @@ export const uploadProductImage = async (
 ) => {
   try {
     if (!req.seller?.id) {
-      return res.status(401).json({ message: 'Unauthorized' });
+      return next(new AuthenticationError('Unauthorized'));
     }
     const { fileName } = req.body;
 
     if (!fileName) {
-      return res.status(400).json({
-        message: 'Image is required',
-      });
+      return next(new ValidationError('Image is required'));
     }
     const response = await imagekit.upload({
       file: fileName,
@@ -330,10 +329,7 @@ export const deleteProductImage = async (
       success: true,
       message: 'Image deleted successfully',
     });
-  } catch (error: any) {
-    console.error('DELETE ERROR FULL: ', error);
-    console.error('DELETE ERROR MESSAGE', error?.message);
-    console.error('DELETE ERROR RESPONSE', error?.response?.data);
+  } catch (error) {
     return next(error);
   }
 };
@@ -1012,7 +1008,7 @@ export const searchProducts = async (
     const query = req.query.q as string;
 
     if (!query || query.trim().length === 0) {
-      return res.status(400).json({ message: 'Search query is required.' });
+      return next(new BadRequestError('Search query is required.'));
     }
 
     const products = await prisma.products.findMany({
@@ -1114,94 +1110,6 @@ export const topShops = async (
   }
 };
 
-// Create event for products
-// export const createEventForProducts = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction,
-// ) => {
-//   try {
-//     const { shopId } = req.params;
-
-//     if (!shopId || req.seller?.shop?.id !== shopId) {
-//       return res.status(401).json({ message: 'Unauthorized' });
-//     }
-
-//     const { productIds, startingDate, endingDate, discountPercentage } =
-//       req.body;
-
-//     // Validation
-//     if (!productIds || !Array.isArray(productIds) || productIds.length === 0) {
-//       return res.status(400).json({
-//         message: 'Please select at least one product',
-//       });
-//     }
-
-//     if (!startingDate || !endingDate) {
-//       return res.status(400).json({
-//         message: 'Start and end dates are required',
-//       });
-//     }
-
-//     if (new Date(startingDate) >= new Date(endingDate)) {
-//       return res.status(400).json({
-//         message: 'End date must be after start date',
-//       });
-//     }
-
-//     if (
-//       discountPercentage == null ||
-//       discountPercentage < 0 ||
-//       discountPercentage > 100
-//     ) {
-//       return res.status(400).json({
-//         message: 'Invalid discount percentage',
-//       });
-//     }
-
-//     // Fetch products (ONLY from seller shop)
-//     const products = await prisma.products.findMany({
-//       where: {
-//         id: { in: productIds },
-//         shopId,
-//         isDeleted: false,
-//       },
-//     });
-
-//     if (products.length !== productIds.length) {
-//       return res.status(400).json({
-//         message: 'Some products are invalid or not yours',
-//       });
-//     }
-
-//     // 🚀 Prepare updates
-//     const updates = products.map((product) => {
-//       const salePrice = Math.floor(
-//         product.regularPrice * (1 - discountPercentage / 100),
-//       );
-
-//       return prisma.products.update({
-//         where: { id: product.id },
-//         data: {
-//           isEvent: true,
-//           startingDate: new Date(startingDate),
-//           endingDate: new Date(endingDate),
-//           salePrice,
-//         },
-//       });
-//     });
-
-//     await prisma.$transaction(updates);
-
-//     return res.status(200).json({
-//       success: true,
-//       message: 'Event created for selected products',
-//     });
-//   } catch (error) {
-//     return next(error);
-//   }
-// };
-
 export const createEventForProducts = async (
   req: Request,
   res: Response,
@@ -1211,7 +1119,7 @@ export const createEventForProducts = async (
     const { shopId } = req.params;
 
     if (!shopId || req.seller?.shop?.id !== shopId) {
-      return res.status(401).json({ message: 'Unauthorized' });
+      return next(new AuthenticationError('Unauthorized'));
     }
 
     const { productIds, startingDate, endingDate, discountPercentage } =
@@ -1219,21 +1127,15 @@ export const createEventForProducts = async (
 
     // Validation
     if (!productIds || !Array.isArray(productIds) || productIds.length === 0) {
-      return res.status(400).json({
-        message: 'Please select at least one product',
-      });
+      return next(new ValidationError('Please select at least one product'));
     }
 
     if (!startingDate || !endingDate) {
-      return res.status(400).json({
-        message: 'Start and end dates are required',
-      });
+      return next(new ValidationError('Start and end dates are required'));
     }
 
     if (new Date(startingDate) >= new Date(endingDate)) {
-      return res.status(400).json({
-        message: 'End date must be after start date',
-      });
+      return next(new ValidationError('End date must be after start date'));
     }
 
     if (
@@ -1241,9 +1143,7 @@ export const createEventForProducts = async (
       discountPercentage < 0 ||
       discountPercentage > 100
     ) {
-      return res.status(400).json({
-        message: 'Invalid discount percentage',
-      });
+      return next(new BadRequestError('Invalid discount percentage'));
     }
 
     // Fetch products (ONLY from seller shop)
@@ -1256,9 +1156,9 @@ export const createEventForProducts = async (
     });
 
     if (products.length !== productIds.length) {
-      return res.status(400).json({
-        message: 'Some products are invalid or not yours',
-      });
+      return next(
+        new BadRequestError('Some products are invalid or not yours'),
+      );
     }
 
     // Update products with event info

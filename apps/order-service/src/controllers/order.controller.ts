@@ -123,7 +123,7 @@ export const createPaymentIntent = async (
     const totalAmount = session.pricing.totalAmount;
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: totalAmount,
+      amount: totalAmount * 100,
       currency: 'inr',
       payment_method_types: ['card'],
       description: `Payout for order `,
@@ -384,7 +384,7 @@ export const stripeWebhook = async (req: Request, res: Response) => {
         receiverId: admin.id,
         receiverType: 'ADMIN',
         type: 'ORDER',
-        title: 'New Order Placed',                                                                                                                                                                                                                                                                                                                                                                                                                                    
+        title: 'New Order Placed',
         message: `A new order #${orderGroup.id} has been placed by ${user.name}`,
         isRead: false,
         redirectLink: `/admin/orders/${orderGroup.id}`,

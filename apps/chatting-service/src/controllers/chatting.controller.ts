@@ -17,11 +17,11 @@ export const newConversation = async (
     const { sellerId } = req.body;
     const userId = req.user?.id;
     if (!sellerId) {
-      return new ValidationError('Seller id is required');
+      return next(new ValidationError('Seller id is required'));
     }
 
     if (!userId) {
-      return new ValidationError('User id is required');
+      return next(new ValidationError('User id is required'));
     }
 
     // Check if the conversationGroup already exists for this user + seller

@@ -29,7 +29,7 @@ app.set('trust proxy', 1); // Required when using req.ip + rate limiting behind 
 
 // Apply rate limiting to all requests
 const limiter = rateLimit({
-  windowMs: 30 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000, // 15 minutes
   max: 1000, // limit each IP to 100 requests per windowMs
   message: 'Too many requests from this IP, please try again later.',
   standardHeaders: true,

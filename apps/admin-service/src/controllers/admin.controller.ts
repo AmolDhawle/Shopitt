@@ -175,7 +175,9 @@ export const addNewAdmin = async (
       success: true,
       updateRole,
     });
-  } catch (error) {}
+  } catch (error) {
+    return next(error);
+  }
 };
 
 // fetch all customizations
