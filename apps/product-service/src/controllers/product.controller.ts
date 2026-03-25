@@ -1105,7 +1105,6 @@ export const topShops = async (
       shops: top10Shops,
     });
   } catch (error) {
-    console.log('Error fetching top shops: ', error);
     return next(error);
   }
 };

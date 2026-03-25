@@ -188,7 +188,6 @@ const Page = () => {
             fileId: imageToDelete.fileId!,
           },
         });
-        console.log('Image deleted successfully');
       }
       updatedImages.splice(index, 1);
 

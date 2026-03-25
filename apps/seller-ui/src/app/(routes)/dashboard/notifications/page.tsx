@@ -10,7 +10,6 @@ const Notifications = () => {
   const { data, isLoading } = useQuery({
     queryKey: ['notifications'],
     queryFn: async () => {
-      console.log('in');
       const res = await axiosInstance.get(
         '/seller/api/get-seller-notifications',
       );

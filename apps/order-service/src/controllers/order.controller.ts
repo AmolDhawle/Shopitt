@@ -273,7 +273,6 @@ export const stripeWebhook = async (req: Request, res: Response) => {
     const orders = [];
 
     for (const seller of sellers) {
-      console.log('seller', seller);
       const items = shopGrouped[seller.shopId];
       if (!items) continue;
 
@@ -335,8 +334,6 @@ export const stripeWebhook = async (req: Request, res: Response) => {
       // description: Payout for order ${order.id},
       // });
 
-      console.log('Creating notification for seller:', seller.sellerId);
-
       // 1. Seller notification
       await tx.notifications.create({
         data: {
@@ -376,8 +373,6 @@ export const stripeWebhook = async (req: Request, res: Response) => {
         id: true,
       },
     });
-
-    console.log('Admin', admins);
 
     await tx.notifications.createMany({
       data: admins.map((admin) => ({

@@ -51,7 +51,7 @@ const EventsPage = () => {
       const res = await axiosInstance.get<EventsResponse>(
         `/admin/api/get-all-events?page=${page}&limit=${limit}`,
       );
-      console.log('events', res.data);
+
       return res.data;
     },
     placeholderData: (prev) => prev,
@@ -59,20 +59,6 @@ const EventsPage = () => {
   };
 
   const { data, isLoading } = useQuery<EventsResponse>(queryOptions);
-
-  //   const { data, isLoading } = useQuery({
-  //     queryKey: ['events-list', page],
-  //     queryFn: async () => {
-  //       const res = await axiosInstance.get(
-  //         `/admin/api/get-all-events?page=${page}&limit=${limit}`,
-  //       );
-
-  //       console.log('res', res.data);
-  //       return res.data;
-  //     },
-  //     placeholderData: (prev) => prev,
-  //     staleTime: 1000 * 60 * 5,
-  //   });
 
   const allEvents = data?.events || [];
   const meta = data?.meta;
